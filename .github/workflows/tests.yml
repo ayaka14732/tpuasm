@@ -1,0 +1,113 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAX_PLATFORMS: cpu
+
+jobs:
+  offline:
+    name: Offline (libtpu ${{ matrix.libtpu }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - libtpu: 0.0.48.dev20260912+nightly
+            requirement: https://storage.googleapis.com/libtpu-nightly-releases/wheels/libtpu/libtpu-0.0.48.dev20260912+nightly-cp314-cp314t-manylinux_2_31_x86_64.whl
+          - libtpu: 0.0.48
+            requirement: libtpu==0.0.48
+          - libtpu: 0.0.49
+            requirement: libtpu==0.0.49
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          libtpu: ${{ matrix.requirement }}
+      - run: python tests/reproduce_tpu_v4_tc.py
+      - run: python tests/reproduce_tpu_v4_bcs.py
+      - if: matrix.libtpu == '0.0.49'
+        run: python tests/reproduce_tpu_v6e_tc.py
+      - if: matrix.libtpu == '0.0.49'
+        run: python tools/reproduce_tpu_v6e_encoder_rejections.py
+      # 仓库中的清单由 0.0.49 生成，由 examples job 比较。旧版本的来源注释和个别示例的机器码与之不同，这里只要求导出成功；导出时会重新汇编清单并逐字节比较。
+      - if: matrix.libtpu != '0.0.49'
+        run: examples/pallas/run_all.sh --aot tpu-v4-tc
+
+  examples:
+    name: Examples (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [tpu-v4-tc, tpu-v6e-tc]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          libtpu: libtpu==0.0.49
+      - run: examples/pallas/run_all.sh --aot ${{ matrix.target }}
+      - run: git diff --exit-code examples/pallas
+
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          libtpu: libtpu==0.0.49
+      - run: python -m pip install mypy==2.3.1
+      - run: mypy src tests
+      - run: MYPYPATH=src mypy tools
+      # 与空树比较，检查全部已跟踪文件。
+      - run: git diff --check "$(git hash-object -t tree /dev/null)" HEAD
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+        with:
+          libtpu: libtpu==0.0.49
+      - run: python -m pip wheel --no-deps -w "$RUNNER_TEMP/dist" .
+      - run: python -m pip install --no-deps "$RUNNER_TEMP"/dist/tpuasm-*.whl
+      # 以下两步在仓库外运行且不设置 PYTHONPATH，只导入安装包。
+      - name: Round trip through the command line
+        working-directory: ${{ runner.temp }}
+        run: |
+          for listing in "$GITHUB_WORKSPACE"/tests/data/tpu_v4_tc/normal.tpuasm "$GITHUB_WORKSPACE"/tests/data/tpu_v6e_tc/matmul.tpuasm; do
+            target=$(sed -n 's/^\.target //p' "$listing")
+            tpuasm "$listing" --input-format listing --output a.bin
+            tpuasm a.bin --input-format image --target "$target" --output a.tpuasm
+            tpuasm a.tpuasm --input-format listing --output b.bin
+            cmp a.bin b.bin
+          done
+      # 复制出的示例目录与仓库中的相对路径相同，清单应与仓库逐字节一致；同时检查等长写回与 bundle 插入。
+      - name: Compile examples with the installed package
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir -p copy/examples
+          cp -r "$GITHUB_WORKSPACE/examples/pallas" copy/examples/
+          rm copy/examples/pallas/tpu_*_tc/*.tpuasm
+          for target in tpu-v4-tc tpu-v6e-tc; do
+            for example in clamp replace_program insert_program; do
+              TPUASM_EXAMPLES_TARGET=$target TPUASM_EXAMPLES_AOT=1 python copy/examples/pallas/$example.py
+              listing=examples/pallas/${target//-/_}/$example.tpuasm
+              cmp "copy/$listing" "$GITHUB_WORKSPACE/$listing"
+            done
+          done

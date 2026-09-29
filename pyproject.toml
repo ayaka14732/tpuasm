@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tpuasm"
+version = "0.1.0"
+description = "Assemble and disassemble TPU machine bundles with physical issue slots"
+readme = "README.md"
+authors = [{name = "Ayaka Mikazuki"}]
+license = "MPL-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.scripts]
+tpuasm = "tpuasm.printer:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+tpuasm = ["native.cc", "native_backends/*.cc", "tc_source_native.cc", "source_backends/*.cc"]

@@ -1,0 +1,1141 @@
+.target tpu-v6e-tc
+# source mapping: captured; image 1:0; metadata program 4522061718403380657
+# prelude-prefix-start
+entry:
+{ s0: ssettag 0x0 ;
+  misc: vtrace 0xd0010000 }
+{ s1: sld s0, [smem:0x3fff5] }
+{ s0: sne.s32 p0, s0, 0 }
+{ s0: @p0 sbr.rel L_0132 }
+{ s0: simm.s32 s0, 0 ;
+  s1: simm.s32 s1, 21 }
+{}
+{}
+{}
+L_0008:
+{ s0: @!p0 sbr.rel L_0008 ;
+  s1: sst [smem:s1], s0 }
+{ s0: seq.s32 p0, s1, 56 ;
+  s1: sadd.s32 s1, 1, s1 }
+{}
+{}
+{}
+{ s0: simm.s32 s0, 100 }
+{ s1: sst [smem:0x3c], s0 }
+{ s0: sbr.rel L_0132 }
+{}
+{}
+{}
+{}
+# routine:wait-for-active-dma
+L_0014:
+{ s1: sld s4, [smem:0x24] }
+{ s0: sne.s32 p0, s4, 0 }
+{ s0: @!p0 sbr.ind s31 }
+{}
+{}
+{}
+{}
+{ s0: sfence ;
+  misc: vwait.ge [sflag:511], s4 }
+{ s0: sbr.ind s31 ;
+  s1: simm.s32 s4, 0 }
+{ s1: sst [smem:0x24], s4 ;
+  misc: vsyncset.s32 [sflag:511], 0 ;
+  .encoding { s1.y = zero_imm0 } }
+{}
+{}
+{}
+# routine:program-exit
+L_0021:
+{ s0: scall.abs s31, L_0014 }
+{}
+{}
+{}
+{}
+{ s0: shalt }
+# routine:allocation-table-find
+L_0027:
+{ s0: sne.s32 p0, s5, 58 ;
+  s1: sld s6, [smem:s5] }
+{ s0: @!p0 sbr.ind s31 }
+{ s0: @p0 seq.s32 p0, s6, 0 ;
+  s1: @p0 sadd.s32 s5, 1, s5 }
+{}
+{}
+{}
+{ s0: @p0 sbr.ind s31 ;
+  s1: @p0 sadd.s32 s5, -1, s5 }
+{ s0: @!p0 seq.s32 p0, s6, s0 }
+{}
+{}
+{}
+{ s0: @p0 sbr.ind s31 ;
+  s1: @p0 sadd.s32 s5, -1, s5 }
+{}
+{}
+{}
+{}
+{ s0: sbr.rel L_0027 ;
+  s1: sld s6, [smem:s5] }
+{ s0: sadd.s32 s5, 1, s5 ;
+  s1: sadd.s32 s4, s6, s4 }
+{}
+{}
+{}
+# routine:allocation-table-get-or-add
+L_003c:
+{ s0: scall.abs s31, L_0027 ;
+  s1: sst [smem:0x22], s31 }
+{ s1: sst [smem:0x21], s6 }
+{}
+{}
+{}
+{ s0: @!p0 sbr.ind s31 ;
+  s1: sld s31, [smem:0x22] }
+{ s0: @p0 sne.s32 p0, s6, 0 ;
+  s1: @p0 sadd.s32 s5, 1, s5 }
+{}
+{}
+{}
+{ s0: @p0 sbr.ind s31 ;
+  s1: @!p0 ssub.s32 s6, 8192, s4 }
+{ s0: @p0 smul.u32 s4, 0x8, s4 }
+{}
+{}
+{}
+{ s0: ssub.s32 s6, s6, s1 ;
+  s1: sle.s32 p0, s1, s6 }
+{ s0: @!p0 sbr.ind s31 ;
+  s1: sst [smem:0x22], s6 }
+{ s1: sld s6, [smem:0x21] }
+{}
+{}
+{}
+{ s0: sne.s32 p0, s6, 0 ;
+  s1: sld s6, [smem:0x22] }
+{ s0: @!p0 sbr.rel L_005b ;
+  s1: sst [smem:s5], s6 }
+{ s0: @p0 simm.s32 s6, -1 ;
+  s1: @p0 sadd.s32 s5, -1, s5 }
+{}
+{}
+{}
+{ s0: sadd.s32 s5, 2, s5 ;
+  s1: sst [smem:s5], s6 }
+{ s0: sne.s32 p0, s5, 58 }
+{ s0: @p0 sadd.s32 s5, 1, s5 ;
+  s1: sld s6, [smem:0x22] }
+{ s0: @p0 sadd.s32 s4, s6, s4 ;
+  s1: @!p0 sadd.s32 s5, -1, s5 }
+L_005b:
+{ s0: sadd.s32 s5, -1, s5 ;
+  s1: sst [smem:s5], s1 }
+{ s0: smov s5, s4 ;
+  s1: sst [smem:s5], s0 }
+{ s0: sshll.u32 s1, s1, 0x4 ;
+  s1: sld s6, [smem:0x3fff9] }
+{ s0: smul.u32 s4, 0x8, s4 ;
+  s1: sshll.u32 s0, s0, 0x4 }
+{ s0: sshll.u32 s5, s5, 0x4 ;
+  s1: sadd.s32 s6, s6, s0 }
+{ dma: dma.simple [imem:s5], [hbm:s6], length=s1, dst_flag=[sflag:511] }
+{ s1: sst [smem:0x24], s1 }
+{ s1: sld s6, [smem:0x15] }
+{ s0: sbr.ind s31 ;
+  s1: sadd.s32 s6, 1, s6 }
+{ s0: por p0, 1, 1 ;
+  s1: sst [smem:0x15], s6 }
+{}
+{}
+{}
+# routine:allocation-table-cut-and-add
+L_0068:
+{ s0: smov s0, s2 ;
+  s1: smov s2, s0 }
+{ s0: scall.abs s31, L_0027 ;
+  s1: sst [smem:0x21], s31 }
+{ s1: sst [smem:0x22], s6 }
+{}
+{}
+{}
+{ s0: smov s0, s2 ;
+  s1: smov s2, s0 }
+{ s0: @p0 sne.s32 p0, s6, 0 ;
+  s1: sadd.s32 s5, 1, s5 }
+{ s0: @p0 slt.s32 p0, s5, 57 ;
+  s1: sld s6, [smem:s5] }
+{ s0: sadd.s32 s5, 1, s5 ;
+  s1: sld s31, [smem:0x21] }
+{ s0: sadd.s32 s4, s4, s6 ;
+  s1: sld s6, [smem:s5] }
+{ s0: @p0 sne.s32 p0, s6, 0 ;
+  s1: sadd.s32 s6, s4, s1 }
+{ s0: @p0 sle.s32 p0, s6, 8192 ;
+  s1: sst [smem:0x21], s5 ;
+  .encoding { s1.y = zero_imm1 } }
+{ s0: @!p0 sbr.ind s31 }
+{ s0: simm.s32 s6, 0 }
+{}
+{}
+{}
+{ s0: sne.s32 p0, s5, 56 }
+L_007b:
+{ s0: @p0 sbr.rel L_007b ;
+  s1: sst [smem:s5], s6 }
+{ s0: @p0 sne.s32 p0, s5, 54 ;
+  s1: @p0 sadd.s32 s5, 2, s5 }
+{}
+{}
+{}
+{ s0: sbr.abs L_003c ;
+  s1: sld s6, [smem:0x22] }
+{ s1: sld s5, [smem:0x21] }
+{}
+{}
+{}
+# routine:branch-impl
+L_0085:
+{ s0: scall.abs s31, L_0014 ;
+  s1: sst [smem:0x23], s4 }
+{}
+{}
+{}
+{}
+{ s0: scall.abs s31, L_003c ;
+  s1: simm.s32 s6, 0 }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_00af }
+{ s0: @!p0 seq.s32 p0, s2, 0 }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_00a3 }
+{}
+{}
+{}
+{}
+{ s0: scall.abs s31, L_0068 ;
+  s1: simm.s32 s6, 0 }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_00af }
+{}
+{}
+{}
+{}
+L_00a3:
+{ s0: smov s6, s8 ;
+  s1: simm.s32 s5, 0 }
+{ s0: sne.s32 p0, s6, 56 }
+L_00a5:
+{ s0: @p0 sbr.rel L_00a5 ;
+  s1: sst [smem:s6], s5 }
+{ s0: @p0 sne.s32 p0, s6, 54 ;
+  s1: @p0 sadd.s32 s6, 2, s6 }
+{}
+{}
+{}
+{ s0: scall.abs s31, L_003c ;
+  s1: simm.s32 s6, 0 }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+L_00af:
+{ s0: smov s2, s0 ;
+  s1: smov s0, s2 }
+{ s0: scall.abs s31, L_0014 }
+{ s0: smov s1, s3 ;
+  s1: smov s3, s4 }
+{}
+{}
+{}
+{ s0: seq.s32 p0, s0, 0 }
+{ s0: @p0 sbr.rel L_00e0 }
+{}
+{}
+{}
+{}
+{ s0: scall.abs s31, L_003c ;
+  s1: sld s6, [smem:0x23] }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_00e0 }
+{}
+{}
+{}
+{}
+{ s0: scall.abs s31, L_0068 ;
+  s1: sld s6, [smem:0x23] }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_00e0 ;
+  s1: @!p0 sadd.s32 s2, s7, s1 }
+{ s0: @!p0 smul.u32 s2, 0x8, s2 }
+{}
+{}
+{}
+{ s0: sle.s32 p0, s2, s3 }
+{ s0: @!p0 sbr.rel L_00e0 }
+{ s0: @p0 smov s6, s8 ;
+  s1: @p0 simm.s32 s5, 0 }
+{}
+{}
+{}
+{ s0: sne.s32 p0, s6, 56 }
+L_00d6:
+{ s0: @p0 sbr.rel L_00d6 ;
+  s1: sst [smem:s6], s5 }
+{ s0: @p0 sne.s32 p0, s6, 54 ;
+  s1: @p0 sadd.s32 s6, 2, s6 }
+{}
+{}
+{}
+{ s0: scall.abs s31, L_003c ;
+  s1: simm.s32 s6, 0 }
+{ s0: smov s4, s7 ;
+  s1: smov s5, s8 }
+{}
+{}
+{}
+L_00e0:
+{ s1: sst [smem:0x3fffc], s3 }
+{ s1: sld s1, [smem:0x20] }
+{ s0: sne.s32 p0, s1, 0 ;
+  s1: sld s6, [smem:0x1c] }
+{ s1: sld s5, [smem:0x1b] }
+{ s1: sld s8, [smem:0x1e] }
+{ s1: sld s7, [smem:0x1d] }
+{ s1: sld s4, [smem:0x1a] }
+{ s1: sld s2, [smem:0x18] }
+{ s1: sld s1, [smem:0x17] }
+{ s0: sbr.ind s3 ;
+  s1: sld s0, [smem:0x16] }
+{ s1: sld s3, [smem:0x19] }
+{}
+{}
+{}
+# routine:branch
+L_00ee:
+{ s0: simm.s32 s7, 46 ;
+  s1: sst [smem:0x1d], s7 ;
+  .encoding { s1.y = zero_imm0 } }
+{ s0: simm.s32 s8, 38 ;
+  s1: sst [smem:0x1e], s8 ;
+  .encoding { s1.y = zero_imm0 } }
+{ s1: sst [smem:0x1b], s5 }
+{ s0: @p0 simm.s32 s5, 1 ;
+  s1: @!p0 simm.s32 s5, 0 }
+{ s0: sbr.abs L_0085 ;
+  s1: sst [smem:0x20], s5 }
+{ s1: sst [smem:0x1c], s6 }
+{}
+{}
+{}
+# routine:synthetic-compute-task
+{ vst: vst.8x128 [vmem:0x3ffe0], v62 }
+{ s0: simm.s32 s3, 50 ;
+  s1: sld s1, [smem:0x3b] ;
+  va0: vimm.8x128.s32 v59, 0 ;
+  va1: vlaneseq.8x128.u32 v62 ;
+  vst: vst.8x128 [vmem:0x3fff8], v59 ;
+  .encoding { vst.offset = imm0 } }
+{ vst: vst.8x128 [vmem:0x3fff0], v60 }
+{ s0: slt.s32 p0, s1, 95 ;
+  s1: simm.s32 s2, 0 ;
+  va0: vsel.8x128 v59, vm0, 0x1, v59 ;
+  va1: vand.8x128.u32 v63, 0x380, v62 ;
+  vst: vst.8x128 [vmem:0x3ffd8], v63 ;
+  .encoding { vst.offset = imm0 } }
+{ s0: slt.s32 p0, s1, 85 ;
+  s1: @p0 simm.s32 s2, 1 ;
+  va0: veq.8x128.s32 vm0, v63, 0 ;
+  vst: vst.8x128 [vmem:0x3ffe8], v61 ;
+  .encoding { vst.offset = imm0 } }
+{ s0: slt.s32 p0, s1, 75 ;
+  s1: @p0 simm.s32 s2, 2 ;
+  va0: vsel.8x128 v61, vm0, 0xc1020000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0xb8e90000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 128 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: slt.s32 p0, s1, 65 ;
+  s1: @p0 simm.s32 s2, 3 ;
+  va0: vsel.8x128 v61, vm0, 0x3ee90000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0x471f0000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 256 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: slt.s32 p0, s1, 55 ;
+  s1: @p0 simm.s32 s2, 5 ;
+  va0: vsel.8x128 v61, vm0, 0xc0060000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0xb8c80000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 384 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: @p0 simm.s32 s2, 8 ;
+  va0: vsel.8x128 v61, vm0, 0x3fb80000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0x47570000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 512 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: @p0 simm.s32 s3, 25 ;
+  va0: vsel.8x128 v61, vm0, 0xc1850000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0xc1850000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 640 }
+{ s0: slt.s32 p0, s1, 45 ;
+  va0: vsel.8x128 v61, vm0, 0x3c6a0000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0x97eb0000, v60 ;
+  va2: veq.8x128.s32 vm0, v63, 768 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: slt.s32 p0, s1, 35 ;
+  s1: @p0 simm.s32 s2, 12 ;
+  va0: vsel.8x128 v61, vm0, 0xc3d40000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0x68550000, v60 ;
+  .encoding { s1.y = zero_imm3 ; va1.y_src = imm1_zero } }
+{ s0: @p0 simm.s32 s2, 19 ;
+  s1: @p0 simm.s32 s3, 12 ;
+  va0: veq.8x128.s32 vm0, v63, 896 }
+{ s0: slt.s32 p0, s1, 25 ;
+  va0: vsel.8x128 v61, vm0, 0x3c690000, v61 ;
+  va1: vsel.8x128 v60, vm0, 0x878a0000, v60 ;
+  va2: vand.8x128.u32 v63, 0x87, v62 ;
+  .encoding { va1.y_src = imm1_zero ; va2.y_src = zero_imm2 } }
+{ s0: slt.s32 p0, s1, 15 ;
+  s1: @p0 simm.s32 s2, 32 ;
+  vst: vst.8x128 [vmem:0x3ffd0], v0 ;
+  .encoding { vst.offset = imm0 } }
+{ s0: @p0 simm.s32 s2, 72 ;
+  s1: @p0 simm.s32 s3, 6 ;
+  vst: vst.8x128 [vmem:0x3ffc8], v1 ;
+  .encoding { vst.offset = imm0 } }
+{ s0: slt.s32 p0, s1, 5 ;
+  va0: vpack.i.8x128.f32.bf16 v60, v61, v60 ;
+  va1: vpack.i.8x128.f32.bf16 v61, v60, v61 ;
+  vst: vst.8x128 [vmem:0x3ffc0], v2 }
+{ s0: @p0 simm.s32 s2, 152 ;
+  s1: @p0 simm.s32 s3, 3 ;
+  vst: vst.8x128 [vmem:0x3ffb8], v3 ;
+  .encoding { vst.offset = imm0 } }
+{ s0: simm.s32 s1, 0 ;
+  s1: simm.s32 s0, 0 ;
+  vst: vst.8x128 [vmem:0x3ffb0], v4 }
+{ s0: por p0, 0, 0 ;
+  va0: veq.8x128.s32 vm0, v59, 1 ;
+  va1: vmov.8x128 v59, v60 ;
+  vst: vst.8x128 [vmem:0x3ffa8], v5 ;
+  .encoding { s0.py = never } }
+L_010b:
+{ s0: @!p0 sbr.rel L_010b }
+{ vst: vst.8x128 [vmem:0x3ffa0], v6 ;
+  vx0: vmatpushprep subr0, v59 ;
+  .encoding { vx0.vex_source = v0_x } }
+{ s0: seq.s32 p0, s1, 0 ;
+  s1: sadd.s32 s0, 1, s0 ;
+  vst: vst.8x128 [vmem:0x3ff98], v7 ;
+  vx0: vmatpush1.8x128.f32 msra0, v59 ;
+  .encoding { vx0.vex_source = v0_x } }
+{ s0: seq.s32 p0, s0, 49 ;
+  va0: vmov.8x128 v59, v60 ;
+  vx0: vmatpushprep subr1, v60 }
+{ s0: sxor.u32 s1, 0x1, s1 ;
+  va0: @p0 vmov.8x128 v59, v61 ;
+  vx0: vmatpush1.8x128.f32 msra1, v60 }
+{ s0: simm.s32 s1, 0 ;
+  s1: simm.s32 s0, 0 ;
+  va0: vmov.8x128 v59, v60 }
+L_0111:
+{ s0: @!p0 sbr.rel L_0111 }
+{ vx0: vmatpushprep subr0, v59 }
+{ s0: seq.s32 p0, s1, 0 ;
+  s1: sadd.s32 s0, 1, s0 ;
+  vx0: vmatpush2.8x128.f32 msra0, v59 }
+{ s0: seq.s32 p0, s0, 49 ;
+  va0: vmov.8x128 v59, v60 ;
+  vx0: vmatpushprep subr1, v60 }
+{ s0: sxor.u32 s1, 0x1, s1 ;
+  va0: @p0 vmov.8x128 v59, v61 ;
+  vx0: vmatpush2.8x128.f32 msra1, v60 }
+{ s0: simm.s32 s0, 0 ;
+  s1: por p0, 0, 0 ;
+  vst: vst.8x128 [vmem:0x3ff90], v60 ;
+  vx0: vmatmulprep mubr0, v59 ;
+  .encoding { vx0.vex_source = v0_x } }
+{ va0: vmov.8x128 v59, v60 ;
+  vst: vst.8x128 [vmem:0x3ff88], v61 ;
+  vx0: vmatmul.8x128.f32.lgmr (mrf0, gmr0, msra0), v59 }
+{ va0: vmov.8x128 v59, v61 ;
+  vst: vst.8x128 [vmem:0x3ff88], v61 ;
+  vx0: vmatmulprep mubr1, v59 }
+{ va0: vmov.8x128 v59, v60 ;
+  vst: vst.8x128 [vmem:0x3ff88], v61 ;
+  vx0: vmatmul.8x128.f32.lgmr (mrf1, gmr1, msra1), v59 }
+L_011a:
+{ s0: @!p0 sbr.rel L_011a ;
+  vst: vst.8x128 [vmem:0x3ff80], v59 }
+{ vx0: vmatmulprep mubr0, v59 }
+{ s0: @!p0 sadd.s32 s0, 1, s0 ;
+  s1: @p0 simm.s32 s0, 1 ;
+  vx0: vmatmul.8x128.f32 mrf0, v59 }
+{ s0: @!p0 sge.s32 p0, s0, 48 ;
+  s1: @p0 por p0, 0, 0 ;
+  vx0: vmatmulprep mubr1, v59 }
+{ vx0: vmatmul.8x128.f32 mrf1, v59 }
+L_011f:
+{ s0: seq.s32 p0, s0, s3 ;
+  va0: vmul.8x128.f32 v0, v60, v61 ;
+  va1: vmul.8x128.f32 v1, v61, v60 ;
+  va2: vmul.8x128.f32 v2, v60, v61 ;
+  va3: vmul.8x128.f32 v3, v61, v60 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff90] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff88] ;
+  vx0: vmatmulprep mubr0, v59 ;
+  vr0: vpop.8x128 v62, mrf0 ;
+  .encoding { vld1.offset = imm1 } }
+{ va0: vmul.8x128.f32 v4, v61, v60 ;
+  va1: vmul.8x128.f32 v5, v60, v61 ;
+  va2: vmul.8x128.f32 v6, v61, v60 ;
+  va3: vmul.8x128.f32 v7, v60, v61 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff80] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff90] ;
+  vx0: vmatmul.8x128.f32 mrf0, v59 ;
+  vr0: vpop.8x128 v63, mrf0 ;
+  .encoding { vld1.offset = imm1 } }
+{ va0: vmul.8x128.f32 v0, v60, v61 ;
+  va1: vmul.8x128.f32 v1, v61, v60 ;
+  va2: vmul.8x128.f32 v2, v60, v61 ;
+  va3: vmul.8x128.f32 v3, v61, v60 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff88] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff80] ;
+  vx0: vmatmulprep mubr1, v59 ;
+  vr0: vpop.8x128 v63, mrf1 ;
+  .encoding { vld1.offset = imm1 } }
+{ s0: @!p0 sbr.rel L_011f ;
+  va0: vmul.8x128.f32 v4, v61, v60 ;
+  va1: vmul.8x128.f32 v5, v60, v61 ;
+  va2: vmul.8x128.f32 v6, v61, v60 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff90] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff88] ;
+  vx0: vmatmul.8x128.f32 mrf1, v59 ;
+  vr0: vpop.8x128 v62, mrf1 ;
+  .encoding { vld1.offset = imm2 } }
+{ va0: vmul.8x128.f32 v0, v60, v61 ;
+  va1: vmul.8x128.f32 v1, v61, v60 ;
+  va2: vmul.8x128.f32 v2, v60, v61 ;
+  va3: vmul.8x128.f32 v3, v61, v60 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff80] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff90] ;
+  vx0: vmatmulprep mubr0, v59 ;
+  vr0: vpop.8x128 v62, mrf0 ;
+  .encoding { vld1.offset = imm1 } }
+{ s0: sadd.s32 s0, 1, s0 ;
+  va0: vmul.8x128.f32 v4, v61, v60 ;
+  va1: vmul.8x128.f32 v5, v60, v61 ;
+  va2: vmul.8x128.f32 v6, v61, v60 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff88] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff80] ;
+  misc: vdelay s2 ;
+  vx0: vmatmul.8x128.f32 mrf0, v59 ;
+  vr0: vpop.8x128 v63, mrf0 ;
+  .encoding { vld1.offset = imm1 } }
+{ s0: @!p0 seq.s32 p0, s0, s3 ;
+  s1: @p0 por p0, 0, 0 ;
+  va0: vmul.8x128.f32 v0, v60, v61 ;
+  va1: vmul.8x128.f32 v1, v61, v60 ;
+  va2: vmul.8x128.f32 v2, v60, v61 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff90] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff88] ;
+  vx0: vmatmulprep mubr1, v59 ;
+  vr0: vpop.8x128 v63, mrf1 ;
+  .encoding { vld1.offset = imm1 } }
+{ va0: vmul.8x128.f32 v4, v61, v60 ;
+  va1: vmul.8x128.f32 v5, v60, v61 ;
+  va2: vmul.8x128.f32 v6, v61, v60 ;
+  va3: vmul.8x128.f32 v7, v60, v61 ;
+  vld0: vld.8x128 v60, [vmem:0x3ff80] ;
+  vld1: vld.8x128 v61, [vmem:0x3ff90] ;
+  vx0: vmatmul.8x128.f32 mrf1, v59 ;
+  vr0: vpop.8x128 v62, mrf1 ;
+  .encoding { vld1.offset = imm1 } }
+{ s0: simm.s32 s0, 0 ;
+  s1: por p0, 0, 0 ;
+  vst: vst.8x128 [vmem:0x3ff90], v60 }
+L_0128:
+{ s0: @!p0 sbr.rel L_0128 }
+{ vld0: @p0 vld.8x128 v4, [vmem:0x3ffb0] }
+{ s0: sadd.s32 s0, 1, s0 ;
+  vr0: vpop.8x128 v62, mrf0 ;
+  vr1: vpop.8x128 v63, mrf1 }
+{ s0: sge.s32 p0, s0, 49 ;
+  vr0: vpop.8x128 v62, mrf0 ;
+  vr1: vpop.8x128 v63, mrf1 }
+{}
+{ s0: sbr.ind s31 ;
+  s1: sld s3, [smem:0x19] ;
+  vld0: vld.8x128 v5, [vmem:0x3ffa8] ;
+  vld1: vld.8x128 v6, [vmem:0x3ffa0] ;
+  misc: vld.8x128 v7, [vmem:0x3ff98] ;
+  .encoding { s1.y = zero_imm0 ; vld0.offset = imm1 ; vld1.offset = imm2 } }
+{ s1: sld s0, [smem:0x20] ;
+  vld0: vld.8x128 v59, [vmem:0x3fff8] ;
+  vld1: vld.8x128 v60, [vmem:0x3fff0] ;
+  .encoding { vld1.offset = imm1 } }
+{ s0: sne.s32 p0, s0, 0 ;
+  s1: sld s2, [smem:0x18] ;
+  vld0: vld.8x128 v61, [vmem:0x3ffe8] ;
+  vld1: vld.8x128 v62, [vmem:0x3ffe0] ;
+  .encoding { vld1.offset = imm1 } }
+{ s1: sld s0, [smem:0x16] ;
+  vld0: vld.8x128 v63, [vmem:0x3ffd8] ;
+  vld1: vld.8x128 v0, [vmem:0x3ffd0] ;
+  misc: vld.8x128 v1, [vmem:0x3ffc8] ;
+  .encoding { s1.y = zero_imm0 ; vld0.offset = imm1 ; vld1.offset = imm2 } }
+{ s1: sld s1, [smem:0x17] ;
+  vld0: vld.8x128 v2, [vmem:0x3ffc0] ;
+  vld1: vld.8x128 v3, [vmem:0x3ffb8] ;
+  .encoding { vld1.offset = imm1 } }
+# trampoline:program-start
+L_0132:
+{ misc: vsettm 0x1 }
+{ s0: simm.s32 s2, 0 ;
+  s1: simm.s32 s3, 0 }
+{ s0: sbr.abs L_00ee ;
+  s1: simm.s32 s4, 0 }
+{ s0: simm.s32 s0, 40 ;
+  s1: simm.s32 s1, 44 ;
+  .encoding { s1.y = zero_imm1 } }
+{}
+{}
+{}
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: ssettag 0x1 ;
+  misc: vtrace 0xd0010001 ;
+  .encoding { imm1 = 53249 ; s0.y = one } }
+{ s1: sld s0, [smem:0x3fffa] }
+{ s0: sand.u32 s1, 0x7ffffff, s0 }
+{ s0: sor.u32 s2, 0xf0000000, s1 }
+{ misc: vtrace s2 }
+{ s1: sld s3, [smem:0x3fffd] }
+{ misc: vtrace s3 }
+{ s1: sld s4, [smem:0x3fffe] }
+{ misc: vtrace s4 }
+{ s1: sld s5, [smem:0x3ffff] }
+{ misc: vtrace s5 }
+{ s1: sld s0, [smem:0x3fffa] }
+{ s0: sand.u32 s1, 0x3ff, s0 }  # smod.u32 w/div 1024
+{ s0: sne.s32 p0, s1, 0 }
+{ s1: @!p0 sld s2, [smem:0xf] }
+{ s0: @p0 sbr.rel L_016a ;
+  s1: @!p0 sld s3, [smem:0xd] }
+{}
+{}
+{}
+{}
+{ s0: sshll.u32 s4, s2, 0x5 ;
+  s1: sadd.s32 s5, 1, s2 }
+{ s0: sshrl.u32 s6, s3, 0x14 ;
+  s1: sshll.u32 s7, s3, 0xc }
+{ s0: sadd.s32 s8, s4, s7 ;
+  s1: sc.u32 p1, s7, s4 }
+{ s0: sand.u32 s9, 0x3ff, s5 ;
+  s1: sand.u32 s10, 0x7f, s2 }
+{ s0: @p1 simm.s32 s11, 1 ;
+  s1: @!p1 simm.s32 s11, 0 }
+{ s0: smul.u32 s12, 0x3, s10 }
+{ s0: sadd.s32 s13, s11, s6 }
+{ s0: sadd.s32 s14, 61, s12 }
+{ misc: vwait.ge [sflag:493], -127 ;  # ProgramChange
+  .encoding { misc.sync_flag_number = imm1 } }
+{ s0: sfence }
+{ s0: simm.s32 s15, -16777216 ;  # materialized constant
+  s1: sld s16, [smem:0x3fffa] ;
+  misc: vsyncadd.s32 [sflag:493], -1 ;
+  .encoding { misc.sync_flag_number = imm3 ; s0.y = imm0_zero ; s1.y = zero_imm1 } }
+{ s0: sadd.s32 s18, 1, s14 ;
+  s1: sst [smem:s14], s15 }
+{ s0: sadd.s32 s19, 2, s14 ;
+  s1: sld s17, [smem:0x3fffb] }
+{ s1: sst [smem:s18], s16 }
+{ s1: sst [smem:s19], s17 }
+{ misc: vwait.ne [sflag:502], s9 }
+{ s1: sld s20, [smem:0xe] }
+{ s0: sor.u32 s21, 0x2000, s20 }
+{ s0: sshll.u32 s22, s21, 0x10 }
+{ s0: sor.u32 s23, 0x1ed, s22 }
+{ dma: dma.simple.trace [host:s8], [smem:s14], length=1, dst_flag=[sflag:s23], host_upper=s13 }
+{ s1: sst [smem:0xf], s9 }
+L_016a:
+{}
+{ va0: vlaneseq.8x128.u32 v0 }
+{ va0: vshrl.8x128.u32 v1, v0, 0x7 }
+{ va0: vshrl.8x128.u32 v2, v1, 0x1 ;
+  va1: vand.8x128.u32 v3, 0x1, v1 }
+{ va0: vsub.8x128.s32 v6, v2, v1 ;
+  va1: vshll.8x128.u32 v4, v3, 0x2 }
+{ va0: vadd.8x128.s32 v5, v4, v2 }
+{ va0: vsub.8x128.s32 v7, v5, v1 }
+{ vst: vsetiar.raw iar0, v7 }  # EvenOdd Store IAR initialization
+{ vst: vsetiar.raw iar1, v6 }  # EvenOdd Load IAR initialization
+{ s1: sld s6, [smem:0x3ffe0] }
+{ s0: seq.s32 p0, s6, 0 }
+{ s0: @!p0 sxor.u32 s10, 0xae5a53a9, s6 ;
+  s1: @!p0 sld s7, [smem:0x0] }  # logical chip id
+{ s0: @p0 sbr.rel L_01be ;
+  s1: @!p0 sld s8, [smem:0x1] }  # core id
+{ s0: @!p0 smul.u32 s11, 0x8488043d, s10 }
+{}
+{ s0: @!p0 sshrl.u32 s12, s11, 0x10 }
+{ s0: @!p0 sxor.u32 s13, s12, s11 }
+{ s0: smul.u32 s14, 0xca01f9dd, s13 ;
+  va0: vand.8x128.u32 v8, 0x7f, v0 ;
+  va1: veq.8x128.s32 vm0, v1, 1 ;
+  va2: veq.8x128.s32 vm2, v1, 2 ;
+  va3: veq.8x128.s32 vm3, v1, 3 ;
+  .encoding { va2.y_src = zero_imm3 ; va3.y_src = zero_imm4 } }
+{ s0: sadd.s32 s9, s8, s7 }
+{ va0: vmov.8x128 v9, s9 ;
+  va1: vmov.8x128 v20, s14 ;
+  .encoding { vs1 = s14 } }
+{ va0: vshll.8x128.u32 v10, v9, 0x7 }
+{ va0: vor.8x128.u32 v11, v10, v8 }
+{ va0: vxor.8x128.u32 v12, 0x43b0d7e5, v11 }
+{ va0: vmul.8x128.u32 v13, 0xae5a53a9, v12 }
+{ va0: vshrl.8x128.u32 v14, v13, 0x10 }
+{ va0: vxor.8x128.u32 v15, v14, v13 }
+{ va0: vmul.8x128.u32 v29, 0xca01f9dd, v15 ;
+  va1: vxor.8x128.u32 v16, 0x8488043d, v15 ;
+  .encoding { va1.y_src = imm3_imm2 } }
+{ va0: vmul.8x128.u32 v17, 0x5a9057e1, v16 }
+{ va0: vshrl.8x128.u32 v18, v17, 0x10 }
+{ va0: vxor.8x128.u32 v19, v18, v17 }
+{ va0: vmul.8x128.u32 v21, 0x4973f715, v19 }
+{ va0: vsub.8x128.s32 v22, v20, v21 }
+{ va0: vshrl.8x128.u32 v23, v22, 0x10 }
+{ va0: vxor.8x128.u32 v24, v23, v22 }
+{ va0: vxor.8x128.u32 v25, 0x5a9057e1, v24 ;
+  va1: vxor.8x128.u32 v34, 0xae5a53a9, v24 ;
+  .encoding { va1.y_src = imm3_imm2 } }
+{ va0: vmul.8x128.u32 v26, 0x9205b1d5, v25 ;
+  va2: vmul.8x128.u32 v37, 0x8488043d, v34 }
+{ va0: vshrl.8x128.u32 v27, v26, 0x10 ;
+  va1: vshrl.8x128.u32 v40, v37, 0x10 }
+{ va0: vxor.8x128.u32 v28, v27, v26 ;
+  va1: vxor.8x128.u32 v42, v40, v37 }
+{ va0: vmul.8x128.u32 v30, 0x4973f715, v28 ;
+  va2: vmul.8x128.u32 v46, 0xca01f9dd, v42 }
+{ va0: vsub.8x128.s32 v31, v29, v30 }
+{ va0: vshrl.8x128.u32 v32, v31, 0x10 }
+{ va0: vxor.8x128.u32 v33, v32, v31 }
+{ va0: vxor.8x128.u32 v35, 0x43b0d7e5, v33 }
+{ va0: vmul.8x128.u32 v36, 0xae5a53a9, v35 }
+{ va0: vshrl.8x128.u32 v38, v36, 0x10 }
+{ va0: vxor.8x128.u32 v39, v38, v36 }
+{ va0: vmul.8x128.u32 v55, 0xca01f9dd, v39 ;
+  va1: vxor.8x128.u32 v41, 0x8488043d, v39 ;
+  .encoding { va1.y_src = imm3_imm2 } }
+{ va0: vmul.8x128.u32 v43, 0x5a9057e1, v41 }
+{ va0: vshrl.8x128.u32 v44, v43, 0x10 }
+{ va0: vxor.8x128.u32 v45, v44, v43 }
+{ va0: vmul.8x128.u32 v47, 0x4973f715, v45 }
+{ va0: vsub.8x128.s32 v48, v46, v47 }
+{ va0: vshrl.8x128.u32 v49, v48, 0x10 }
+{ va0: vxor.8x128.u32 v50, v49, v48 }
+{ va0: vxor.8x128.u32 v51, 0x5a9057e1, v50 ;
+  va1: vxor.8x128.u32 v56, 0x464a0a99, v50 ;
+  va2: vxor.8x128.u32 v60, 0xd369fdc1, v50 ;
+  .encoding { va1.y_src = imm3_imm2 ; va2.y_src = imm5_imm4 } }
+{ va0: vxor.8x128.u32 v62, 0x1b7b6059, v50 ;
+  va1: vxor.8x128.u32 v63, 0x2b70ae51, v50 ;
+  .encoding { va1.y_src = imm3_imm2 } }
+{ va0: vmul.8x128.u32 v52, 0x9205b1d5, v51 ;
+  va2: vmul.8x128.u32 v59, 0x819d14a5, v56 }
+{ va0: vmul.8x128.u32 v3, 0x501638ad, v60 ;
+  va2: vmul.8x128.u32 v7, 0x29ded7cd, v62 }
+{ va0: vmul.8x128.u32 v9, 0x72721925, v63 ;
+  va1: vshrl.8x128.u32 v53, v52, 0x10 ;
+  va2: vshrl.8x128.u32 v2, v59, 0x10 }
+{ va0: vshrl.8x128.u32 v16, v3, 0x10 ;
+  va1: vshrl.8x128.u32 v19, v7, 0x10 }
+{ va0: vxor.8x128.u32 v54, v53, v52 ;
+  va1: vxor.8x128.u32 v15, v2, v59 ;
+  va2: vshrl.8x128.u32 v23, v9, 0x10 }
+{ va0: vxor.8x128.u32 v24, v16, v3 ;
+  va1: vxor.8x128.u32 v28, v19, v7 }
+{ va0: vmul.8x128.u32 v57, 0x4973f715, v54 ;
+  va1: vxor.8x128.u32 v30, v23, v9 }
+{ va0: vsub.8x128.s32 v58, v55, v57 }
+{ va0: vshrl.8x128.u32 v61, v58, 0x10 }
+{ va0: vxor.8x128.u32 v0, v61, v58 }
+{ va0: vxor.8x128.u32 v4, 0x8b51f9dd, v0 ;
+  va1: vxor.8x128.u32 v5, 0x2c9277b5, v0 ;
+  va2: vxor.8x128.u32 v6, 0x819d14a5, v0 ;
+  .encoding { va1.y_src = imm3_imm2 ; va2.y_src = imm5_imm4 } }
+{ va0: vxor.8x128.u32 v8, 0x29ded7cd, v0 }
+{ va0: vmul.8x128.u32 v10, 0x464a0a99, v4 ;
+  va2: vmul.8x128.u32 v11, 0x1b7b6059, v5 }
+{ va0: vmul.8x128.u32 v12, 0xd369fdc1, v6 ;
+  va2: vmul.8x128.u32 v13, 0x2b70ae51, v8 }
+{ va0: vshrl.8x128.u32 v14, v10, 0x10 ;
+  va1: vshrl.8x128.u32 v20, v11, 0x10 }
+{ va0: vshrl.8x128.u32 v17, v12, 0x10 ;
+  va1: vshrl.8x128.u32 v22, v13, 0x10 }
+{ va0: vxor.8x128.u32 v18, v14, v10 ;
+  va1: vxor.8x128.u32 v27, v20, v11 }
+{ va0: vxor.8x128.u32 v21, v17, v12 ;
+  va1: vxor.8x128.u32 v29, v22, v13 }
+{ va0: vor.8x128.u32 v25, v15, v18 }
+{ va0: vor.8x128.u32 v26, v25, v21 }
+{ va0: vor.8x128.u32 v31, v26, v24 }
+{ va0: veq.8x128.s32 vm1, v31, 0 }
+{ va0: vsel.8x128 v32, vm1, v27, v18 ;
+  va1: vsel.8x128 v33, vm1, v28, v15 ;
+  va2: vsel.8x128 v34, vm1, v29, v21 ;
+  va3: vsel.8x128 v35, vm1, v30, v24 }
+{ va0: vsel.8x128 v36, vm0, v33, v32 }
+{ va0: vsel.8x128 v37, vm2, v34, v36 }
+{ va0: vsel.8x128 v38, vm3, v35, v37 }
+{ vst: vsetrngseed v38 }  # Rng seed initialization
+{ misc: vrng.8x128.u32 v39 }  # Rng seed initialization
+L_01be:
+{ misc: vsettm 0x1 }
+{ s0: simm.s32 s15, 2147483646 }  # materialized constant
+{ misc: vsettm s15 }
+{ misc: vtrace 0x8fffffff ;
+  .encoding { imm1 = 36863 } }
+{ s0: simm.s32 s16, 0 ;
+  s1: simm.s32 s18, 0 }  # materialized constant
+{ s0: sadd.s32 s17, 445, s16 ;
+  s1: simm.s32 s19, 445 }  # materialized constant
+{ s1: sst [smem:s17], s18 }
+{ s1: sst [smem:0x3ffe6], s19 }
+{ s1: sld s20, [smem:0x3ffea] }
+{ s0: sne.s32 p1, s20, 1 }
+{ s0: @p1 sbr.rel L_01df }
+{}
+{}
+{}
+{}
+{ s1: sld s1, [smem:0x3ffe4] }
+{ s1: sld s0, [smem:0x3ffdd] }
+{ s1: sld s21, [smem:0x3ffe6] }
+{ s0: sadd.s32 s23, s16, s21 ;
+  s1: sld s22, [smem:s16 + s21] }
+{ s0: sadd.s32 s24, 1, s22 }
+{ s1: sst [smem:s23], s24 }
+# function jit(wrapper)/dtype_conversion/mpmd_map [symbol 4, dtype_conversion.1]; image bundles [467, 479)
+{ misc: vtrace 0x80000000 }
+# entry bundle: %dtype_conversion.1 = custom-call(%x_hbm.1)
+{ s0: simm.s32 s6, 0 ;  # materialized constant
+  .encoding { s0.y = zero_imm0 } }
+{ s0: sshll.u32 s7, s6, 0x4 }  # examples/pallas/dtype_conversion.py:23:4-23:40 [dma_start; LLO 16] | loc("examples/pallas/dtype_conversion.py":23:4 to :40)
+{ dma: dma.simple [vmem:s7], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/dtype_conversion.py:23:4-23:40 [dma_start; LLO 19] | loc("examples/pallas/dtype_conversion.py":23:4 to :40)
+{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/dtype_conversion.py":23:4 to :47)
+  .encoding { misc.sync_flag_number = imm1 } }
+{ s0: simm.s32 s10, 8 ;  # materialized constant
+  vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/dtype_conversion.py:24:20-24:31 [get; LLO 45] | Coalesced load.
+  misc: vsyncadd.s32 [sflag:52], -128 ;
+  .encoding { s0.y = zero_imm0 ; vld0.offset = imm3 } }
+{ s0: sshll.u32 s11, s10, 0x4 ;  # examples/pallas/dtype_conversion.py:25:4-25:44 [dma_start; LLO 38] | loc("examples/pallas/dtype_conversion.py":25:4 to :44)
+  va0: vunpack.c.l.8x128.bf16 v1, v0 ;
+  va1: vunpack.c.u.8x128.bf16 v2, v0 }
+{ vst: vst.8x128 [vmem:0x8], v1 ;  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 26] | loc("examples/pallas/dtype_conversion.py":24:4 to :17)
+  misc: vst.8x128 [vmem:0x10], v2 ;  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 27] | loc("examples/pallas/dtype_conversion.py":24:4 to :17)
+  .encoding { port.va0.y = 0 ; vst.offset = imm0 } }
+{ dma: dma.simple [hbm:s1], [vmem:s11], length=256, dst_flag=[sflag:52] }  # examples/pallas/dtype_conversion.py:25:4-25:44 [dma_start; LLO 41] | loc("examples/pallas/dtype_conversion.py":25:4 to :44)
+{ misc: vwait.ge [sflag:52], 256 ;  # loc("examples/pallas/dtype_conversion.py":25:4 to :51)
+  .encoding { misc.sync_flag_number = imm1 } }
+# exit bundle: %dtype_conversion.1 = custom-call(%x_hbm.1)
+{ misc: vsyncadd.s32 [sflag:52], -256 ;
+  .encoding { misc.sync_flag_number = imm1 } }
+{ misc: vtrace 0x90000000 }
+# end function jit(wrapper)/dtype_conversion/mpmd_map [symbol 4, dtype_conversion.1]
+L_01df:
+{ misc: vtrace 0x9fffffff ;
+  .encoding { imm1 = 40959 } }
+{ s0: simm.s32 s25, 2147483647 }  # materialized constant
+{ misc: vsettm s25 }
+{ misc: vdelay 1 }
+{ s0: sfence }
+{ s0: simm.s32 s0, 0 }  # materialized constant
+{ s1: sst [smem:0x3ffe6], s0 }
+{ s0: scall.abs s31, L_0014 }
+{ misc: vnop }
+{ misc: vnop }
+{ misc: vnop }
+{ misc: vnop }
+{ s0: simm.s32 s0, 1 ;  # materialized constant
+  misc: vsyncmov sfrf, [sflag:0] }
+{ s0: spop s1, sfrf }
+{ s0: sadd.s32 s2, s1, s0 }
+{ s0: sadd.s32 s4, 507, s1 ;
+  s1: sld s3, [smem:0x3fffa] ;
+  misc: vsyncset.s32 [sflag:0], 0 ;
+  .encoding { s1.y = zero_imm0 } }
+{ s0: sadd.s32 s5, 507, s1 }
+{ s0: simm.s32 s6, 2147483647 ;  # materialized constant
+  misc: vsyncmov sfrf, [sflag:503] }
+{ s0: spop s8, sfrf }
+{ s0: sand.u32 s7, s3, s6 }
+{ s0: sne.s32 p0, s7, 0 ;
+  s1: seq.s32 p1, s7, s8 }
+{ s0: por p2, !p0, !p1 }
+{ s0: @p2 sbr.rel L_01fb ;
+  s1: por p3, !p2, !p2 }
+{}
+{}
+{}
+{}
+{ misc: vsyncset.done.s32 [sflag:503], 0 }
+L_01fb:
+{ s1: sld s9, [smem:0x3ffea] }
+{ s0: @p3 simm.s32 s9, 2 }
+{ s0: seq.s32 p4, s9, 2 }
+{ s0: @p4 simm.s32 s10, -2147483648 ;
+  s1: @!p4 simm.s32 s10, 0 }
+{ s0: sor.u32 s11, s7, s10 }
+{ misc: vsyncset.s32 [sflag:505], s11 }
+{ misc: vint 0x1 }
+{ s0: por p5, !p4, !p4 }
+{ s0: @p5 sbr.rel L_020a }
+{}
+{}
+{}
+{}
+{ misc: vwait.done [sflag:504] }
+{ misc: vsyncset.done.s32 [sflag:504], 0 }
+L_020a:
+{ misc: vsyncmov sfrf, [sflag:506] }
+{ s0: spop s12, sfrf }
+{ misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
+{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ s0: sfence }
+{ s0: simm.s32 s13, 1056735232 ;  # materialized constant
+  s1: simm.s32 s14, 262016 }  # materialized constant
+{ s0: sadd.s32 s15, s12, s13 }
+{ dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
+{ misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
+  .encoding { misc.sync_flag_number = imm1 } }
+{ misc: vsyncadd.s32 [sflag:511], -16 ;
+  .encoding { misc.sync_flag_number = imm1 } }
+{ s0: sfence }
+{ s0: simm.s32 s16, 16 ;  # materialized constant
+  s1: simm.s32 s17, 32767 }  # materialized constant
+{ s0: sadd.s32 s18, s12, s16 }
+{ s0: sand.u32 s19, s18, s17 }
+{ s1: sld s20, [smem:0x3ffeb] ;
+  misc: vsyncset.s32 [sflag:506], s19 ;
+  .encoding { s1.y = zero_imm0 } }
+{ s1: sld s21, [smem:0x3ffea] }
+{ s0: ssub.s32 s22, s20, s16 }
+{ s0: sne.s32 p6, s21, 0 }
+{ s0: por p7, !p6, !p6 }
+{ s0: @!p7 sgt.s32 p8, s20, 16 ;
+  s1: @!p7 sld s24, [smem:0x3ffe9] }
+{ s0: @p7 sbr.rel L_0248 ;
+  s1: @!p7 sld s25, [smem:0x3ffe8] }
+{ s0: @!p7 simm.s32 s26, 0 ;
+  s1: @!p7 por p9, !p8, !p8 }
+{}
+{}
+{}
+{ s0: @p9 sbr.rel L_0235 ;
+  s1: @!p9 simm.s32 s27, 8 }  # materialized constant
+{ dma: dma.simple [imem:s26], [hbm:s24], length=s25, dst_flag=[sflag:511] }
+{ s0: @!p9 smul.u32 s29, s20, s27 ;  # materialized constant
+  s1: @!p9 simm.s32 s28, 16 }
+{ s0: @!p9 sadd.s32 s30, s12, s28 ;
+  s1: @!p9 simm.s32 s0, 32767 }  # materialized constant
+{ s0: @!p9 ssub.s32 s2, 262144, s29 ;
+  s1: @!p9 sand.u32 s3, s30, s0 }
+{ s0: ssub.s32 s4, 32768, s3 }
+{ s0: slt.s32 p10, s4, s22 }
+{ s0: ssub.s32 s6, 0, s22 ;
+  misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
+  .encoding { vs1 = s5 } }
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+  .encoding { vs1 = s5 } }
+{ s0: sfence }
+{ s0: @!p10 smov s4, s22 ;
+  s1: simm.s32 s7, 1056735232 }  # materialized constant
+{ s0: sadd.s32 s8, s3, s7 ;
+  s1: por p11, !p10, !p10 }
+{ dma: dma.simple [smem:s2], [hbm:s8], length=s4, dst_flag=[sflag:511] }
+{ s0: @p11 sbr.rel L_0235 ;
+  s1: @!p11 ssub.s32 s9, s22, s4 }
+{ s0: @!p11 sshll.u32 s10, s4, 0x3 ;
+  s1: @!p11 simm.s32 s13, 1056735232 }
+{ s0: @!p11 sadd.s32 s11, s10, s2 }
+{ dma: @!p11 dma.simple [smem:s11], [hbm:s13], length=s9, dst_flag=[sflag:511] }
+{}
+L_0235:
+{ s0: sadd.s32 s1, s25, s22 }
+{ s0: ssub.s32 s5, 0, s1 ;
+  misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
+{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ s0: sfence }
+{ s0: por p12, !p8, !p8 }
+{ s0: @!p12 sadd.s32 s14, s12, s20 ;
+  s1: @!p12 simm.s32 s15, 32767 }  # materialized constant
+{ s0: @p12 sbr.rel L_0241 ;
+  s1: @!p12 sand.u32 s16, s14, s15 }
+{}
+{}
+{}
+{}
+{ misc: vsyncset.s32 [sflag:506], s16 }
+L_0241:
+{ s0: sfence }
+{ s0: simm.s32 s17, 0 }  # materialized constant
+{ s0: sbr.ind s17 }
+{}
+{}
+{}
+{}
+L_0248:
+{ s0: @p6 sbr.rel L_0293 ;
+  s1: por p13, !p6, !p6 }
+{ s0: @!p6 por p0, 0, 0 ;  # materialized constant
+  .encoding { s0.py = never } }
+{}
+{}
+{}
+{ s0: @p0 sbr.rel L_0293 ;
+  s1: @!p0 sld s18, [smem:0x1] }  # core id
+{ s0: @!p0 por p1, 0, 0 ;  # materialized constant
+  s1: @!p0 simm.s32 s19, 0 ;  # materialized constant
+  .encoding { s0.py = never } }
+{ s0: @!p0 ssub.s32 s20, 0, s19 ;
+  s1: @!p0 sld s12, [smem:0x0] }  # logical chip id
+{ s0: @!p0 simm.s32 s23, 2 }  # materialized constant
+{}
+{ s0: @!p1 simm.s32 s20, 0 }
+{ s0: sadd.s32 s21, 2, s20 ;
+  s1: sadd.s32 s22, 7052, s20 }
+{ s0: ssub.s32 s24, 0, s18 ;
+  s1: ssub.s32 s25, 0, s18 }
+{ s0: @!p1 smov s24, s18 ;
+  s1: @!p1 smov s25, s18 }
+{ s0: ssub.s32 s26, 0, s25 }
+{ s0: @!p1 smov s26, s25 }
+{ s0: smul.u32 s27, s26, s23 }
+{ s0: smul.u32 s28, s26, s23 }
+{ s0: seq.s32 p2, s19, s27 }
+{ s0: sadd.s32 s29, 1, s28 }
+{ s0: seq.s32 p3, s19, s29 }
+{ s0: por p4, p2, p3 }
+{ s0: por p5, !p4, !p4 }
+{ s0: @p5 sbr.rel L_0277 }
+{}
+{}
+{}
+{}
+{ s0: simm.s32 s3, 445 ;  # materialized constant
+  s1: sld s30, [smem:0x0] }  # logical chip id
+{ s0: sadd.s32 s4, 92, s3 ;
+  s1: sld s0, [smem:0x1] }  # core id
+{ s1: sld s2, [smem:0x3ffea] }
+{ s1: sst [smem:s4], s2 }
+{ s0: simm.s32 s7, 1056833536 ;  # materialized constant
+  s1: simm.s32 s6, 445 ;  # materialized constant
+  misc: vsyncpa.u1 [sflag:51], 0x0 ;
+  .encoding { s0.y = imm0_zero ; s1.y = zero_imm1 } }
+{ dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
+{ misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
+  .encoding { misc.sync_flag_number = imm1 } }
+{ misc: vsyncadd.s32 [sflag:51], -16 ;
+  .encoding { misc.sync_flag_number = imm1 } }
+{ s0: sfence }
+{ s0: simm.s32 s8, 16383 ;  # materialized constant
+  s1: simm.s32 s10, 131072 ;  # materialized constant
+  misc: vsyncpa.u1 [sflag:51], 0x1 ;
+  .encoding { misc.sync_flag_number = imm3 ; s0.y = zero_imm0 ; s1.y = zero_imm1 } }
+{ s0: sand.u32 s9, s30, s8 ;
+  s1: sadd.s32 s13, 131072, s10 }
+{ s0: sshll.u32 s11, s9, 0x11 ;
+  s1: sshrl.u32 s1, s13, 0x2 }
+{ s0: sor.u32 s5, s1, s22 }
+{ s0: sor.u32 s14, s11, s5 }
+{ s0: sand.u32 s15, s30, s8 ;
+  s1: sadd.s32 s17, 131072, s10 ;
+  misc: vsyncset.remote.s32 [sflag:s14], 0 }
+{ s0: sshll.u32 s16, s15, 0x11 ;
+  s1: sshrl.u32 s18, s17, 0x2 }
+{ s0: sor.u32 s19, s18, s21 }
+{ s0: sor.u32 s12, s16, s19 }
+{ misc: vsyncadd.remote.s32 [sflag:s12], 1 }
+L_0277:
+{ s0: simm.s32 s24, 1 }  # materialized constant
+{ s0: seq.s32 p6, s24, s27 ;
+  s1: seq.s32 p7, s24, s29 }
+{ s0: por p8, p6, p7 }
+{ s0: por p9, !p8, !p8 }
+{ s0: @p9 sbr.rel L_0293 }
+{}
+{}
+{}
+{}
+{ s0: simm.s32 s30, 445 ;  # materialized constant
+  s1: sld s25, [smem:0x0] }  # logical chip id
+{ s0: sadd.s32 s0, 92, s30 ;
+  s1: sld s26, [smem:0x1] }  # core id
+{ s1: sld s23, [smem:0x3ffea] }
+{ s1: sst [smem:s0], s23 }
+{ s0: simm.s32 s3, 1056899072 ;  # materialized constant
+  s1: simm.s32 s2, 445 ;  # materialized constant
+  misc: vsyncpa.u1 [sflag:51], 0x0 ;
+  .encoding { s0.y = imm0_zero ; s1.y = zero_imm1 } }
+{ dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
+{ misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
+  .encoding { misc.sync_flag_number = imm1 } }
+{ misc: vsyncadd.s32 [sflag:51], -16 ;
+  .encoding { misc.sync_flag_number = imm1 } }
+{ s0: sfence }
+{ s0: simm.s32 s27, 16383 ;  # materialized constant
+  s1: simm.s32 s29, 196608 ;  # materialized constant
+  misc: vsyncpa.u1 [sflag:51], 0x1 ;
+  .encoding { misc.sync_flag_number = imm3 ; s0.y = zero_imm0 ; s1.y = zero_imm1 } }
+{ s0: sand.u32 s28, s25, s27 ;
+  s1: sadd.s32 s6, 131072, s29 }
+{ s0: sshll.u32 s4, s28, 0x11 ;
+  s1: sshrl.u32 s7, s6, 0x2 }
+{ s0: sor.u32 s8, s7, s22 }
+{ s0: sor.u32 s9, s4, s8 }
+{ s0: sand.u32 s10, s25, s27 ;
+  s1: sadd.s32 s13, 131072, s29 ;
+  misc: vsyncset.remote.s32 [sflag:s9], 0 }
+{ s0: sshll.u32 s11, s10, 0x11 ;
+  s1: sshrl.u32 s1, s13, 0x2 }
+{ s0: sor.u32 s5, s1, s21 }
+{ s0: sor.u32 s14, s11, s5 }
+{ misc: vsyncadd.remote.s32 [sflag:s14], 1 }
+L_0293:
+{ s0: shalt }
+{ s0: shalt }
+{}
+{ s0: sbr.abs L_0021 }
+{}
+{}
+{}
+{}
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }

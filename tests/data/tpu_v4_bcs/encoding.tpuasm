@@ -1,0 +1,12 @@
+.target tpu-v4-bcs
+
+# Same visible value, explicit choice of the high/low lane pair.
+{ s0: smov s0, 0x12345678 ;
+  .encoding { s0.sy = 45 ; imm0 = 21 } }
+# Branch displacements share imm0 with the other slot's scalar literal.
+{ s0: sbr.rel done ;
+  s1: smov s1, 0xcafe }
+{}
+done:
+{ s0: shalt }
+.align 16

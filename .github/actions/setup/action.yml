@@ -1,0 +1,27 @@
+name: Set up tpuasm
+description: CPython 3.14t、jaxlib 0.11.2、固定 commit 的 JAX 与指定的 libtpu。
+
+inputs:
+  libtpu:
+    description: libtpu 的 pip 需求或 wheel URL，不安装其依赖。
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.14t'
+    # libtpu 解包后约 690 MB，jaxlib 约 355 MB。从 git 安装的 JAX 固定到完整 commit，pip 会缓存构建出的 wheel。
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ runner.os }}-py314t-${{ inputs.libtpu }}-${{ hashFiles('.github/actions/setup/action.yml') }}
+    # 来源捕获核对 JAX lowering 函数源码字节的 SHA-256，所以 JAX 固定到已验证的上游 commit。
+    # libtpu 最后以 --no-deps 安装，避免 JAX 的依赖解析替换它。
+    - shell: bash
+      env:
+        LIBTPU: ${{ inputs.libtpu }}
+      run: |
+        python -m pip install jaxlib==0.11.2 'jax @ git+https://github.com/jax-ml/jax@886d2370c1c959d210f522e352e3ddc6bcff7d6c'
+        python -m pip install --no-deps "$LIBTPU"
