@@ -10,12 +10,25 @@ readme = "README.md"
 authors = [{name = "Ayaka Mikazuki"}]
 license = "MPL-2.0"
 license-files = ["LICENSE"]
-requires-python = ">=3.10"
+requires-python = ">=3.14"
+keywords = ["tpu", "assembler", "disassembler", "jax", "pallas", "libtpu"]
 classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C++",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.14",
-    "Operating System :: POSIX :: Linux",
+    "Topic :: Software Development :: Assemblers",
+    "Topic :: Software Development :: Disassemblers",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ayaka14732/tpuasm"
+Documentation = "https://ayaka14732.github.io/tpuasm/"
+Source = "https://github.com/ayaka14732/tpuasm"
+Issues = "https://github.com/ayaka14732/tpuasm/issues"
 
 [project.scripts]
 tpuasm = "tpuasm.printer:main"

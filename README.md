@@ -28,7 +28,7 @@ MPL-2.0。
 
 ## 安装
 
-首先确保系统为 Linux x86-64，且已安装支持 C++17 的 g++。
+首先确保系统为 Linux x86-64，且已安装支持 C++17 的 g++。本项目不声明依赖，JAX 与 libtpu 需自行安装。
 
 受支持的 libtpu 版本仅限以下列表，用户需自行确保 libtpu 版本兼容：
 
@@ -42,13 +42,13 @@ MPL-2.0。
 
 - CPython 3.14t，libtpu `0.0.49`
 
-安装本项目：
+本项目在 JAX `0.12.0.dev20260926+886d2370c1` 上测试通过。编译来源捕获会核对所适配 JAX 函数源码字节的 SHA-256，源码相同即可接受，不限定 JAX 版本号。
+
+从 PyPI 安装本项目：
 
 ```sh
-python -m pip install .
+python -m pip install tpuasm
 ```
-
-本项目在 JAX `0.12.0.dev20260926+886d2370c1` 上测试通过。编译来源捕获会核对所适配 JAX 函数源码字节的 SHA-256，源码相同即可接受，不限定 JAX 版本号。
 
 首次汇编或反汇编会将随包分发的原生桥接编译到 `/tmp`。
 
@@ -133,20 +133,20 @@ patched = replace_executable_programs(serialized, {(record, index): edited})
 [文档站点](https://ayaka14732.github.io/tpuasm/)包括以下内容。格式参考说明清单怎么写，设计文档说明实现方式、依据和验证。
 
 - **格式参考**
-  - [TPU v4 TC](docs/references/tpu_v4_tc.md)：各目标共用的源码语法，以及 v4 TC 的操作数与约束。
-  - [TPU v4 BCS](docs/references/tpu_v4_bcs.md)：BCS 的写法、semantic protobuf 转换与容器提取。
-  - [TPU v6e TC](docs/references/tpu_v6e_tc.md)：v6e 与 v4 TC 写法的差异。
+  - [TPU v4 TC](https://ayaka14732.github.io/tpuasm/references/tpu_v4_tc.html)：各目标共用的源码语法，以及 v4 TC 的操作数与约束。
+  - [TPU v4 BCS](https://ayaka14732.github.io/tpuasm/references/tpu_v4_bcs.html)：BCS 的写法、semantic protobuf 转换与容器提取。
+  - [TPU v6e TC](https://ayaka14732.github.io/tpuasm/references/tpu_v6e_tc.html)：v6e 与 v4 TC 写法的差异。
   - 三份指令索引：各目标每个槽的助记符与操作数签名，由 `tools/generate_isa_reference.py` 在构建文档时生成。
-- [**API 参考**](docs/api.rst)：公开函数和类型的签名与说明。
+- [**API 参考**](https://ayaka14732.github.io/tpuasm/api.html)：公开函数和类型的签名与说明。
 - **设计文档**
-  - [总体架构](docs/design/architecture.md)：设计原则、模块划分、数据通路、目标识别与程序容器、扩展点。
-  - [原生编解码后端](docs/design/native_backend.md)：后端选择、C ABI 与原生校验。
-  - [汇编与可逆导出](docs/design/assembly.md)：位模型、指令包求解、命名约束、导出，以及 v4 TC ISA 表的维护。
-  - [TPU v4 BCS 目标](docs/design/tpu_v4_bcs.md)：BCS 在实现上与 TC 的差异。
-  - [TPU v6e TC 目标](docs/design/tpu_v6e_tc.md)：字段表的生成、签名规则与 formatter 的限制。
-  - [TPU v6e 指令执行语义核对](docs/design/tpu_v6e_execution.md)：selector、延迟常量等指令语义的设备证据，含 v4 的 Delay 对照。
-  - [TC 编译来源映射](docs/design/tc_source_mapping.md)：编译期捕获来源与离线恢复。
-  - [回灌与执行](docs/design/executable_replacement.md)：替换、插入 bundle、程序身份与装载。
+  - [总体架构](https://ayaka14732.github.io/tpuasm/design/architecture.html)：设计原则、模块划分、数据通路、目标识别与程序容器、扩展点。
+  - [原生编解码后端](https://ayaka14732.github.io/tpuasm/design/native_backend.html)：后端选择、C ABI 与原生校验。
+  - [汇编与可逆导出](https://ayaka14732.github.io/tpuasm/design/assembly.html)：位模型、指令包求解、命名约束、导出，以及 v4 TC ISA 表的维护。
+  - [TPU v4 BCS 目标](https://ayaka14732.github.io/tpuasm/design/tpu_v4_bcs.html)：BCS 在实现上与 TC 的差异。
+  - [TPU v6e TC 目标](https://ayaka14732.github.io/tpuasm/design/tpu_v6e_tc.html)：字段表的生成、签名规则与 formatter 的限制。
+  - [TPU v6e 指令执行语义核对](https://ayaka14732.github.io/tpuasm/design/tpu_v6e_execution.html)：selector、延迟常量等指令语义的设备证据，含 v4 的 Delay 对照。
+  - [TC 编译来源映射](https://ayaka14732.github.io/tpuasm/design/tc_source_mapping.html)：编译期捕获来源与离线恢复。
+  - [回灌与执行](https://ayaka14732.github.io/tpuasm/design/executable_replacement.html)：替换、插入 bundle、程序身份与装载。
 
 ## 测试
 
