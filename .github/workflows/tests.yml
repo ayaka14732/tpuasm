@@ -24,8 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - libtpu: 0.0.48.dev20260912+nightly
-            requirement: https://storage.googleapis.com/libtpu-nightly-releases/wheels/libtpu/libtpu-0.0.48.dev20260912+nightly-cp314-cp314t-manylinux_2_31_x86_64.whl
           - libtpu: 0.0.48
             requirement: libtpu==0.0.48
           - libtpu: 0.0.49

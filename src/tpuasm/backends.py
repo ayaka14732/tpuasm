@@ -81,7 +81,6 @@ LIBTPU_RELEASES = tuple(
         ),
     )
     for version, stem, build_id, targets in (
-        ('0.0.48.dev20260912+nightly', '0_0_48_dev20260912', '825044f87748f172b7db935904b3f754', (TPU_V4_TC, TPU_V4_BCS)),
         ('0.0.48', '0_0_48', '3310a7c8c137cd515c7a2ba1ce2ea38c', (TPU_V4_TC, TPU_V4_BCS)),
         ('0.0.49', '0_0_49', '97e27df7268da25ab03e455e30dd86b0', (TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC)),
     )

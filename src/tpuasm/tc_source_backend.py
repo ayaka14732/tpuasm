@@ -9,56 +9,6 @@ class SourceBackend:
     calls: dict[int, tuple[bytes, str, bytes]]
     signatures: dict[int, bytes]
 
-LIBTPU_0_0_48_DEV20260912 = SourceBackend(
-    native_source='source_backends/libtpu_0_0_48_dev20260912.cc',
-    calls={
-        0x158df649: (bytes.fromhex('e82295fdff'), 'source_store_annotation_hook', b''),
-        0x158df829: (bytes.fromhex('e84293fdff'), 'source_store_annotation_hook', b''),
-        0x158dfc8f: (bytes.fromhex('e8dc8efdff'), 'source_store_annotation_hook', b''),
-        0x158e00ef: (bytes.fromhex('e87c8afdff'), 'source_store_annotation_hook', b''),
-        0x157e7cfd: (bytes.fromhex('e83e95ffff'), 'source_emit_hook', b''),
-        0x15c4c9e0: (bytes.fromhex('e8eb090000'), 'source_replace_hook', b''),
-        0x15c4c9ff: (bytes.fromhex('e80c350000'), 'source_region_hook', b''),
-        0x15c4abf8: (bytes.fromhex('e8d3270000'), 'source_replace_hook', b''),
-        0xf01136e: (bytes.fromhex('e87d1ea3ff'), 'source_coalesce_hook', bytes.fromhex('4c89f2')),
-        0xf0114a1: (bytes.fromhex('e84a1da3ff'), 'source_coalesce_hook', bytes.fromhex('4c89f2')),
-    },
-    signatures={
-        0x158b8b70: bytes.fromhex('554889e54157415641554154534881ec380100004889fb48'),
-        0x158b8e7c: bytes.fromhex('488b03c5f8108088010000c5'),
-        0x158b8fb3: bytes.fromhex('488b03c5f857c0c5f8118088010000'),
-        0x158df642: bytes.fromhex('27f207488d7d80e82295fdff'),
-        0x158df822: bytes.fromhex('25f207488d7d80e84293fdff'),
-        0x158dfc88: bytes.fromhex('488dbd50ffffffe8dc8efdff'),
-        0x158e00e8: bytes.fromhex('488dbd50ffffffe87c8afdff'),
-        0xea431f0: bytes.fromhex('554889e54157415641554154534883ec184889fb4885f6742c'),
-        0xf012030: bytes.fromhex('554889e5534883ec18488b074885c07418488b0089c783e707'),
-        0xf011364: bytes.fromhex('4c89e7488d3510a76bf9e87d1ea3ff'),
-        0xf011497: bytes.fromhex('4889c7488d35cb4668f9e84a1da3ff'),
-        0xf011260: bytes.fromhex('4889c34d89fe4983c6304c89f7e8be0d0000488945c8'),
-        0x15c4abef: bytes.fromhex('4c89e74889c64989c4e8d3270000410fb744241a89c181c1'),
-        0x15c4c9da: bytes.fromhex('4c89ef4889c6e8eb090000b8010000004881c4280200005b41'),
-        0x15c4c9fc: bytes.fromhex('4c89efe80c3500004989c748899568feffff4885d2743e498b'),
-        0x15c4d3d0: bytes.fromhex('554889e54157415641554154534881eca80000004889f349'),
-        0x15c4ff10: bytes.fromhex('554889e54157415641554154534881ec680200000fb7471a'),
-        0xf007890: bytes.fromhex('48634ff00fb7571c83e2034889c84829d039f07e0c4863c64829c8488b44c7f0c3'),
-        0xf3c7f30: bytes.fromhex('554889e55350488b9f400300004889b7400300004885db74'),
-        0xdb4f560: bytes.fromhex('554889e54157415653508b078b5f0441b8020000004889f9'),
-        0x19a6e7c0: bytes.fromhex('f6433801744c4c8b7b40eb4a'),
-        0x157e7cfa: bytes.fromhex('4c89e6e83e95ffff'),
-        0x157e1240: bytes.fromhex('554889e54157415641554154534881ec780b0000'),
-        0xf04aca0: bytes.fromhex('554889e55350488d05f3b7ae0f0fb60084c07425'),
-        0xe885fc0: bytes.fromhex('554889e54157415641554154534883ec1848bbf6ffffffff'),
-        0x19a6ef80: bytes.fromhex('554889e5415741564155415453500f188fc00100000f188f'),
-        0x1d6195b8: bytes.fromhex('e903000000cccccc554889e541574156534883ec'),
-        0x1ad21560: bytes.fromhex('488b47404885c07405488b4018c331c0c3cccccc'),
-        0x1d7bf820: bytes.fromhex('4885f6742c554889e54156534883ec204889d3e848240200'),
-        0x1d78fa78: bytes.fromhex('4531c9e960feffffe9bb620000cccccc'),
-        0x15bfbc98: bytes.fromhex('498b85500200004c8b70284d85f60f84120400'),
-        0x15bfbd20: bytes.fromhex('498b0748638ba40a000048894868804811014c89ad38ffffff498b9d40030000'),
-    },
-)
-
 LIBTPU_0_0_48 = SourceBackend(
     native_source='source_backends/libtpu_0_0_48.cc',
     calls={
@@ -230,7 +180,6 @@ LIBTPU_0_0_49 = SourceBackend(
 
 # 以 libtpu 构建（版本与运行环境）为键；同一构建编译各代 TensorCore 时共用这些 hook。
 SOURCE_BACKENDS = {
-    'libtpu-0.0.48.dev20260912+nightly-cpython-314t-linux-x86_64': LIBTPU_0_0_48_DEV20260912,
     'libtpu-0.0.48-cpython-314t-linux-x86_64': LIBTPU_0_0_48,
     'libtpu-0.0.49-cpython-314t-linux-x86_64': LIBTPU_0_0_49,
 }

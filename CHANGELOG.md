@@ -15,6 +15,10 @@
 - 清单中的来源注释改为一条从内到外的调用链 `path:内层 <- 调用方 [scope; LLO n]`，同一槽上相同的调用链只显示一次。带方括号的是 tpuasm 捕获的来源，不带的是编译器的位置。
 - 嵌套 lowering 的位置接上外层方程的 traceback，内层 op 的来源带有外层调用点。
 
+### 移除
+
+- 不再支持 libtpu `0.0.48.dev20260912+nightly`（CPython 3.14t）。仍需使用该构建时，安装 tpuasm 0.1.0。
+
 ### 修复
 
 - 捕获来源期间关闭 Pallas 的逐方程 lowering 缓存（[jax-ml/jax#41147](https://github.com/jax-ml/jax/issues/41147)）。此前相同运算第二次出现时会带上第一次出现的行号，例如同一 kernel 中多次 `pltpu.roll`。关闭前后机器码相同。
