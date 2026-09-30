@@ -1,6 +1,6 @@
 name: Release
 
-# 发布流程：修改 pyproject.toml 中的版本并推送到 main，等 Tests 通过后推送 vX.Y.Z tag，再在 Actions 中批准 pypi environment。
+# 发布流程：把 CHANGELOG.md 的“未发布”改为“X.Y.Z - 日期”，在 docs/compatibility.md 中把“未发布”一节复制为“X.Y.Z”，修改 pyproject.toml 中的版本并推送到 main；等 Tests 通过后推送 vX.Y.Z tag，再在 Actions 中批准 pypi environment。
 # 使用 Trusted Publishing，不保存 API token；需先在 PyPI 登记本仓库、本文件名和 pypi environment。
 
 on:

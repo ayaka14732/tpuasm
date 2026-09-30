@@ -5,6 +5,8 @@
 :hidden:
 
 api
+compatibility
+changelog
 ```
 
 ```{toctree}

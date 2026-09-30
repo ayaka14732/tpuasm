@@ -30,19 +30,7 @@ MPL-2.0。
 
 首先确保系统为 Linux x86-64，且已安装支持 C++17 的 g++。本项目不声明依赖，JAX 与 libtpu 需自行安装。
 
-受支持的 libtpu 版本仅限以下列表，用户需自行确保 libtpu 版本兼容：
-
-**支持 TPU v4 TC 与 BCS 编解码；编译来源捕获限 TC**
-
-- CPython 3.14t，libtpu `0.0.48.dev20260912+nightly`
-- CPython 3.14t，libtpu `0.0.48`
-- CPython 3.14t，libtpu `0.0.49`
-
-**支持 TPU v6e TC 编解码与编译来源捕获**
-
-- CPython 3.14t，libtpu `0.0.49`
-
-本项目在 JAX `0.12.0.dev20260926+886d2370c1` 上测试通过。编译来源捕获会核对所适配 JAX 函数源码字节的 SHA-256，源码相同即可接受，不限定 JAX 版本号。
+每个 tpuasm 版本只支持登记过的 Python 与 libtpu 组合，用户需自行确保版本兼容。各版本支持的组合和测试所用的 JAX 见[版本兼容性](https://ayaka14732.github.io/tpuasm/compatibility.html)；使用较旧的 libtpu 时，按该页固定安装仍支持它的 tpuasm 版本。各版本的变化见[更新日志](https://ayaka14732.github.io/tpuasm/changelog.html)。
 
 从 PyPI 安装本项目：
 
@@ -102,7 +90,7 @@ paths = dump_compiled(compiled, Path('/tmp/tpuasm-output'), source_map_json=True
 
 每个程序写出一份 `.tpuasm`，`source_map_json=True` 时另写同名的 `.sources.json`。
 
-清单是 runtime 实际装载的完整程序映像，Pallas kernel 前后的初始化、同步与退出代码也在其中，裁掉后就不能再回灌。只想浏览 kernel 时，按 `ProgramSourceMap.functions[*].ranges` 给出的编译器函数区间折叠显示。逐槽的源码位置读 `ProgramSourceMap.slots[*].source_frames`，它合并了 tpuasm 捕获的来源与编译器自带的 `loc(...)`；没有来源的指令保持未知，不代表它属于 runtime。设计见[来源映射](docs/design/tc_source_mapping.md)。
+清单是 runtime 实际装载的完整程序映像，Pallas kernel 前后的初始化、同步与退出代码也在其中，裁掉后就不能再回灌。只想浏览 kernel 时，按 `ProgramSourceMap.functions[*].ranges` 给出的编译器函数区间折叠显示。逐槽的源码位置读 `ProgramSourceMap.slots[*].source_frames`，它合并了 tpuasm 捕获的来源与编译器自带的 `loc(...)`；没有来源的指令保持未知，不代表它属于 runtime。设计见[来源映射](https://ayaka14732.github.io/tpuasm/design/tc_source_mapping.html)。
 
 要在设备上观察修改后的程序，常用做法是在 kernel 中放一条带唯一立即数的运算作为标记（例如 `x ^ 0x13579bdf`），在清单中找到它所在的 bundle，在此插入手写片段，再借用 `compiled` 的调用约定执行：
 
@@ -140,6 +128,8 @@ patched = replace_executable_programs(serialized, {(record, index): edited})
   - [TPU v6e TC](https://ayaka14732.github.io/tpuasm/references/tpu_v6e_tc.html)：v6e 与 v4 TC 写法的差异。
   - 三份指令索引：各目标每个槽的助记符与操作数签名，由 `tools/generate_isa_reference.py` 在构建文档时生成。
 - [**API 参考**](https://ayaka14732.github.io/tpuasm/api.html)：公开函数和类型的签名与说明。
+- [**版本兼容性**](https://ayaka14732.github.io/tpuasm/compatibility.html)：各版本支持的 Python、libtpu 与 JAX。
+- [**更新日志**](https://ayaka14732.github.io/tpuasm/changelog.html)：各版本面向用户的变化。
 - **设计文档**
   - [总体架构](https://ayaka14732.github.io/tpuasm/design/architecture.html)：设计原则、模块划分、数据通路、目标识别与程序容器、扩展点。
   - [原生编解码后端](https://ayaka14732.github.io/tpuasm/design/native_backend.html)：后端选择、C ABI 与原生校验。

@@ -29,6 +29,7 @@ Homepage = "https://github.com/ayaka14732/tpuasm"
 Documentation = "https://ayaka14732.github.io/tpuasm/"
 Source = "https://github.com/ayaka14732/tpuasm"
 Issues = "https://github.com/ayaka14732/tpuasm/issues"
+Changelog = "https://ayaka14732.github.io/tpuasm/changelog.html"
 
 [project.scripts]
 tpuasm = "tpuasm.printer:main"

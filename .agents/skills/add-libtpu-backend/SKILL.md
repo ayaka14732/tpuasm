@@ -1,6 +1,6 @@
 ---
 name: add-libtpu-backend
-description: 为 tpuasm 登记新的 libtpu 构建（新 release、nightly 或新 Python ABI）：下载 wheel，从已登记后端出发定位新地址，写入 TC/BCS 编解码后端和 TC 来源后端，并完成离线、TPU、旧版本回归和分发验证。升级 JAX 后来源捕获失效时也用本流程。
+description: 为 tpuasm 登记新的 libtpu 构建（新 release、nightly 或新 Python ABI）：下载 wheel，从已登记后端出发定位新地址，写入 TC/BCS 编解码后端和 TC 来源后端，并完成离线、TPU、旧版本回归和分发验证。升级 JAX 后来源捕获失效时，以及删除已登记的旧构建时，也用本流程。
 ---
 
 # 为 tpuasm 添加 libtpu 后端
@@ -117,7 +117,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
 1. 复制参考版本的各份 `.cc`，文件名中的 `<stem>` 取版本号并把 `.`、`+` 换成下划线，去掉 `nightly` 之类的后缀（参照已有文件名）。替换其中的常量，并在文件头注释中写明 libtpu 版本、GNU build-id 和 wheel 标签。
 2. 在 `backends.py` 的 `LIBTPU_RELEASES` 数据表中加一行 `(version, stem, build_id, targets)`。版本号必须与 `importlib.metadata.version('libtpu')` 完全一致，`targets` 只列出已写好后端文件的目标。新的 Python ABI 需要各自登记和验证。
 3. 在 `tc_source_backend.py` 中新增 `LIBTPU_<STEM>`：包含 `calls`（原始 call 字节、hook 名、前缀）和 `signatures`（新字节），并加入 `SOURCE_BACKENDS`，键为编解码后端的 `build_identifier`（`identifier` 去掉目标后缀，例如 `libtpu-0.0.49-cpython-314t-linux-x86_64`）。
-4. 在 README 的受支持列表中加入新版本。若同时升级了 JAX，一并更新 README 中“测试通过”的 JAX 版本，以及[来源映射设计](../../../docs/design/tc_source_mapping.md)中函数源码摘要对应的 JAX commit。
+4. 在[版本兼容性](../../../docs/compatibility.md)的“未发布”一节加入新构建（Python、libtpu 版本、build-id 和各目标的支持情况），并在 `CHANGELOG.md` 的“未发布”中写明。若同时升级了 JAX，一并更新该节的 JAX 版本与 commit，以及[来源映射设计](../../../docs/design/tc_source_mapping.md)中函数源码摘要对应的 JAX commit。已发布版本的小节记录的是发布时的事实，不修改。
 5. 新增的文件类型若不在 `pyproject.toml` 的 package-data 中，要补上。
 6. 在 `.github/workflows/tests.yml` 的 `offline` 矩阵中加入新版本，nightly 写 wheel 的 URL。若新版本取代 `0.0.49` 成为生成清单和字段表的版本，把其余 job 使用的版本和 `offline` 中按版本判断的条件一并改掉。若同时升级了 JAX 或 jaxlib，更新 `.github/actions/setup/action.yml` 中的 JAX commit 和 jaxlib 版本。
 
@@ -178,3 +178,18 @@ git diff --stat src/tpuasm/tpu_v6e_tc_isa_data.py
 ```
 
 工具需要几分钟，会用 2 万个随机指令包核对字段表，不一致时失败。生成结果与旧版本不同时，逐项确认差异：新增或删除的形式、字段位置、互斥槽、`REJECTED` 和 `FORMATTER_ABORTS` 的变化，以及 formatter 助记符或操作数顺序的变化。字段表在版本之间不同时，同一份数据无法同时服务新旧版本，这时要先把字段表改为按版本选择，再登记新版本。之后重新生成指令索引（`PYTHONPATH=src "$PY" tools/generate_isa_reference.py`），并运行第 5 节第 2 步的 v6e 检查。各步骤的原理见 [v6e 设计文档](../../../docs/design/tpu_v6e_tc.md#字段表的生成)。
+
+## 8. 删除已登记的构建
+
+tpuasm 不为旧 libtpu 保持兼容，用户需要旧构建时安装仍支持它的已发布版本。因此删除前先确认该构建出现在[版本兼容性](../../../docs/compatibility.md)某个已发布版本的小节中；只在“未发布”中出现过的构建，删除后就没有可安装的版本，需先发布或经用户确认。生成清单和 v6e 字段表所用的版本（目前是 0.0.49）不能直接删除，要先按第 5、7 节把它们切换到新版本。
+
+删除一个构建时，改动以下位置，文件名中的 `<stem>` 与登记时相同：
+
+1. `src/tpuasm/backends.py`：从 `LIBTPU_RELEASES` 中删除该行。
+2. `src/tpuasm/native_backends/libtpu_<stem>_*.cc`：删除该构建的全部编解码文件。
+3. `src/tpuasm/tc_source_backend.py`：删除 `LIBTPU_<STEM>` 及其在 `SOURCE_BACKENDS` 中的条目；删除 `src/tpuasm/source_backends/libtpu_<stem>.cc`。
+4. `.github/workflows/tests.yml`：从 `offline` 矩阵中删除该版本。
+5. `docs/compatibility.md`：从“未发布”一节删除该行，并更新该节中与各构建 hook 差异有关的说明；已发布版本的小节不动。`CHANGELOG.md` 的“未发布”中加一个“移除”小节，写明删除的构建和仍支持它的最后一个 tpuasm 版本。
+6. 用 `git grep -nF '<版本号>'` 和 `git grep -n '<stem>'` 检查其余引用。描述“当前支持”的句子要改；作为历史证据的句子（例如某结论在哪个版本上核对过、版本间清单差异的对照）仍然成立，保留原文。若公共 `.cc`、`tc_source_native.cc` 或 `tc_source_lowering.py` 中有只为该构建存在的分支或偏移常量，一并删除。
+
+删除后验证：第 5 节第 1 步的后端选择对剩余版本仍然成立，对被删除的版本报告没有后端；为剩余的每个版本重跑第 5 节第 2 步；运行第 5 节第 8 步的 `mypy` 与 `git diff --check`，并按 `.github/workflows/docs.yml` 的步骤构建文档，确认没有失效链接。
