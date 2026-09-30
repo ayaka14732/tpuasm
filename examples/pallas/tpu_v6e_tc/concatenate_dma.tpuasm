@@ -845,27 +845,27 @@ L_01be:
 # entry bundle: %concatenate_dma.1 = custom-call(%x_hbm.1, %y_hbm.1)
 { s0: simm.s32 s9, 0 ;  # materialized constant
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/concatenate_dma.py:23:4-23:61 [dma_start; LLO 17] | loc("examples/pallas/concatenate_dma.py":25:4 to :44) :: loc("examples/pallas/concatenate_dma.py":23:4 to :61)
-{ dma: dma.simple [vmem:s10], [hbm:s0], length=144, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:23:4-23:61 [dma_start; LLO 20] | loc("examples/pallas/concatenate_dma.py":23:4 to :61)
+{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/concatenate_dma.py:23:4-23:61 [dma_start; LLO 17] | examples/pallas/concatenate_dma.py:25:4-25:44
+{ dma: dma.simple [vmem:s10], [hbm:s0], length=144, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:23:4-23:61 [dma_start; LLO 20]
   .encoding { imm1 = 52 } }
-{ misc: vwait.ge [sflag:52], 144 ;  # loc("examples/pallas/concatenate_dma.py":23:4 to :68)
+{ misc: vwait.ge [sflag:52], 144 ;  # examples/pallas/concatenate_dma.py:23:4-23:68 [dma_wait; LLO 57]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s13, 9 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -144 ;
+  misc: vsyncadd.s32 [sflag:52], -144 ;  # examples/pallas/concatenate_dma.py:23:4-23:68 [dma_wait; LLO 58]
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/concatenate_dma.py:24:4-24:61 [dma_start; LLO 33] | loc("examples/pallas/concatenate_dma.py":24:4 to :61)
-{ dma: dma.simple [vmem:s14], [hbm:s1], length=144, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:24:4-24:61 [dma_start; LLO 36] | loc("examples/pallas/concatenate_dma.py":24:4 to :61)
+{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/concatenate_dma.py:24:4-24:61 [dma_start; LLO 33]
+{ dma: dma.simple [vmem:s14], [hbm:s1], length=144, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:24:4-24:61 [dma_start; LLO 36]
   .encoding { imm1 = 52 } }
-{ misc: vwait.ge [sflag:52], 144 ;  # loc("examples/pallas/concatenate_dma.py":24:4 to :68)
+{ misc: vwait.ge [sflag:52], 144 ;  # examples/pallas/concatenate_dma.py:24:4-24:68 [dma_wait; LLO 59]
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:52], -144 ;
+{ misc: vsyncadd.s32 [sflag:52], -144 ;  # examples/pallas/concatenate_dma.py:24:4-24:68 [dma_wait; LLO 60]
   .encoding { misc.sync_flag_number = imm1 } }
-{ dma: dma.simple [hbm:s2], [vmem:s10], length=288, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:25:4-25:44 [dma_start; LLO 52] | loc("examples/pallas/concatenate_dma.py":25:4 to :44)
+{ dma: dma.simple [hbm:s2], [vmem:s10], length=288, dst_flag=[sflag:52] ;  # examples/pallas/concatenate_dma.py:25:4-25:44 [dma_start; LLO 52]
   .encoding { imm1 = 52 } }
-{ misc: vwait.ge [sflag:52], 288 ;  # loc("examples/pallas/concatenate_dma.py":25:4 to :51)
+{ misc: vwait.ge [sflag:52], 288 ;  # examples/pallas/concatenate_dma.py:25:4-25:51 [dma_wait; LLO 61]
   .encoding { misc.sync_flag_number = imm1 } }
 # exit bundle: %concatenate_dma.1 = custom-call(%x_hbm.1, %y_hbm.1)
-{ misc: vsyncadd.s32 [sflag:52], -288 ;
+{ misc: vsyncadd.s32 [sflag:52], -288 ;  # examples/pallas/concatenate_dma.py:25:4-25:51 [dma_wait; LLO 62]
   .encoding { misc.sync_flag_number = imm1 } }
 { misc: vtrace 0x90000000 }
 # end function jit(wrapper)/concatenate_dma/mpmd_map [symbol 6, concatenate_dma.1]
@@ -927,7 +927,7 @@ L_020d:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -935,7 +935,7 @@ L_020d:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -972,7 +972,7 @@ L_020d:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -991,7 +991,7 @@ L_0238:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1062,7 +1062,7 @@ L_024b:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1107,7 +1107,7 @@ L_027a:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

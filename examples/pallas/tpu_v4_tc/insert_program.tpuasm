@@ -885,37 +885,37 @@ L_01c9:
 { s0: simm.s32 s7, 62 ;  # materialized constant
   .encoding { s0.y = pair(imm1, imm0) } }
 { s0: dma.simple [smem:s7], [hbm:s0], length=1, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 1 ;  # loc("examples/pallas/insert_program.py":27:4 to :45)
+{ misc: vwait.ge [sflag:52], 1 ;  # examples/pallas/insert_program.py:27:4-27:45 [dma_wait; LLO 98]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -1 ;
+{ misc: vsyncadd.s32 [sflag:52], -1 ;  # examples/pallas/insert_program.py:27:4-27:45 [dma_wait; LLO 99]
   .encoding { misc.value = imm2 } }
-{ s0: sfence }  # examples/pallas/insert_program.py:27:4-27:45 [dma_wait; LLO 25] | loc("examples/pallas/insert_program.py":27:4 to :45)
+{ s0: sfence }  # examples/pallas/insert_program.py:27:4-27:45 [dma_wait; LLO 25]
 { s1: sld s10, [smem:0x3f] ;
   .encoding { s1.address = pair(imm1, imm0) } }
 { s1: sld s11, [smem:0x40] ;
   .encoding { s1.address = pair(imm1, imm0) } }
 { s1: sld s12, [smem:0x3e] ;
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0x13e], s10 ;  # examples/pallas/insert_program.py:28:4-28:12 [swap; LLO 28] | loc("examples/pallas/insert_program.py":28:4 to :12)
+{ s1: sst [smem:0x13e], s10 ;  # examples/pallas/insert_program.py:28:4-28:12 [swap; LLO 28]
   .encoding { s1.address = pair(imm1, imm0) } }
 # end function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]
 # tpuasm: inserted bundle
 { s0: srdreg.lcclo s13 }
 # function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]; image bundles [518, 521)
-{ s0: sadd.s32 s13, 0, s13 }  # examples/pallas/insert_program.py:29:13-29:40 [add; LLO 30] | loc("examples/pallas/insert_program.py":29:13 to :40)
-{ s0: sle.s32 p1, s12, 0 ;  # loc("examples/pallas/insert_program.py":30:5 to :42)
-  s1: sst [smem:0xbe], s13 ;  # examples/pallas/insert_program.py:29:4-29:10 [swap; LLO 32] | loc("examples/pallas/insert_program.py":29:4 to :10)
+{ s0: sadd.s32 s13, 0, s13 }  # examples/pallas/insert_program.py:29:13-29:40 [add; LLO 30]
+{ s0: sle.s32 p1, s12, 0 ;  # examples/pallas/insert_program.py:30:5-30:42
+  s1: sst [smem:0xbe], s13 ;  # examples/pallas/insert_program.py:29:4-29:10 [swap; LLO 32]
   .encoding { s0.y = const(0) ; s1.address = pair(imm1, imm0) } }
-{ s0: @p1 sbr.rel L_021f ;  # loc("examples/pallas/insert_program.py":30:5 to :42)
+{ s0: @p1 sbr.rel L_021f ;  # examples/pallas/insert_program.py:30:5-30:42
   s1: @!p1 simm.s32 s14, 0 }  # copy for cssa
 # end function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]
 {}
 # function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]; image bundles [522, 524)
 L_020a:
-{ s0: sadd.s32 s14, 1, s14 ;  # copy for cssa :: loc("examples/pallas/insert_program.py":30:5 to :42) :: loc("examples/pallas/insert_program.py":30:5 to :42)
+{ s0: sadd.s32 s14, 1, s14 ;  # examples/pallas/insert_program.py:30:5-30:42 | copy for cssa
   s1: sld s15, [smem:0x13e] ;
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s0: sge.s32 p2, s14, s12 }  # loc("examples/pallas/insert_program.py":30:5 to :42)
+{ s0: sge.s32 p2, s14, s12 }  # examples/pallas/insert_program.py:30:5-30:42
 # end function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]
 # tpuasm: inserted bundle
 {}
@@ -950,10 +950,10 @@ L_020a:
 # tpuasm: inserted bundle
 {}
 # function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]; image bundles [540, 547)
-{ s0: smul.u32 s16, 1664525, s15 }  # examples/pallas/insert_program.py:32:19-32:49 [mul; LLO 41] | loc("examples/pallas/insert_program.py":32:19 to :49)
-{ s0: @!p2 sbr.rel L_020a ;  # loc("examples/pallas/insert_program.py":30:5 to :42)
-  s1: sadd.s32 s17, 1013904223, s16 }  # examples/pallas/insert_program.py:32:19-32:74 [add; LLO 42] | loc("examples/pallas/insert_program.py":32:19 to :74)
-{ s1: sst [smem:0x13e], s17 ;  # examples/pallas/insert_program.py:32:8-32:16 [swap; LLO 43] | loc("examples/pallas/insert_program.py":32:8 to :16)
+{ s0: smul.u32 s16, 1664525, s15 }  # examples/pallas/insert_program.py:32:19-32:49 <- 30:5-30:42 [mul; LLO 41]
+{ s0: @!p2 sbr.rel L_020a ;  # examples/pallas/insert_program.py:30:5-30:42
+  s1: sadd.s32 s17, 1013904223, s16 }  # examples/pallas/insert_program.py:32:19-32:74 <- 30:5-30:42 [add; LLO 42]
+{ s1: sst [smem:0x13e], s17 ;  # examples/pallas/insert_program.py:32:8-32:16 <- 30:5-30:42 [swap; LLO 43]
   .encoding { s1.address = pair(imm1, imm0) } }
 L_021f:
 { s0: simm.s32 s19, -839930931 ;  # materialized constant
@@ -962,31 +962,31 @@ L_021f:
 { s0: simm.s32 s21, 190 ;  # materialized constant
   s1: sld s18, [smem:0x13e] ;
   .encoding { s0.y = pair(imm3, imm2) ; s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xc1], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 52] | loc("examples/pallas/insert_program.py":36:8 to :14)
+{ s1: sst [smem:0xc1], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 52]
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xc2], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 54] | loc("examples/pallas/insert_program.py":36:8 to :14)
+{ s1: sst [smem:0xc2], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 54]
   .encoding { s1.address = pair(imm1, imm0) } }
 # end function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]
 # tpuasm: inserted bundle
 { s0: srdreg.lcclo s20 }
 # function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]; image bundles [548, 557)
-{ s0: sadd.s32 s20, 0, s20 ;  # examples/pallas/insert_program.py:33:13-33:40 [add; LLO 45] | loc("examples/pallas/insert_program.py":33:13 to :40)
-  s1: sst [smem:0xc3], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 56] | loc("examples/pallas/insert_program.py":36:8 to :14)
+{ s0: sadd.s32 s20, 0, s20 ;  # examples/pallas/insert_program.py:33:13-33:40 [add; LLO 45]
+  s1: sst [smem:0xc3], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 56]
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xbf], s20 ;  # examples/pallas/insert_program.py:33:4-33:10 [swap; LLO 47] | loc("examples/pallas/insert_program.py":33:4 to :10)
+{ s1: sst [smem:0xbf], s20 ;  # examples/pallas/insert_program.py:33:4-33:10 [swap; LLO 47]
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xc0], s18 ;  # examples/pallas/insert_program.py:34:4-34:10 [swap; LLO 50] | loc("examples/pallas/insert_program.py":34:4 to :10)
+{ s1: sst [smem:0xc0], s18 ;  # examples/pallas/insert_program.py:34:4-34:10 [swap; LLO 50]
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xc4], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 58] | loc("examples/pallas/insert_program.py":36:8 to :14)
+{ s1: sst [smem:0xc4], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 58]
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s1: sst [smem:0xc5], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 60] | loc("examples/pallas/insert_program.py":36:8 to :14)
+{ s1: sst [smem:0xc5], s19 ;  # examples/pallas/insert_program.py:36:8-36:14 [swap; LLO 60]
   .encoding { s1.address = pair(imm1, imm0) } }
 { s0: dma.simple [hbm:s1], [smem:s21], length=1, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 1 ;  # loc("examples/pallas/insert_program.py":37:4 to :46)
+{ misc: vwait.ge [sflag:52], 1 ;  # examples/pallas/insert_program.py:37:4-37:46 [dma_wait; LLO 100]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -1 ;
+{ misc: vsyncadd.s32 [sflag:52], -1 ;  # examples/pallas/insert_program.py:37:4-37:46 [dma_wait; LLO 101]
   .encoding { misc.value = imm2 } }
-{ s0: sfence }  # examples/pallas/insert_program.py:37:4-37:46 [dma_wait; LLO 72] | loc("examples/pallas/insert_program.py":37:4 to :46)
+{ s0: sfence }  # examples/pallas/insert_program.py:37:4-37:46 [dma_wait; LLO 72]
 # end function jit(wrapper)/insert_program/mpmd_map [symbol 4, insert_program.1]
 # exit bundle: %insert_program.1 = custom-call(%x_hbm.1)
 L_022d:
@@ -1087,14 +1087,14 @@ L_0271:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1126,7 +1126,7 @@ L_0271:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1142,7 +1142,7 @@ L_0298:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_02a1 ;

@@ -102,6 +102,8 @@ paths = dump_compiled(compiled, Path('/tmp/tpuasm-output'), source_map_json=True
 
 每个程序写出一份 `.tpuasm`，`source_map_json=True` 时另写同名的 `.sources.json`。
 
+清单是 runtime 实际装载的完整程序映像，Pallas kernel 前后的初始化、同步与退出代码也在其中，裁掉后就不能再回灌。只想浏览 kernel 时，按 `ProgramSourceMap.functions[*].ranges` 给出的编译器函数区间折叠显示。逐槽的源码位置读 `ProgramSourceMap.slots[*].source_frames`，它合并了 tpuasm 捕获的来源与编译器自带的 `loc(...)`；没有来源的指令保持未知，不代表它属于 runtime。设计见[来源映射](docs/design/tc_source_mapping.md)。
+
 要在设备上观察修改后的程序，常用做法是在 kernel 中放一条带唯一立即数的运算作为标记（例如 `x ^ 0x13579bdf`），在清单中找到它所在的 bundle，在此插入手写片段，再借用 `compiled` 的调用约定执行：
 
 ```python

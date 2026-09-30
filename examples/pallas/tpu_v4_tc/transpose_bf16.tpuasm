@@ -886,230 +886,230 @@ L_01c9:
 { s0: simm.s32 s7, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s7], [hbm:s0], length=136, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 136 ;  # loc("examples/pallas/transpose_bf16.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 136 ;  # examples/pallas/transpose_bf16.py:23:4-23:47 [dma_wait; LLO 457]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s0, 136 ;  # materialized constant
-  vld: vld.8x128 v0, [vmem:0x80, sm=17] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 42] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  misc: vsyncadd.s32 [sflag:52], -136 ;
+  vld: vld.8x128 v0, [vmem:0x80, sm=17] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 42]
+  misc: vsyncadd.s32 [sflag:52], -136 ;  # examples/pallas/transpose_bf16.py:23:4-23:47 [dma_wait; LLO 458]
   .encoding { misc.value = imm2 } }
-{ va0: vunpackl.8x128.f16.f32 v1, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 124] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v2, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 126] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v3, [vmem:0x0] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 26] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v5, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 60] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v6, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 62] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v4, [vmem:0x8] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 27] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v7, v1, v1 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 177] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v8, v2, v2 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 179] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v13, [vmem:0x10] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 28] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v9, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 64] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v10, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 66] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v14, [vmem:0x18] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 29] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 68] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v16, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 70] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v21, [vmem:0x20] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 30] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vx0: vsupp.1.8x128 trf1, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 222] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.1.packed.start.end.8x128 trf1, v8, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 222] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: vunpackl.8x128.f16.f32 v1, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 124]
+  va1: vunpacku.8x128.f16.f32 v2, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 126]
+  vld: vld.8x128 v3, [vmem:0x0] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 26]
+{ va0: vunpackl.8x128.f16.f32 v5, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 60]
+  va1: vunpacku.8x128.f16.f32 v6, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 62]
+  vld: vld.8x128 v4, [vmem:0x8] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 27]
+{ va0: vpackc.8x128.f32.f16 v7, v1, v1 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 177]
+  va1: vpackc.8x128.f32.f16 v8, v2, v2 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 179]
+  vld: vld.8x128 v13, [vmem:0x10] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 28]
+{ va0: vunpackl.8x128.f16.f32 v9, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 64]
+  va1: vunpacku.8x128.f16.f32 v10, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 66]
+  vld: vld.8x128 v14, [vmem:0x18] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 29]
+{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 68]
+  va1: vunpacku.8x128.f16.f32 v16, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 70]
+  vld: vld.8x128 v21, [vmem:0x20] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 30]
+  vx0: vsupp.1.8x128 trf1, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 222]
+  vx1: vxpose.1.packed.start.end.8x128 trf1, v8, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 222]
   .encoding { vx1.read = port.va1.y } }
-{ va0: vpackc.8x128.f32.f16 v11, v9, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 130] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v12, v10, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 133] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v22, [vmem:0x28] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 31] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v17, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 72] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v18, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 74] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v29, [vmem:0x30] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 32] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v23, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 76] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v24, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 78] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v30, [vmem:0x38] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 33] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vx0: vsupp.2.8x128 trf0, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 198] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.2.packed.start.8x128 trf0, v12, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 198] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: vpackc.8x128.f32.f16 v11, v9, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 130]
+  va1: vpackc.8x128.f32.f16 v12, v10, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 133]
+  vld: vld.8x128 v22, [vmem:0x28] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 31]
+{ va0: vunpackl.8x128.f16.f32 v17, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 72]
+  va1: vunpacku.8x128.f16.f32 v18, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 74]
+  vld: vld.8x128 v29, [vmem:0x30] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 32]
+{ va0: vunpackl.8x128.f16.f32 v23, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 76]
+  va1: vunpacku.8x128.f16.f32 v24, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 78]
+  vld: vld.8x128 v30, [vmem:0x38] ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 33]
+  vx0: vsupp.2.8x128 trf0, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 198]
+  vx1: vxpose.2.packed.start.8x128 trf0, v12, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 198]
   .encoding { vx1.read = port.va1.y } }
-{ va0: vpackc.8x128.f32.f16 v19, v17, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 136] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v20, v18, v16 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 139] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v5, [vmem:0x40] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 34] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v25, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 80] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v26, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 82] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v6, [vmem:0x48] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 35] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v31, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 84] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v0, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 86] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v13, [vmem:0x50] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 36] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v27, v25, v23 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 142] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v28, v26, v24 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 145] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v14, [vmem:0x58] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 37] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v1, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 88] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v2, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 90] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v21, [vmem:0x60] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 38] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v7, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 92] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v8, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 94] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v22, [vmem:0x68] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 39] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v3, v1, v31 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 148] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v4, v2, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 151] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v29, [vmem:0x70] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 40] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v9, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 96] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v10, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 98] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v30, [vmem:0x78] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 41] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 100] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v16, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 102] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v11, v9, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 154] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vpackc.8x128.f32.f16 v12, v10, v8 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 157] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v17, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 104] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v18, v14 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 106] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v23, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 108] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v24, v21 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 110] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v25, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 112] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v26, v22 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 114] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v31, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 116] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v0, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 118] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vunpackl.8x128.f16.f32 v1, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 120] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vunpacku.8x128.f16.f32 v2, v30 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 122] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v19, v17, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 160] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vlaneseq.8x128.u32 v5 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 403] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vx0: vsupp.0.8x128 trf0, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 199] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.0.packed.8x128 trf0, v20, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 199] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: vpackc.8x128.f32.f16 v19, v17, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 136]
+  va1: vpackc.8x128.f32.f16 v20, v18, v16 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 139]
+  vld: vld.8x128 v5, [vmem:0x40] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 34]
+{ va0: vunpackl.8x128.f16.f32 v25, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 80]
+  va1: vunpacku.8x128.f16.f32 v26, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 82]
+  vld: vld.8x128 v6, [vmem:0x48] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 35]
+{ va0: vunpackl.8x128.f16.f32 v31, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 84]
+  va1: vunpacku.8x128.f16.f32 v0, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 86]
+  vld: vld.8x128 v13, [vmem:0x50] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 36]
+{ va0: vpackc.8x128.f32.f16 v27, v25, v23 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 142]
+  va1: vpackc.8x128.f32.f16 v28, v26, v24 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 145]
+  vld: vld.8x128 v14, [vmem:0x58] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 37]
+{ va0: vunpackl.8x128.f16.f32 v1, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 88]
+  va1: vunpacku.8x128.f16.f32 v2, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 90]
+  vld: vld.8x128 v21, [vmem:0x60] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 38]
+{ va0: vunpackl.8x128.f16.f32 v7, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 92]
+  va1: vunpacku.8x128.f16.f32 v8, v5 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 94]
+  vld: vld.8x128 v22, [vmem:0x68] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 39]
+{ va0: vpackc.8x128.f32.f16 v3, v1, v31 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 148]
+  va1: vpackc.8x128.f32.f16 v4, v2, v0 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 151]
+  vld: vld.8x128 v29, [vmem:0x70] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 40]
+{ va0: vunpackl.8x128.f16.f32 v9, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 96]
+  va1: vunpacku.8x128.f16.f32 v10, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 98]
+  vld: vld.8x128 v30, [vmem:0x78] }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 41]
+{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 100]
+  va1: vunpacku.8x128.f16.f32 v16, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 102]
+{ va0: vpackc.8x128.f32.f16 v11, v9, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 154]
+  va1: vpackc.8x128.f32.f16 v12, v10, v8 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 157]
+{ va0: vunpackl.8x128.f16.f32 v17, v14 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 104]
+  va1: vunpacku.8x128.f16.f32 v18, v14 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 106]
+{ va0: vunpackl.8x128.f16.f32 v23, v21 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 108]
+  va1: vunpacku.8x128.f16.f32 v24, v21 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 110]
+{ va0: vunpackl.8x128.f16.f32 v25, v22 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 112]
+  va1: vunpacku.8x128.f16.f32 v26, v22 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 114]
+{ va0: vunpackl.8x128.f16.f32 v31, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 116]
+  va1: vunpacku.8x128.f16.f32 v0, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 118]
+{ va0: vunpackl.8x128.f16.f32 v1, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 120]
+  va1: vunpacku.8x128.f16.f32 v2, v30 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 122]
+{ va0: vpackc.8x128.f32.f16 v19, v17, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 160]
+  va1: vlaneseq.8x128.u32 v5 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 403]
+  vx0: vsupp.0.8x128 trf0, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 199]
+  vx1: vxpose.0.packed.8x128 trf0, v20, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 199]
   .encoding { vx1.read = port.va1.y } }
-{ va0: vpackc.8x128.f32.f16 v20, v18, v16 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 163] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  va1: vsmask vm0, 0x80008 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 400] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ va0: vand.8x128.u32 v6, 0x7f, v5 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 404] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  va1: vshrl.8x128.s32 v10, v5, 0x7 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 426] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  misc: vmneg.8x128.u1 vm1, vm0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 402] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
+{ va0: vpackc.8x128.f32.f16 v20, v18, v16 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 163]
+  va1: vsmask vm0, 0x80008 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 400]
+{ va0: vand.8x128.u32 v6, 0x7f, v5 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 404]
+  va1: vshrl.8x128.s32 v10, v5, 0x7 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 426]
+  misc: vmneg.8x128.u1 vm1, vm0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 402]
   .encoding { va1.y = lo(imm1) } }
-{ va0: veq.8x128.s32 vm2, v6, 0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 405] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  va1: veq.8x128.s32 vm4, v10, 4 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 432] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ va0: vsmask vm7, 0x10001 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 428] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  va1: veq.8x128.s32 vm6, v10, 0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 427] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  misc: vmand.8x128.u1 vm3, vm1, vm2 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 406] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ va0: vsmask vm0, 0x90009 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 437] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  misc: vmor.8x128.u1 vm5, vm3, vm0 }  # loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ misc: vmand.8x128.u1 vm1, vm4, vm2 }  # loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ misc: vmand.8x128.u1 vm3, vm6, vm7 }  # loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ misc: vmand.8x128.u1 vm2, vm1, vm0 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 438] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ misc: vmor.8x128.u1 vm4, vm2, vm3 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 439] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ va0: vpackc.8x128.f32.f16 v27, v25, v23 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 166] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vld: vld.8x128 v23, [vmem:0x108, sm=17] ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 424] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vx0: vsupp.2.8x128 trf0, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 200] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.2.packed.8x128 trf0, v28, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 200] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: veq.8x128.s32 vm2, v6, 0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 405]
+  va1: veq.8x128.s32 vm4, v10, 4 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 432]
+{ va0: vsmask vm7, 0x10001 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 428]
+  va1: veq.8x128.s32 vm6, v10, 0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 427]
+  misc: vmand.8x128.u1 vm3, vm1, vm2 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 406]
+{ va0: vsmask vm0, 0x90009 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 437]
+  misc: vmor.8x128.u1 vm5, vm3, vm0 }  # examples/pallas/transpose_bf16.py:24:4-24:17
+{ misc: vmand.8x128.u1 vm1, vm4, vm2 }  # examples/pallas/transpose_bf16.py:24:4-24:17
+{ misc: vmand.8x128.u1 vm3, vm6, vm7 }  # examples/pallas/transpose_bf16.py:24:4-24:17
+{ misc: vmand.8x128.u1 vm2, vm1, vm0 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 438]
+{ misc: vmor.8x128.u1 vm4, vm2, vm3 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 439]
+{ va0: vpackc.8x128.f32.f16 v27, v25, v23 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 166]
+  vld: vld.8x128 v23, [vmem:0x108, sm=17] ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 424]
+  vx0: vsupp.2.8x128 trf0, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 200]
+  vx1: vxpose.2.packed.8x128 trf0, v28, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 200]
   .encoding { vx1.read = port.va1.y } }
-{ va0: vpackc.8x128.f32.f16 v28, v26, v24 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 169] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ va0: vpackc.8x128.f32.f16 v3, v1, v31 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 172] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-  vx0: vsupp.0.8x128 trf0, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 201] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.0.packed.8x128 trf0, v4, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 201] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: vpackc.8x128.f32.f16 v28, v26, v24 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 169]
+{ va0: vpackc.8x128.f32.f16 v3, v1, v31 ;  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 172]
+  vx0: vsupp.0.8x128 trf0, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 201]
+  vx1: vxpose.0.packed.8x128 trf0, v4, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 201]
   .encoding { vx1.read = port.va1.y } }
-{ va0: vpackc.8x128.f32.f16 v4, v2, v0 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 175] | loc("examples/pallas/transpose_bf16.py":24:20 to :31)
-{ vx0: vsupp.2.8x128 trf0, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 202] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.2.packed.8x128 trf0, v12, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 202] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ va0: vpackc.8x128.f32.f16 v4, v2, v0 }  # examples/pallas/transpose_bf16.py:24:20-24:31 [get; LLO 175]
+{ vx0: vsupp.2.8x128 trf0, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 202]
+  vx1: vxpose.2.packed.8x128 trf0, v12, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 202]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vsupp.0.8x128 trf0, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 203] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.0.packed.8x128 trf0, v20, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 203] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ vx0: vsupp.0.8x128 trf0, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 203]
+  vx1: vxpose.0.packed.8x128 trf0, v20, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 203]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vsupp.2.8x128 trf0, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 204] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.2.packed.8x128 trf0, v28, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 204] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ vx0: vsupp.2.8x128 trf0, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 204]
+  vx1: vxpose.2.packed.8x128 trf0, v28, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 204]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vsupp.0.8x128 trf0, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 205] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vx1: vxpose.0.packed.end.8x128 trf0, v4, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 205] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
+{ vx0: vsupp.0.8x128 trf0, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 205]
+  vx1: vxpose.0.packed.end.8x128 trf0, v4, 128 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 205]
   .encoding { vx1.read = port.va0.y } }
-{ vr0: vpop.8x128 v7, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 230] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v8, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 266] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v9, v7 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 270] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v11, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 206] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v12, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 264] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v13, v11 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 268] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v15, v8, v12 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 334] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v16, v9, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 337] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0x88], vm5, v15 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 408] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v18, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 231] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v20, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 330] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vst: vst.msk.8x128 [vmem:0x90], vm5, v16 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 409] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v21, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 207] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v22, v21 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 328] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v24, v20, v22 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 382] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vsel.8x128 v25, vm4, v24, v23 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 440] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v26, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 232] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v27, v26 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 274] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v28, v26 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 278] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  vst: vst.8x128 [vmem:0x108, sm=17], v25 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 441] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v29, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 208] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v30, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 272] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v31, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 276] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v0, v27, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 340] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v1, v28, v31 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 343] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0x98], vm5, v0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 410] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v2, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 233] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xa0], vm5, v1 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 411] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v3, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 209] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v4, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 234] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v5, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 282] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v6, v4 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 286] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v7, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 210] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v8, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 280] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v9, v7 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 284] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v10, v5, v8 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 346] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v11, v6, v9 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 349] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xa8], vm5, v10 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 412] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v12, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 235] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xb0], vm5, v11 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 413] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v13, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 211] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v15, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 236] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v16, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 290] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v17, v15 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 294] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v18, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 212] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v19, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 288] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v20, v18 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 292] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v21, v16, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 352] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v22, v17, v20 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 355] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xb8], vm5, v21 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 414] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v23, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 237] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xc0], vm5, v22 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 415] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 213] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v25, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 238] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v26, v25 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 298] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v27, v25 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 302] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v28, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 214] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v29, v28 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 296] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v30, v28 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 300] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v31, v26, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 358] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v0, v27, v30 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 361] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xc8], vm5, v31 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 416] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v1, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 239] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xd0], vm5, v0 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 417] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v2, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 215] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v3, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 240] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v4, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 306] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v5, v3 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 310] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v6, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 216] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v7, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 304] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v8, v6 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 308] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v9, v4, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 364] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v10, v5, v8 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 367] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xd8], vm5, v9 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 418] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v11, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 241] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xe0], vm5, v10 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 419] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v12, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 217] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v13, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 242] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 314] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v16, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 318] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v17, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 218] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v18, v17 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 312] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v19, v17 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 316] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v20, v15, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 370] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v21, v16, v19 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 373] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xe8], vm5, v20 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 420] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v22, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 243] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xf0], vm5, v21 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 421] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-{ vr0: vpop.8x128 v23, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 219] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v24, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 244] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v25, v24 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 322] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v26, v24 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 326] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vr0: vpop.8x128 v27, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 220] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vunpackl.8x128.f16.f32 v28, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 320] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vunpacku.8x128.f16.f32 v29, v27 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 324] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ va0: vpackc.8x128.f32.f16 v30, v25, v28 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 376] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-  va1: vpackc.8x128.f32.f16 v31, v26, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 379] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0xf8], vm5, v30 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 422] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
-  vr0: vpop.8x128 v0, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 245] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ vst: vst.msk.8x128 [vmem:0x100], vm5, v31 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 423] | loc("examples/pallas/transpose_bf16.py":24:4 to :17)
+{ vr0: vpop.8x128 v7, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 230]
+{ va0: vunpackl.8x128.f16.f32 v8, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 266]
+  va1: vunpacku.8x128.f16.f32 v9, v7 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 270]
+{ vr0: vpop.8x128 v11, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 206]
+{ va0: vunpackl.8x128.f16.f32 v12, v11 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 264]
+  va1: vunpacku.8x128.f16.f32 v13, v11 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 268]
+{ va0: vpackc.8x128.f32.f16 v15, v8, v12 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 334]
+  va1: vpackc.8x128.f32.f16 v16, v9, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 337]
+{ vst: vst.msk.8x128 [vmem:0x88], vm5, v15 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 408]
+  vr0: vpop.8x128 v18, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 231]
+{ va0: vunpackl.8x128.f16.f32 v20, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 330]
+  vst: vst.msk.8x128 [vmem:0x90], vm5, v16 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 409]
+{ vr0: vpop.8x128 v21, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 207]
+{ va0: vunpackl.8x128.f16.f32 v22, v21 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 328]
+{ va0: vpackc.8x128.f32.f16 v24, v20, v22 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 382]
+{ va0: vsel.8x128 v25, vm4, v24, v23 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 440]
+  vr0: vpop.8x128 v26, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 232]
+{ va0: vunpackl.8x128.f16.f32 v27, v26 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 274]
+  va1: vunpacku.8x128.f16.f32 v28, v26 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 278]
+  vst: vst.8x128 [vmem:0x108, sm=17], v25 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 441]
+{ vr0: vpop.8x128 v29, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 208]
+{ va0: vunpackl.8x128.f16.f32 v30, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 272]
+  va1: vunpacku.8x128.f16.f32 v31, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 276]
+{ va0: vpackc.8x128.f32.f16 v0, v27, v30 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 340]
+  va1: vpackc.8x128.f32.f16 v1, v28, v31 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 343]
+{ vst: vst.msk.8x128 [vmem:0x98], vm5, v0 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 410]
+  vr0: vpop.8x128 v2, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 233]
+{ vst: vst.msk.8x128 [vmem:0xa0], vm5, v1 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 411]
+{ vr0: vpop.8x128 v3, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 209]
+{ vr0: vpop.8x128 v4, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 234]
+{ va0: vunpackl.8x128.f16.f32 v5, v4 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 282]
+  va1: vunpacku.8x128.f16.f32 v6, v4 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 286]
+{ vr0: vpop.8x128 v7, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 210]
+{ va0: vunpackl.8x128.f16.f32 v8, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 280]
+  va1: vunpacku.8x128.f16.f32 v9, v7 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 284]
+{ va0: vpackc.8x128.f32.f16 v10, v5, v8 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 346]
+  va1: vpackc.8x128.f32.f16 v11, v6, v9 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 349]
+{ vst: vst.msk.8x128 [vmem:0xa8], vm5, v10 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 412]
+  vr0: vpop.8x128 v12, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 235]
+{ vst: vst.msk.8x128 [vmem:0xb0], vm5, v11 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 413]
+{ vr0: vpop.8x128 v13, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 211]
+{ vr0: vpop.8x128 v15, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 236]
+{ va0: vunpackl.8x128.f16.f32 v16, v15 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 290]
+  va1: vunpacku.8x128.f16.f32 v17, v15 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 294]
+{ vr0: vpop.8x128 v18, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 212]
+{ va0: vunpackl.8x128.f16.f32 v19, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 288]
+  va1: vunpacku.8x128.f16.f32 v20, v18 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 292]
+{ va0: vpackc.8x128.f32.f16 v21, v16, v19 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 352]
+  va1: vpackc.8x128.f32.f16 v22, v17, v20 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 355]
+{ vst: vst.msk.8x128 [vmem:0xb8], vm5, v21 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 414]
+  vr0: vpop.8x128 v23, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 237]
+{ vst: vst.msk.8x128 [vmem:0xc0], vm5, v22 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 415]
+{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 213]
+{ vr0: vpop.8x128 v25, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 238]
+{ va0: vunpackl.8x128.f16.f32 v26, v25 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 298]
+  va1: vunpacku.8x128.f16.f32 v27, v25 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 302]
+{ vr0: vpop.8x128 v28, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 214]
+{ va0: vunpackl.8x128.f16.f32 v29, v28 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 296]
+  va1: vunpacku.8x128.f16.f32 v30, v28 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 300]
+{ va0: vpackc.8x128.f32.f16 v31, v26, v29 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 358]
+  va1: vpackc.8x128.f32.f16 v0, v27, v30 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 361]
+{ vst: vst.msk.8x128 [vmem:0xc8], vm5, v31 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 416]
+  vr0: vpop.8x128 v1, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 239]
+{ vst: vst.msk.8x128 [vmem:0xd0], vm5, v0 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 417]
+{ vr0: vpop.8x128 v2, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 215]
+{ vr0: vpop.8x128 v3, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 240]
+{ va0: vunpackl.8x128.f16.f32 v4, v3 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 306]
+  va1: vunpacku.8x128.f16.f32 v5, v3 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 310]
+{ vr0: vpop.8x128 v6, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 216]
+{ va0: vunpackl.8x128.f16.f32 v7, v6 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 304]
+  va1: vunpacku.8x128.f16.f32 v8, v6 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 308]
+{ va0: vpackc.8x128.f32.f16 v9, v4, v7 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 364]
+  va1: vpackc.8x128.f32.f16 v10, v5, v8 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 367]
+{ vst: vst.msk.8x128 [vmem:0xd8], vm5, v9 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 418]
+  vr0: vpop.8x128 v11, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 241]
+{ vst: vst.msk.8x128 [vmem:0xe0], vm5, v10 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 419]
+{ vr0: vpop.8x128 v12, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 217]
+{ vr0: vpop.8x128 v13, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 242]
+{ va0: vunpackl.8x128.f16.f32 v15, v13 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 314]
+  va1: vunpacku.8x128.f16.f32 v16, v13 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 318]
+{ vr0: vpop.8x128 v17, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 218]
+{ va0: vunpackl.8x128.f16.f32 v18, v17 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 312]
+  va1: vunpacku.8x128.f16.f32 v19, v17 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 316]
+{ va0: vpackc.8x128.f32.f16 v20, v15, v18 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 370]
+  va1: vpackc.8x128.f32.f16 v21, v16, v19 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 373]
+{ vst: vst.msk.8x128 [vmem:0xe8], vm5, v20 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 420]
+  vr0: vpop.8x128 v22, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 243]
+{ vst: vst.msk.8x128 [vmem:0xf0], vm5, v21 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 421]
+{ vr0: vpop.8x128 v23, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 219]
+{ vr0: vpop.8x128 v24, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 244]
+{ va0: vunpackl.8x128.f16.f32 v25, v24 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 322]
+  va1: vunpacku.8x128.f16.f32 v26, v24 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 326]
+{ vr0: vpop.8x128 v27, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 220]
+{ va0: vunpackl.8x128.f16.f32 v28, v27 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 320]
+  va1: vunpacku.8x128.f16.f32 v29, v27 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 324]
+{ va0: vpackc.8x128.f32.f16 v30, v25, v28 ;  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 376]
+  va1: vpackc.8x128.f32.f16 v31, v26, v29 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 379]
+{ vst: vst.msk.8x128 [vmem:0xf8], vm5, v30 ;  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 422]
+  vr0: vpop.8x128 v0, trf1 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 245]
+{ vst: vst.msk.8x128 [vmem:0x100], vm5, v31 }  # examples/pallas/transpose_bf16.py:24:4-24:17 [swap; LLO 423]
 { s0: dma.simple [hbm:s1], [vmem:s0], length=136, dst_flag=[sflag:52] }
-{ vr0: vpop.8x128 v1, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 221] | loc("examples/pallas/transpose_bf16.py":24:20 to :33)
-{ misc: vwait.ge [sflag:52], 136 ;  # loc("examples/pallas/transpose_bf16.py":25:4 to :51)
+{ vr0: vpop.8x128 v1, trf0 }  # examples/pallas/transpose_bf16.py:24:20-24:33 [transpose; LLO 221]
+{ misc: vwait.ge [sflag:52], 136 ;  # examples/pallas/transpose_bf16.py:25:4-25:51 [dma_wait; LLO 459]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -136 ;
+{ misc: vsyncadd.s32 [sflag:52], -136 ;  # examples/pallas/transpose_bf16.py:25:4-25:51 [dma_wait; LLO 460]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/transpose_bf16/mpmd_map [symbol 4, transpose_bf16.1]
 # exit bundle: %transpose_bf16.1 = custom-call(%x_hbm.1)
@@ -1211,14 +1211,14 @@ L_02b2:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1250,7 +1250,7 @@ L_02b2:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1266,7 +1266,7 @@ L_02d9:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_02e2 ;

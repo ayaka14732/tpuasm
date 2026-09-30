@@ -845,29 +845,29 @@ L_01be:
 { s0: simm.s32 s6, 0 }  # copy for cssa
 L_01d5:
 { s0: simm.s32 s7, 0 ;  # materialized constant
-  s1: sshll.u32 s9, s6, 0x7 ;  # examples/pallas/double_buffer.py:26:21-26:30 [mul; LLO 64] | examples/pallas/double_buffer.py:27:8-27:54 [dma_start; LLO 64] | loc("examples/pallas/double_buffer.py":29:8 to :56) :: loc("examples/pallas/double_buffer.py":27:8 to :54)
+  s1: sshll.u32 s9, s6, 0x7 ;  # examples/pallas/double_buffer.py:26:21-26:30 <- 24:5-24:18 [mul; LLO 64] | examples/pallas/double_buffer.py:27:8-27:54 <- 24:5-24:18 [dma_start; LLO 64] | examples/pallas/double_buffer.py:27:8-27:61 <- 24:5-24:18 [dma_wait; LLO 64] | examples/pallas/double_buffer.py:29:8-29:56
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s8, s7, 0x4 ;  # examples/pallas/double_buffer.py:27:8-27:54 [dma_start; LLO 25] | loc("examples/pallas/double_buffer.py":29:8 to :56) :: loc("examples/pallas/double_buffer.py":27:8 to :54)
-  s1: sadd.s32 s12, s9, s0 }  # examples/pallas/double_buffer.py:27:8-27:54 [dma_start; LLO 14] | loc("examples/pallas/double_buffer.py":27:8 to :54)
-{ dma: dma.simple [vmem:s8], [hbm:s12], length=128, dst_flag=[sflag:52] }  # examples/pallas/double_buffer.py:27:8-27:54 [dma_start; LLO 28] | loc("examples/pallas/double_buffer.py":27:8 to :54)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/double_buffer.py":27:8 to :61)
+{ s0: sshll.u32 s8, s7, 0x4 ;  # examples/pallas/double_buffer.py:27:8-27:54 <- 24:5-24:18 [dma_start; LLO 25] | examples/pallas/double_buffer.py:29:8-29:56
+  s1: sadd.s32 s12, s9, s0 }  # examples/pallas/double_buffer.py:27:8-27:54 <- 24:5-24:18 [dma_start; LLO 14] | examples/pallas/double_buffer.py:27:8-27:61 <- 24:5-24:18 [dma_wait; LLO 14]
+{ dma: dma.simple [vmem:s8], [hbm:s12], length=128, dst_flag=[sflag:52] }  # examples/pallas/double_buffer.py:27:8-27:54 <- 24:5-24:18 [dma_start; LLO 28]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/double_buffer.py:27:8-27:61 <- 24:5-24:18 [dma_wait; LLO 79]
   .encoding { misc.sync_flag_number = imm1 } }
-{ s0: sadd.s32 s15, s9, s1 ;  # examples/pallas/double_buffer.py:29:8-29:56 [dma_start; LLO 36] | loc("examples/pallas/double_buffer.py":29:8 to :56)
-  vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/double_buffer.py:28:20-28:29 [get; LLO 31] | loc("examples/pallas/double_buffer.py":28:20 to :29)
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+{ s0: sadd.s32 s15, s9, s1 ;  # examples/pallas/double_buffer.py:29:8-29:56 <- 24:5-24:18 [dma_start; LLO 36] | examples/pallas/double_buffer.py:29:8-29:63 <- 24:5-24:18 [dma_wait; LLO 36]
+  vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/double_buffer.py:28:20-28:29 <- 24:5-24:18 [get; LLO 31]
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/double_buffer.py:27:8-27:61 <- 24:5-24:18 [dma_wait; LLO 80]
   .encoding { misc.sync_flag_number = imm1 ; vld0.offset = imm2 } }
-{ va0: vmul.8x128.f32 v1, 2.0, v0 }  # examples/pallas/double_buffer.py:28:20-28:35 [mul; LLO 32] | loc("examples/pallas/double_buffer.py":28:20 to :35)
-{ va0: vadd.8x128.f32 v2, 1.0, v1 }  # examples/pallas/double_buffer.py:28:20-28:41 [add; LLO 33] | loc("examples/pallas/double_buffer.py":28:20 to :41)
-{ vst: vst.8x128 [vmem:0x0], v2 ;  # examples/pallas/double_buffer.py:28:8-28:17 [swap; LLO 34] | loc("examples/pallas/double_buffer.py":28:8 to :17)
+{ va0: vmul.8x128.f32 v1, 2.0, v0 }  # examples/pallas/double_buffer.py:28:20-28:35 <- 24:5-24:18 [mul; LLO 32]
+{ va0: vadd.8x128.f32 v2, 1.0, v1 }  # examples/pallas/double_buffer.py:28:20-28:41 <- 24:5-24:18 [add; LLO 33]
+{ vst: vst.8x128 [vmem:0x0], v2 ;  # examples/pallas/double_buffer.py:28:8-28:17 <- 24:5-24:18 [swap; LLO 34]
   .encoding { vst.offset = imm0 } }
-{ dma: dma.simple [hbm:s15], [vmem:s8], length=128, dst_flag=[sflag:52] }  # examples/pallas/double_buffer.py:29:8-29:56 [dma_start; LLO 49] | loc("examples/pallas/double_buffer.py":29:8 to :56)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/double_buffer.py":29:8 to :63)
+{ dma: dma.simple [hbm:s15], [vmem:s8], length=128, dst_flag=[sflag:52] }  # examples/pallas/double_buffer.py:29:8-29:56 <- 24:5-24:18 [dma_start; LLO 49]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/double_buffer.py:29:8-29:63 <- 24:5-24:18 [dma_wait; LLO 81]
   .encoding { misc.sync_flag_number = imm1 } }
-{ s0: sadd.s32 s6, 1, s6 ;  # copy for cssa :: loc("examples/pallas/double_buffer.py":24:5 to :18) :: loc("examples/pallas/double_buffer.py":24:5 to :18)
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+{ s0: sadd.s32 s6, 1, s6 ;  # examples/pallas/double_buffer.py:24:5-24:18 | copy for cssa
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/double_buffer.py:29:8-29:63 <- 24:5-24:18 [dma_wait; LLO 82]
   .encoding { misc.sync_flag_number = imm1 } }
-{ s0: sge.s32 p0, s6, 4 }  # loc("examples/pallas/double_buffer.py":24:5 to :18)
-{ s0: @!p0 sbr.rel L_01d5 }  # loc("examples/pallas/double_buffer.py":24:5 to :18)
+{ s0: sge.s32 p0, s6, 4 }  # examples/pallas/double_buffer.py:24:5-24:18 | loop exit test
+{ s0: @!p0 sbr.rel L_01d5 }  # examples/pallas/double_buffer.py:24:5-24:18
 # end function jit(wrapper)/serial/mpmd_map [symbol 4, serial.1]
 {}
 {}
@@ -936,7 +936,7 @@ L_0213:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -944,7 +944,7 @@ L_0213:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -981,7 +981,7 @@ L_0213:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -1000,7 +1000,7 @@ L_023e:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1071,7 +1071,7 @@ L_0251:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1116,7 +1116,7 @@ L_0280:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

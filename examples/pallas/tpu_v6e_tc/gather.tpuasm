@@ -845,35 +845,35 @@ L_01be:
 # entry bundle: %gather.1 = custom-call(%x_hbm.1, %indices_hbm.1)
 { s0: simm.s32 s9, 0 ;  # materialized constant
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/gather.py:23:4-23:40 [dma_start; LLO 17] | loc("examples/pallas/gather.py":23:4 to :40)
-{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:23:4-23:40 [dma_start; LLO 20] | loc("examples/pallas/gather.py":23:4 to :40)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/gather.py":23:4 to :47)
+{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/gather.py:23:4-23:40 [dma_start; LLO 17]
+{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:23:4-23:40 [dma_start; LLO 20]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/gather.py:23:4-23:47 [dma_wait; LLO 66]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s13, 8 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/gather.py:23:4-23:47 [dma_wait; LLO 67]
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/gather.py:24:4-24:52 [dma_start; LLO 32] | loc("examples/pallas/gather.py":24:4 to :52)
-{ dma: dma.simple [vmem:s14], [hbm:s1], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:24:4-24:52 [dma_start; LLO 35] | loc("examples/pallas/gather.py":24:4 to :52)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/gather.py":24:4 to :59)
+{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/gather.py:24:4-24:52 [dma_start; LLO 32]
+{ dma: dma.simple [vmem:s14], [hbm:s1], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:24:4-24:52 [dma_start; LLO 35]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/gather.py:24:4-24:59 [dma_wait; LLO 68]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s17, 16 ;  # materialized constant
-  vld0: vld.8x128 v0, [vmem:0x8] ;  # examples/pallas/gather.py:25:53-25:70 [get; LLO 39] | loc("examples/pallas/gather.py":25:53 to :70)
-  vld1: vld.8x128 v3, [vmem:0x0] ;  # examples/pallas/gather.py:25:40-25:51 [get; LLO 38] | loc("examples/pallas/gather.py":25:40 to :51)
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+  vld0: vld.8x128 v0, [vmem:0x8] ;  # examples/pallas/gather.py:25:53-25:70 [get; LLO 39]
+  vld1: vld.8x128 v3, [vmem:0x0] ;  # examples/pallas/gather.py:25:40-25:51 [get; LLO 38]
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/gather.py:24:4-24:59 [dma_wait; LLO 69]
   .encoding { s0.y = zero_imm0 ; vld0.offset = imm3 ; vld1.offset = imm4 } }
-{ s0: sshll.u32 s0, s17, 0x4 ;  # examples/pallas/gather.py:26:4-26:44 [dma_start; LLO 56] | loc("examples/pallas/gather.py":26:4 to :44)
-  va0: vlt.8x128.s32 vm0, v0, 0 ;  #  [lt; LLO 40]
-  va1: vadd.8x128.s32 v1, 128, v0 }  #  [add; LLO 41]
-{ va0: vsel.8x128 v2, vm0, v1, v0 }  #  [select_n; LLO 42]
+{ s0: sshll.u32 s0, s17, 0x4 ;  # examples/pallas/gather.py:26:4-26:44 [dma_start; LLO 56]
+  va0: vlt.8x128.s32 vm0, v0, 0 ;  # examples/pallas/gather.py:25:20-25:79 [lt; LLO 40]
+  va1: vadd.8x128.s32 v1, 128, v0 }  # examples/pallas/gather.py:25:20-25:79 [add; LLO 41]
+{ va0: vsel.8x128 v2, vm0, v1, v0 }  # examples/pallas/gather.py:25:20-25:79 [select_n; LLO 42]
 { vx0: vsetperm.all.u8 pcr0, v2 }
-{ vx0: vperm.lane.8x128 trf0, v3 }  #  [gather; LLO 44] | Set PCR instruction
-{ vr0: vpop.8x128 v4, trf0 }  #  [gather; LLO 45]
-{ vst: vst.8x128 [vmem:0x10], v4 }  # examples/pallas/gather.py:25:4-25:17 [swap; LLO 46] | loc("examples/pallas/gather.py":25:4 to :17)
-{ dma: dma.simple [hbm:s2], [vmem:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:26:4-26:44 [dma_start; LLO 59] | loc("examples/pallas/gather.py":26:4 to :44)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/gather.py":26:4 to :51)
+{ vx0: vperm.lane.8x128 trf0, v3 }  # examples/pallas/gather.py:25:20-25:79 [gather; LLO 44] | Set PCR instruction
+{ vr0: vpop.8x128 v4, trf0 }  # examples/pallas/gather.py:25:20-25:79 [gather; LLO 45]
+{ vst: vst.8x128 [vmem:0x10], v4 }  # examples/pallas/gather.py:25:4-25:17 [swap; LLO 46]
+{ dma: dma.simple [hbm:s2], [vmem:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/gather.py:26:4-26:44 [dma_start; LLO 59]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/gather.py:26:4-26:51 [dma_wait; LLO 70]
   .encoding { misc.sync_flag_number = imm1 } }
 # exit bundle: %gather.1 = custom-call(%x_hbm.1, %indices_hbm.1)
-{ misc: vsyncadd.s32 [sflag:52], -128 ;
+{ misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/gather.py:26:4-26:51 [dma_wait; LLO 71]
   .encoding { misc.sync_flag_number = imm1 } }
 { misc: vtrace 0x90000000 }
 # end function jit(wrapper)/gather/mpmd_map [symbol 6, gather.1]
@@ -935,7 +935,7 @@ L_0213:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -943,7 +943,7 @@ L_0213:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -980,7 +980,7 @@ L_0213:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -999,7 +999,7 @@ L_023e:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1070,7 +1070,7 @@ L_0251:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1115,7 +1115,7 @@ L_0280:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

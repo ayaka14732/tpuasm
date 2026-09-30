@@ -887,7 +887,7 @@ L_01e7:
 { s0: dma.simple [vmem:s5], [hbm:s0], length=4, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 4 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:51], -4 ;
+{ misc: vsyncadd.s32 [sflag:51], -4 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s7, 0 ;  # copy for cssa
   va0: veq.8x128.s32 vm6, v0, v0 ;  # copy for cssa
@@ -985,7 +985,7 @@ L_0221:
 { misc: @p2 vwait.ge [sflag:51], 1 ;  # enhanced-barrier-wait
   .encoding { misc.value = imm2 } }
 { s0: @p10 sbr.rel L_026b ;
-  misc: @p2 vsyncadd.s32 [sflag:51], -1 ;
+  misc: @p2 vsyncadd.s32 [sflag:51], -1 ;  # enhanced-barrier-wait
   .encoding { misc.value = imm2 } }
 {}
 { s0: simm.s32 s1, 46 }  # materialized constant
@@ -1014,7 +1014,7 @@ L_0235:
 { s0: dma.simple [smem:s9], [hbm:s7], length=1, dst_flag=[sflag:52] }
 { misc: vwait.ge [sflag:52], 1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -1 ;
+{ misc: vsyncadd.s32 [sflag:52], -1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: simm.s32 s13, 0 ;  # materialized constant
@@ -1069,7 +1069,7 @@ L_024f:
   .encoding { misc.value = imm2 } }
 { s0: @p12 simm.s32 s0, 262132 ;
   s1: @!p12 simm.s32 s0, 0 ;
-  misc: vsyncadd.s32 [sflag:51], -1 ;
+  misc: vsyncadd.s32 [sflag:51], -1 ;  # enhanced-barrier-wait
   .encoding { misc.value = imm2 } }
 { s1: @p12 sst [smem:0x3ffea], s30 }
 { s1: sld s1, [smem:s0] }
@@ -1137,7 +1137,7 @@ L_026e:
   .encoding { misc.value = imm2 } }
 { misc: vwait.ge [sflag:51], 3 ;  # enhanced-barrier-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:51], -3 ;
+{ misc: vsyncadd.s32 [sflag:51], -3 ;  # enhanced-barrier-wait
   .encoding { misc.value = imm2 } }
 L_028e:
 { misc: vtrace 0xc0000000 }
@@ -1260,89 +1260,89 @@ L_028e:
   .encoding { s0.y = lo(imm2) } }
 { s1: sld s12, [smem:0x3ffe3] }
 { s0: dma.simple [vmem:s13], [hbm:s0], length=8, dst_flag=[sflag:52] }
-{ s0: sshll.u32 s16, s12, 0x2 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 187] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: sadd.s32 s17, s16, s11 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 23] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: slt.s32 p1, s17, 0 ;  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 24] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-  s1: ssub.s32 s18, 0, s17 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 25] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: @!p1 smov s18, s17 }  # loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: sand.u32 s19, 0x3, s18 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 27] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: ssub.s32 s20, 0, s19 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 28] | loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: @!p1 smov s20, s19 }  # loc("examples/pallas/all_reduce.py":23:13 to :41)
-{ s0: sadd.s32 s21, 1, s20 }  # examples/pallas/all_reduce.py:24:30-24:40 [add; LLO 30] | loc("examples/pallas/all_reduce.py":24:30 to :40)
-{ s0: slt.s32 p2, s21, 0 ;  #  [rem; LLO 31]
-  s1: ssub.s32 s22, 0, s21 }  #  [rem; LLO 32]
-{ s0: @!p2 smov s22, s21 }
-{ s0: sand.u32 s23, 0x3, s22 }  #  [rem; LLO 34] | smod.u32 w/div 4
-{ s0: ssub.s32 s24, 0, s23 }  #  [rem; LLO 35]
-{ s0: @!p2 smov s24, s23 }
-{ s0: slt.s32 p3, s24, 0 ;  #  [ne; LLO 189] |  [lt; LLO 189] |  [and; LLO 189]
-  s1: sadd.s32 s25, 4, s24 }  #  [add; LLO 41]
-{ s0: @!p3 smov s25, s24 }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/all_reduce.py":33:4 to :56)
+{ s0: sshll.u32 s16, s12, 0x2 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 187]
+{ s0: sadd.s32 s17, s16, s11 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 23]
+{ s0: slt.s32 p1, s17, 0 ;  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 24]
+  s1: ssub.s32 s18, 0, s17 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 25]
+{ s0: @!p1 smov s18, s17 }  # examples/pallas/all_reduce.py:23:13-23:41
+{ s0: sand.u32 s19, 0x3, s18 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 27] | smod.u32 w/div 4
+{ s0: ssub.s32 s20, 0, s19 }  # examples/pallas/all_reduce.py:23:13-23:41 [axis_index; LLO 28]
+{ s0: @!p1 smov s20, s19 }  # examples/pallas/all_reduce.py:23:13-23:41
+{ s0: sadd.s32 s21, 1, s20 }  # examples/pallas/all_reduce.py:24:30-24:40 [add; LLO 30]
+{ s0: slt.s32 p2, s21, 0 ;  # examples/pallas/all_reduce.py:24:29-24:45 [rem; LLO 31]
+  s1: ssub.s32 s22, 0, s21 }  # examples/pallas/all_reduce.py:24:29-24:45 [rem; LLO 32]
+{ s0: @!p2 smov s22, s21 }  # examples/pallas/all_reduce.py:24:29-24:45
+{ s0: sand.u32 s23, 0x3, s22 }  # examples/pallas/all_reduce.py:24:29-24:45 [rem; LLO 34] | smod.u32 w/div 4
+{ s0: ssub.s32 s24, 0, s23 }  # examples/pallas/all_reduce.py:24:29-24:45 [rem; LLO 35]
+{ s0: @!p2 smov s24, s23 }  # examples/pallas/all_reduce.py:24:29-24:45
+{ s0: slt.s32 p3, s24, 0 ;  # examples/pallas/all_reduce.py:24:29-24:45 [ne, lt, and; LLO 189]
+  s1: sadd.s32 s25, 4, s24 }  # examples/pallas/all_reduce.py:24:29-24:45 [add; LLO 41]
+{ s0: @!p3 smov s25, s24 }  # examples/pallas/all_reduce.py:24:29-24:45
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/all_reduce.py:33:4-33:56 [dma_wait; LLO 218]
   .encoding { misc.value = imm2 } }
-{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/all_reduce.py:34:15-34:24 [get; LLO 55] | loc("examples/pallas/all_reduce.py":34:15 to :24)
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/all_reduce.py:34:15-34:24 [get; LLO 55]
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/all_reduce.py:33:4-33:56 [dma_wait; LLO 219]
   .encoding { misc.value = imm2 } }
-{ vst: vst.8x128 [vmem:0x10], v0 }  # examples/pallas/all_reduce.py:34:4-34:12 [swap; LLO 56] | loc("examples/pallas/all_reduce.py":34:4 to :12)
+{ vst: vst.8x128 [vmem:0x10], v0 }  # examples/pallas/all_reduce.py:34:4-34:12 [swap; LLO 56]
 { s0: simm.s32 s0, 557064 ;  # materialized constant
-  misc: vsyncadd.remote.s32 [sflag:32776], 1 ;  # examples/pallas/all_reduce.py:41:8-41:74 [semaphore_signal; LLO 65] | loc("examples/pallas/all_reduce.py":41:8 to :74)
+  misc: vsyncadd.remote.s32 [sflag:32776], 1 ;  # examples/pallas/all_reduce.py:41:8-41:74 <- 39:5-39:31 [semaphore_signal; LLO 65]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s26, 294920 ;  # materialized constant
-  misc: vsyncadd.remote.s32 [sflag:s0], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 [semaphore_signal; LLO 73] | loc("examples/pallas/all_reduce.py":41:8 to :74)
+  misc: vsyncadd.remote.s32 [sflag:s0], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 <- 39:5-39:31 [semaphore_signal; LLO 73]
 { s0: simm.s32 s27, 819208 ;  # materialized constant
-  misc: vsyncadd.remote.s32 [sflag:s26], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 [semaphore_signal; LLO 81] | loc("examples/pallas/all_reduce.py":41:8 to :74)
-{ misc: vsyncadd.remote.s32 [sflag:s27], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 [semaphore_signal; LLO 89] | loc("examples/pallas/all_reduce.py":41:8 to :74)
-{ misc: vsyncadd.s32 [sflag:8], -4 ;  # examples/pallas/all_reduce.py:43:4-43:31 [semaphore_wait; LLO 91] | loc("examples/pallas/all_reduce.py":43:4 to :31)
+  misc: vsyncadd.remote.s32 [sflag:s26], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 <- 39:5-39:31 [semaphore_signal; LLO 81]
+{ misc: vsyncadd.remote.s32 [sflag:s27], 1 }  # examples/pallas/all_reduce.py:41:8-41:74 <- 39:5-39:31 [semaphore_signal; LLO 89]
+{ misc: vsyncadd.s32 [sflag:8], -4 ;  # examples/pallas/all_reduce.py:43:4-43:31 [semaphore_wait; LLO 91]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s28, 0 ;  # copy for cssa
   misc: vwait.ge [sflag:8], 0 }
 L_02fd:
-{ s0: sadd.s32 s29, 3, s20 ;  # examples/pallas/all_reduce.py:48:63-48:73 [add; LLO 99] | loc("examples/pallas/all_reduce.py":48:63 to :73)
+{ s0: sadd.s32 s29, 3, s20 ;  # examples/pallas/all_reduce.py:48:63-48:73 <- 45:5-45:18 [add; LLO 99] | examples/pallas/all_reduce.py:48:62-48:78
   s1: simm.s32 s3, 56 }  # materialized constant
-{ s0: sand.u32 s30, 0x3, s29 ;  #  [rem; LLO 103] | smod.u32 w/div 4
-  s1: sor.u32 s4, 0x8000, s3 }  # examples/pallas/all_reduce.py:48:8-48:89 [semaphore_signal; LLO 119] | loc("examples/pallas/all_reduce.py":48:8 to :89)
+{ s0: sand.u32 s30, 0x3, s29 ;  # examples/pallas/all_reduce.py:48:62-48:78 <- 45:5-45:18 [rem; LLO 103] | smod.u32 w/div 4
+  s1: sor.u32 s4, 0x8000, s3 }  # examples/pallas/all_reduce.py:48:8-48:89 <- 45:5-45:18 [semaphore_signal; LLO 119]
 { s1: sld s2, [smem:s30 + 0x3f] ;
   .encoding { s1.address = pair(imm1, imm0) } }
-{ s0: sand.u32 s5, 0xfff, s2 }  # examples/pallas/all_reduce.py:48:8-48:89 [semaphore_signal; LLO 114] | loc("examples/pallas/all_reduce.py":48:8 to :89)
-{ s0: sshll.u32 s6, s5, 0x12 }  # examples/pallas/all_reduce.py:48:8-48:89 [semaphore_signal; LLO 115] | loc("examples/pallas/all_reduce.py":48:8 to :89)
-{ s0: sor.u32 s7, s4, s6 }  # examples/pallas/all_reduce.py:48:8-48:89 [semaphore_signal; LLO 120] | loc("examples/pallas/all_reduce.py":48:8 to :89)
-{ misc: vsyncadd.remote.s32 [sflag:s7], 1 }  # examples/pallas/all_reduce.py:48:8-48:89 [semaphore_signal; LLO 121] | loc("examples/pallas/all_reduce.py":48:8 to :89)
-{ misc: vsyncadd.s32 [sflag:56], -1 ;  # examples/pallas/all_reduce.py:49:8-49:38 [semaphore_wait; LLO 123] | loc("examples/pallas/all_reduce.py":49:8 to :38)
+{ s0: sand.u32 s5, 0xfff, s2 }  # examples/pallas/all_reduce.py:48:8-48:89 <- 45:5-45:18 [semaphore_signal; LLO 114]
+{ s0: sshll.u32 s6, s5, 0x12 }  # examples/pallas/all_reduce.py:48:8-48:89 <- 45:5-45:18 [semaphore_signal; LLO 115]
+{ s0: sor.u32 s7, s4, s6 }  # examples/pallas/all_reduce.py:48:8-48:89 <- 45:5-45:18 [semaphore_signal; LLO 120]
+{ misc: vsyncadd.remote.s32 [sflag:s7], 1 }  # examples/pallas/all_reduce.py:48:8-48:89 <- 45:5-45:18 [semaphore_signal; LLO 121]
+{ misc: vsyncadd.s32 [sflag:56], -1 ;  # examples/pallas/all_reduce.py:49:8-49:38 <- 45:5-45:18 [semaphore_wait; LLO 123]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s9, 54 ;  # materialized constant
   s1: simm.s32 s12, 0 ;  # materialized constant
   misc: vwait.ge [sflag:56], 0 ;
   .encoding { s1.y = lo(imm1) } }
-{ s0: sor.u32 s10, 0x4000, s9 ;  # examples/pallas/all_reduce.py:51:8-51:24 [dma_start; LLO 159] | loc("examples/pallas/all_reduce.py":51:8 to :24)
+{ s0: sor.u32 s10, 0x4000, s9 ;  # examples/pallas/all_reduce.py:51:8-51:24 <- 45:5-45:18 [dma_start; LLO 159]
   s1: sld s8, [smem:s25 + 0x3f] ;
   .encoding { s1.address = pair(imm1, imm0) } }
 { s0: simm.s32 s13, 8 ;  # materialized constant
   s1: simm.s32 s14, 53 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
-{ s0: sor.u32 s11, 0x88008000, s8 }  # examples/pallas/all_reduce.py:51:8-51:24 [dma_start; LLO 156] | loc("examples/pallas/all_reduce.py":51:8 to :24)
-{ s0: dma.general [vmem:s13], [vmem:s12], length=8, stride_descriptor=[smem:0x0], stride_count=0, src_flag=[sflag:s14], dst_flag=[sflag:s10], ici_dest=s11 }  # examples/pallas/all_reduce.py:51:8-51:24 [dma_start; LLO 161] | loc("examples/pallas/all_reduce.py":51:8 to :24)
-{ misc: vwait.ge [sflag:53], 8 ;  # loc("examples/pallas/all_reduce.py":52:8 to :28)
+{ s0: sor.u32 s11, 0x88008000, s8 }  # examples/pallas/all_reduce.py:51:8-51:24 <- 45:5-45:18 [dma_start; LLO 156]
+{ s0: dma.general [vmem:s13], [vmem:s12], length=8, stride_descriptor=[smem:0x0], stride_count=0, src_flag=[sflag:s14], dst_flag=[sflag:s10], ici_dest=s11 }  # examples/pallas/all_reduce.py:51:8-51:24 <- 45:5-45:18 [dma_start; LLO 161] | vmem-to-vmem
+{ misc: vwait.ge [sflag:53], 8 ;  # examples/pallas/all_reduce.py:52:8-52:28 <- 45:5-45:18 [dma_wait; LLO 220]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:53], -8 ;
+{ misc: vsyncadd.s32 [sflag:53], -8 ;  # examples/pallas/all_reduce.py:52:8-52:28 <- 45:5-45:18 [dma_wait; LLO 221]
   .encoding { misc.value = imm2 } }
-{ misc: vwait.ge [sflag:54], 8 ;  # loc("examples/pallas/all_reduce.py":53:8 to :28)
+{ misc: vwait.ge [sflag:54], 8 ;  # examples/pallas/all_reduce.py:53:8-53:28 <- 45:5-45:18 [dma_wait; LLO 222]
   .encoding { misc.value = imm2 } }
-{ s0: sadd.s32 s28, 1, s28 ;  # copy for cssa :: loc("examples/pallas/all_reduce.py":45:5 to :18) :: loc("examples/pallas/all_reduce.py":45:5 to :18)
-  vld: vld.8x128 v1, [vmem:0x10] ;  # examples/pallas/all_reduce.py:54:8-54:16 <- examples/pallas/all_reduce.py:34:15-34:24 [get; LLO 164] | loc("examples/pallas/all_reduce.py":34:15 to :24)
-  misc: vsyncadd.s32 [sflag:54], -8 ;
+{ s0: sadd.s32 s28, 1, s28 ;  # examples/pallas/all_reduce.py:45:5-45:18 | copy for cssa
+  vld: vld.8x128 v1, [vmem:0x10] ;  # examples/pallas/all_reduce.py:54:8-54:16 <- 45:5-45:18 [get; LLO 164]
+  misc: vsyncadd.s32 [sflag:54], -8 ;  # examples/pallas/all_reduce.py:53:8-53:28 <- 45:5-45:18 [dma_wait; LLO 223]
   .encoding { misc.value = imm2 } }
-{ s0: sge.s32 p4, s28, 3 ;  # loc("examples/pallas/all_reduce.py":45:5 to :18)
-  vld: vld.8x128 v2, [vmem:0x8] }  # examples/pallas/all_reduce.py:54:20-54:29 <- examples/pallas/all_reduce.py:34:15-34:24 [get; LLO 165] | loc("examples/pallas/all_reduce.py":34:15 to :24)
+{ s0: sge.s32 p4, s28, 3 ;  # examples/pallas/all_reduce.py:45:5-45:18 | loop exit test
+  vld: vld.8x128 v2, [vmem:0x8] }  # examples/pallas/all_reduce.py:54:20-54:29 <- 45:5-45:18 [get; LLO 165]
 { s0: @p4 simm.s32 s15, 16 ;  # materialized constant
-  va1: vadd.8x128.f32 v3, v2, v1 ;  # examples/pallas/all_reduce.py:54:8-54:29 [add; LLO 166] | loc("examples/pallas/all_reduce.py":54:8 to :29)
-  vst: vst.8x128 [vmem:0x0], v2 ;  # examples/pallas/all_reduce.py:55:8-55:17 <- examples/pallas/all_reduce.py:34:4-34:12 [swap; LLO 169] | loc("examples/pallas/all_reduce.py":34:4 to :12)
+  va1: vadd.8x128.f32 v3, v2, v1 ;  # examples/pallas/all_reduce.py:54:8-54:29 <- 45:5-45:18 [add; LLO 166]
+  vst: vst.8x128 [vmem:0x0], v2 ;  # examples/pallas/all_reduce.py:55:8-55:17 <- 45:5-45:18 [swap; LLO 169]
   .encoding { s0.y = lo(imm0) ; vst.opcode = s0 } }
-{ s0: @!p4 sbr.rel L_02fd }  # loc("examples/pallas/all_reduce.py":45:5 to :18)
-{ vst: vst.8x128 [vmem:0x10], v3 }  # examples/pallas/all_reduce.py:54:8-54:16 [swap; LLO 167] | loc("examples/pallas/all_reduce.py":54:8 to :16)
+{ s0: @!p4 sbr.rel L_02fd }  # examples/pallas/all_reduce.py:45:5-45:18
+{ vst: vst.8x128 [vmem:0x10], v3 }  # examples/pallas/all_reduce.py:54:8-54:16 <- 45:5-45:18 [swap; LLO 167]
 { s0: dma.simple [hbm:s1], [vmem:s15], length=8, dst_flag=[sflag:55] }
-{ misc: vwait.ge [sflag:55], 8 ;  # loc("examples/pallas/all_reduce.py":57:4 to :58)
+{ misc: vwait.ge [sflag:55], 8 ;  # examples/pallas/all_reduce.py:57:4-57:58 [dma_wait; LLO 224]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:55], -8 ;
+{ misc: vsyncadd.s32 [sflag:55], -8 ;  # examples/pallas/all_reduce.py:57:4-57:58 [dma_wait; LLO 225]
   .encoding { misc.value = imm2 } }
 # end function all_reduce/mpmd_map [symbol 4, all_reduce.2]
 # exit bundle: %all_reduce.2 = custom-call(%x_hbm.2)
@@ -1415,7 +1415,7 @@ L_0315:
 { s0: sand.u32 s0, 0x8, s16 ;
   s1: simm.s32 s24, 8 ;  # materialized constant
   vld: vld.8x128 v0, [vmem:0x0] ;
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # pipeline-emitter-dma-wait
   .encoding { misc.value = imm2 ; s1.y = lo(imm0) } }
 { s0: sadd.s32 s23, 8, s0 ;
   s1: sadd.s32 s25, 8, s24 ;
@@ -1440,7 +1440,7 @@ L_0315:
 { s0: dma.simple [hbm:s1], [vmem:s24], length=8, dst_flag=[sflag:53] }
 { misc: vwait.ge [sflag:53], 8 ;  # pipeline-emitter-dma-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:53], -8 ;
+{ misc: vsyncadd.s32 [sflag:53], -8 ;  # pipeline-emitter-dma-wait
   .encoding { misc.value = imm2 } }
 { misc: vsyncpa.u1 [sflag:52], 1 ;
   .encoding { misc.value = imm2 } }
@@ -1544,14 +1544,14 @@ L_0396:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1583,7 +1583,7 @@ L_0396:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1599,7 +1599,7 @@ L_03bd:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_03c6 ;

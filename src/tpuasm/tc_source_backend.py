@@ -125,6 +125,22 @@ LIBTPU_0_0_49 = SourceBackend(
         # mov -0x88(%rbp),%rdx; mov -0xa0(%rbp),%rcx: the two loads being combined.
         0xf5f6186: (bytes.fromhex('e8d5a217ff'), 'source_combine_hook', bytes.fromhex('488b9578ffffff488b8d60ffffff')),
         0xf5f629e: (bytes.fromhex('e8bda117ff'), 'source_combine_hook', bytes.fromhex('488b9578ffffff488b8d60ffffff')),
+        # DecomposeDmaDone: rcx = *(LloDecomposer*)rbx, the original dma.done.
+        0xf6c0ff5: (bytes.fromhex('e86618090a'), 'source_dma_append_hook', bytes.fromhex('488b0b')),
+        0xf6c12a2: (bytes.fromhex('e8b915090a'), 'source_dma_append_hook', bytes.fromhex('488b0b')),
+        # CSEDriver::simplifyBlock -> replaceUsesAndDelete(this, knownValues, op, existing, hasSSADominance).
+        # ToProto's walk callback tail-calls OperationVisitor(serializer, op); the hook keeps the jmp.
+        0x16f6049b: (bytes.fromhex('e990e6ffff'), 'source_fused_location_hook', b''),
+        0x18c7a037: (bytes.fromhex('e814110000'), 'source_cse_hook', b''),
+        # AnnotateNewInstructions: rdi = new instruction, rsi = its root-location string.
+        0x151c46fe: (bytes.fromhex('e89db65604'), 'source_location_annotation_hook', b''),
+        # EmitVectorMatprep virtual dispatch; rel32 plus two NOPs preserves its seven-byte span.
+        0x15368874: (bytes.fromhex('41ff9208040000'), 'source_matprep_hook', b''),
+        # LoadSubr constructs a prep directly from its original latch (r14).
+        0xee53185: (bytes.fromhex('e83686960a'), 'source_subr_prep_hook', bytes.fromhex('4d89f0')),
+        # PackToSingleQuadrant (inlined): original latch in r15, original matmul in r14.
+        0xee5282c: (bytes.fromhex('e88f8f960a'), 'source_subr_prep_hook', bytes.fromhex('4d89f8')),
+        0xee529aa: (bytes.fromhex('e82191960a'), 'source_mubr_prep_hook', bytes.fromhex('4d89f1')),
     },
     signatures={
         0x1543dcd0: bytes.fromhex('554889e54157415641554154534881ec280100004889fb48'),
@@ -166,6 +182,49 @@ LIBTPU_0_0_49 = SourceBackend(
         0xf5f5dce: bytes.fromhex('48899578ffffff'),
         0xf5f6179: bytes.fromhex('4989c4488d35b26578f74889c7e8d5a217ff4c8bb578ffffff'),
         0xf5f6291: bytes.fromhex('4989c4488d35eb6478f74889c7e8bda117ff4c8bb578ffffff'),
+        # OperationVisitor entry, its location read and ParseSourceInfoFromLocation call; the walk callback;
+        # FusedLoc::getLocations and the FusedLoc TypeID GOT slot compared by readOptionalAttribute<FusedLoc>.
+        0x16f5eb30: bytes.fromhex('554889e5415741564154534881ecf00000004989f64889fb'),
+        0x16f5ec79: bytes.fromhex('498b7618488d7d80e86afaffff'),
+        0x16f60498: bytes.fromhex('488b3fe990e6ffff'),
+        0x19f02d20: bytes.fromhex('488b0f488b4108488b5110c3cccccccc'),
+        0x167d1dd0: bytes.fromhex('488b929000000031f6483b1580ded507'),
+        # replaceUsesAndDelete entry and its Operation::location (+0x18) access; the simplifyBlock call;
+        # FusedLoc::get(ArrayRef<Location>, Attribute, MLIRContext*) and Attribute::getContext.
+        0x18c7b150: bytes.fromhex('554889e54157415641554154534881eca8000000488955d0'),
+        0x18c7b172: bytes.fromhex('488b4118488b00488b8090000000483b05614c8b057523488b45'),
+        0x18c7a020: bytes.fromhex('85c90f84d6050000440fb645a44889df488b75c84c89eae814110000'),
+        0x19f037c0: bytes.fromhex('554889e54157415641554154534881ece800000048898d68'),
+        0x19ea1b30: bytes.fromhex('488b07488b00488b00488b4020c3cccc'),
+        # AnnotateNewInstructions entry, its root-location walk and overwrite of each new instruction; set_annotation_internal entry.
+        0x151c4310: bytes.fromhex('554889e54157415641554154534881ecf80000004189cc49'),
+        0x151c4360: bytes.fromhex('488d35297a0000488dbdf0feffff488d9518ffffffe806edd304'),
+        0x151c46f7: bytes.fromhex('4c89e7488d75a0e89db65604'),
+        0x1972fda0: bytes.fromhex('554889e54157415641554154534881ec880100004989f649'),
+        # Original instruction ownership and both generated AppendInstruction calls.
+        0xf6c0e34: bytes.fromhex('488b07488b004885c00f84c80400004889fb'),
+        0xf6c0fed: bytes.fromhex('4c89ef4889c631d2e86618090a'),
+        0xf6c129a: bytes.fromhex('4c89e74889c631d2e8b915090a4889df4c89ee4c89e2e8bb4b0000'),
+        0x19752860: bytes.fromhex('554889e54157415641554154534883ec684889f34989fe488b36'),
+        # Exact prep arguments and the Ghostlite guard's constructor, destructor, size and emitter metadata offset.
+        0x15365a88: bytes.fromhex('4d89a5880100004d89b590010000'),
+        0x1536885d: bytes.fromhex('4d8b5500410fb7f7440fb6c04c89ef31d24489f14189d941ff9208040000'),
+        0x155c0be0: bytes.fromhex('554889e54157415641554154534881ec180100004589cc44894584'),
+        0x155ca1d0: bytes.fromhex('554889e5415741564154534883ec2048893748895708c6471000c6472800'),
+        0x1555a740: bytes.fromhex('554889e54157415641554154534881ec280100004889fb48837f0800'),
+        0x155bf84e: bytes.fromhex('488b97b8010000488dbd60feffff4c89f6e86ca90000'),
+        0x1555aab2: bytes.fromhex('498b4500c5f8108088010000'),
+        0x1555abe3: bytes.fromhex('488b03c5f857c0c5f8118088010000'),
+        0x197bb7c0: bytes.fromhex('554889e54157415641554154534883ec1889cb4989fee8e5deffff'),
+        0x197bbad0: bytes.fromhex('554889e54157415641554154534883ec184489c34189cf4989d64989f44989fd'),
+        0xee5310f: bytes.fromhex('4989f64889fb4889559048894d980fb7461a'),
+        0xee5317b: bytes.fromhex('0fb6d0488d7d904c89fee83686960aeb73'),
+        0xee527a0: bytes.fromhex('488b47184e8b3ce8498b07488b58284c8b6038'),
+        0xee52823: bytes.fromhex('0fb6d04c89e74889dee88f8f960a'),
+        0xee5284e: bytes.fromhex('488b75b84c89ff4c89f2e8d3958f0a'),
+        0xee52901: bytes.fromhex('488b474848899d60ffffff4c8b34d8498b06'),
+        0xee5299d: bytes.fromhex('0fb6c84c89e7488b75984889dae82191960a'),
+        0xee529ef: bytes.fromhex('4c89f74889de4c89eae833948f0a'),
     },
 )
 

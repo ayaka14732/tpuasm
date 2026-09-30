@@ -886,143 +886,143 @@ L_01c9:
 { s0: simm.s32 s7, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s7], [hbm:s0], length=256, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 256 ;  # loc("examples/pallas/transpose.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 256 ;  # examples/pallas/transpose.py:23:4-23:47 [dma_wait; LLO 167]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s0, 256 ;  # materialized constant
-  vld: vld.8x128 v0, [vmem:0x80] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 41] | loc("examples/pallas/transpose.py":24:34 to :45)
-  misc: vsyncadd.s32 [sflag:52], -256 ;
+  vld: vld.8x128 v0, [vmem:0x80] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 41]
+  misc: vsyncadd.s32 [sflag:52], -256 ;  # examples/pallas/transpose.py:23:4-23:47 [dma_wait; LLO 168]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
-{ vld: vld.8x128 v1, [vmem:0x0] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 25] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.3.start.8x128 trf1, v0, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 89] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v2, [vmem:0x88] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 42] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.2.start.8x128 trf0, v1, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 57] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v3, [vmem:0x8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 26] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v4, [vmem:0x90] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 43] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v5, [vmem:0x10] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 27] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v6, [vmem:0x98] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 44] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v7, [vmem:0x18] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 28] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v8, [vmem:0xa0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 45] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v9, [vmem:0x20] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 29] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.1.8x128 trf1, v2, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 90] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v10, [vmem:0xa8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 46] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.0.8x128 trf0, v3, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 58] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v11, [vmem:0x28] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 30] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v12, [vmem:0xb0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 47] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v13, [vmem:0x30] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 31] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v14, [vmem:0xb8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 48] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v15, [vmem:0x38] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 32] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v16, [vmem:0xc0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 49] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v17, [vmem:0x40] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 33] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.3.8x128 trf1, v4, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 91] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v18, [vmem:0xc8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 50] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.2.8x128 trf0, v5, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 59] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v19, [vmem:0x48] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 34] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v20, [vmem:0xd0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 51] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v21, [vmem:0x50] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 35] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v22, [vmem:0xd8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 52] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v23, [vmem:0x58] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 36] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v24, [vmem:0xe0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 53] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v25, [vmem:0x60] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 37] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.1.8x128 trf1, v6, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 92] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v26, [vmem:0xe8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 54] | loc("examples/pallas/transpose.py":24:34 to :45)
-  vx0: vxpose.0.8x128 trf0, v7, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 60] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vld: vld.8x128 v27, [vmem:0x68] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 38] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v28, [vmem:0xf0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 55] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v29, [vmem:0x70] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 39] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v30, [vmem:0xf8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 56] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vld: vld.8x128 v31, [vmem:0x78] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 40] | loc("examples/pallas/transpose.py":24:34 to :45)
-{ vx0: vxpose.3.8x128 trf1, v8, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 93] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v9, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 61] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.8x128 trf1, v10, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 94] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.8x128 trf0, v11, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 62] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.3.8x128 trf1, v12, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 95] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v13, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 63] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.8x128 trf1, v14, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 96] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.8x128 trf0, v15, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 64] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.3.8x128 trf1, v16, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 97] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v17, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 65] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.8x128 trf1, v18, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 98] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.8x128 trf0, v19, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 66] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.3.8x128 trf1, v20, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 99] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v21, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 67] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.8x128 trf1, v22, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 100] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.8x128 trf0, v23, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 68] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.3.8x128 trf1, v24, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 101] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v25, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 69] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.8x128 trf1, v26, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 102] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.8x128 trf0, v27, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 70] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.3.8x128 trf1, v28, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 103] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.2.8x128 trf0, v29, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 71] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.1.end.8x128 trf1, v30, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 104] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vx0: vxpose.0.end.8x128 trf0, v31, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 72] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vr0: vpop.8x128 v0, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 105] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x180], v0 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 137] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v1, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 73] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x100], v1 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 121] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v2, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 106] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x188], v2 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 138] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v3, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 74] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x108], v3 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 122] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v4, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 107] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x190], v4 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 139] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v5, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 75] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x110], v5 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 123] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v6, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 108] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x198], v6 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 140] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v7, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 76] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x118], v7 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 124] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v8, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 109] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1a0], v8 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 141] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v9, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 77] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x120], v9 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 125] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v10, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 110] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1a8], v10 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 142] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v11, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 78] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x128], v11 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 126] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v12, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 111] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1b0], v12 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 143] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v13, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 79] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x130], v13 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 127] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v14, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 112] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1b8], v14 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 144] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v15, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 80] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x138], v15 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 128] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v16, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 113] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1c0], v16 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 145] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v17, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 81] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x140], v17 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 129] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v18, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 114] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1c8], v18 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 146] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v19, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 82] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x148], v19 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 130] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v20, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 115] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1d0], v20 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 147] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v21, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 83] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x150], v21 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 131] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v22, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 116] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1d8], v22 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 148] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v23, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 84] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x158], v23 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 132] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v24, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 117] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1e0], v24 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 149] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v25, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 85] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x160], v25 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 133] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v26, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 118] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1e8], v26 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 150] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v27, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 86] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x168], v27 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 134] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v28, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 119] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1f0], v28 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 151] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v29, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 87] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x170], v29 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 135] | loc("examples/pallas/transpose.py":24:4 to :17)
-{ vr0: vpop.8x128 v30, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 120] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x1f8], v30 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 152] | loc("examples/pallas/transpose.py":24:4 to :17)
-  vr0: vpop.8x128 v31, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 88] | loc("examples/pallas/transpose.py":24:20 to :57)
-{ vst: vst.8x128 [vmem:0x178], v31 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 136] | loc("examples/pallas/transpose.py":24:4 to :17)
+{ vld: vld.8x128 v1, [vmem:0x0] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 25]
+  vx0: vxpose.3.start.8x128 trf1, v0, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 89]
+{ vld: vld.8x128 v2, [vmem:0x88] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 42]
+  vx0: vxpose.2.start.8x128 trf0, v1, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 57]
+{ vld: vld.8x128 v3, [vmem:0x8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 26]
+{ vld: vld.8x128 v4, [vmem:0x90] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 43]
+{ vld: vld.8x128 v5, [vmem:0x10] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 27]
+{ vld: vld.8x128 v6, [vmem:0x98] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 44]
+{ vld: vld.8x128 v7, [vmem:0x18] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 28]
+{ vld: vld.8x128 v8, [vmem:0xa0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 45]
+{ vld: vld.8x128 v9, [vmem:0x20] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 29]
+  vx0: vxpose.1.8x128 trf1, v2, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 90]
+{ vld: vld.8x128 v10, [vmem:0xa8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 46]
+  vx0: vxpose.0.8x128 trf0, v3, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 58]
+{ vld: vld.8x128 v11, [vmem:0x28] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 30]
+{ vld: vld.8x128 v12, [vmem:0xb0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 47]
+{ vld: vld.8x128 v13, [vmem:0x30] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 31]
+{ vld: vld.8x128 v14, [vmem:0xb8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 48]
+{ vld: vld.8x128 v15, [vmem:0x38] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 32]
+{ vld: vld.8x128 v16, [vmem:0xc0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 49]
+{ vld: vld.8x128 v17, [vmem:0x40] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 33]
+  vx0: vxpose.3.8x128 trf1, v4, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 91]
+{ vld: vld.8x128 v18, [vmem:0xc8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 50]
+  vx0: vxpose.2.8x128 trf0, v5, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 59]
+{ vld: vld.8x128 v19, [vmem:0x48] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 34]
+{ vld: vld.8x128 v20, [vmem:0xd0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 51]
+{ vld: vld.8x128 v21, [vmem:0x50] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 35]
+{ vld: vld.8x128 v22, [vmem:0xd8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 52]
+{ vld: vld.8x128 v23, [vmem:0x58] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 36]
+{ vld: vld.8x128 v24, [vmem:0xe0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 53]
+{ vld: vld.8x128 v25, [vmem:0x60] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 37]
+  vx0: vxpose.1.8x128 trf1, v6, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 92]
+{ vld: vld.8x128 v26, [vmem:0xe8] ;  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 54]
+  vx0: vxpose.0.8x128 trf0, v7, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 60]
+{ vld: vld.8x128 v27, [vmem:0x68] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 38]
+{ vld: vld.8x128 v28, [vmem:0xf0] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 55]
+{ vld: vld.8x128 v29, [vmem:0x70] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 39]
+{ vld: vld.8x128 v30, [vmem:0xf8] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 56]
+{ vld: vld.8x128 v31, [vmem:0x78] }  # examples/pallas/transpose.py:24:34-24:45 [get; LLO 40]
+{ vx0: vxpose.3.8x128 trf1, v8, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 93]
+{ vx0: vxpose.2.8x128 trf0, v9, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 61]
+{ vx0: vxpose.1.8x128 trf1, v10, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 94]
+{ vx0: vxpose.0.8x128 trf0, v11, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 62]
+{ vx0: vxpose.3.8x128 trf1, v12, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 95]
+{ vx0: vxpose.2.8x128 trf0, v13, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 63]
+{ vx0: vxpose.1.8x128 trf1, v14, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 96]
+{ vx0: vxpose.0.8x128 trf0, v15, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 64]
+{ vx0: vxpose.3.8x128 trf1, v16, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 97]
+{ vx0: vxpose.2.8x128 trf0, v17, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 65]
+{ vx0: vxpose.1.8x128 trf1, v18, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 98]
+{ vx0: vxpose.0.8x128 trf0, v19, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 66]
+{ vx0: vxpose.3.8x128 trf1, v20, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 99]
+{ vx0: vxpose.2.8x128 trf0, v21, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 67]
+{ vx0: vxpose.1.8x128 trf1, v22, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 100]
+{ vx0: vxpose.0.8x128 trf0, v23, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 68]
+{ vx0: vxpose.3.8x128 trf1, v24, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 101]
+{ vx0: vxpose.2.8x128 trf0, v25, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 69]
+{ vx0: vxpose.1.8x128 trf1, v26, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 102]
+{ vx0: vxpose.0.8x128 trf0, v27, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 70]
+{ vx0: vxpose.3.8x128 trf1, v28, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 103]
+{ vx0: vxpose.2.8x128 trf0, v29, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 71]
+{ vx0: vxpose.1.end.8x128 trf1, v30, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 104]
+{ vx0: vxpose.0.end.8x128 trf0, v31, 128 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 72]
+{ vr0: vpop.8x128 v0, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 105]
+{ vst: vst.8x128 [vmem:0x180], v0 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 137]
+  vr0: vpop.8x128 v1, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 73]
+{ vst: vst.8x128 [vmem:0x100], v1 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 121]
+{ vr0: vpop.8x128 v2, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 106]
+{ vst: vst.8x128 [vmem:0x188], v2 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 138]
+  vr0: vpop.8x128 v3, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 74]
+{ vst: vst.8x128 [vmem:0x108], v3 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 122]
+{ vr0: vpop.8x128 v4, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 107]
+{ vst: vst.8x128 [vmem:0x190], v4 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 139]
+  vr0: vpop.8x128 v5, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 75]
+{ vst: vst.8x128 [vmem:0x110], v5 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 123]
+{ vr0: vpop.8x128 v6, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 108]
+{ vst: vst.8x128 [vmem:0x198], v6 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 140]
+  vr0: vpop.8x128 v7, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 76]
+{ vst: vst.8x128 [vmem:0x118], v7 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 124]
+{ vr0: vpop.8x128 v8, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 109]
+{ vst: vst.8x128 [vmem:0x1a0], v8 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 141]
+  vr0: vpop.8x128 v9, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 77]
+{ vst: vst.8x128 [vmem:0x120], v9 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 125]
+{ vr0: vpop.8x128 v10, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 110]
+{ vst: vst.8x128 [vmem:0x1a8], v10 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 142]
+  vr0: vpop.8x128 v11, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 78]
+{ vst: vst.8x128 [vmem:0x128], v11 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 126]
+{ vr0: vpop.8x128 v12, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 111]
+{ vst: vst.8x128 [vmem:0x1b0], v12 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 143]
+  vr0: vpop.8x128 v13, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 79]
+{ vst: vst.8x128 [vmem:0x130], v13 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 127]
+{ vr0: vpop.8x128 v14, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 112]
+{ vst: vst.8x128 [vmem:0x1b8], v14 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 144]
+  vr0: vpop.8x128 v15, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 80]
+{ vst: vst.8x128 [vmem:0x138], v15 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 128]
+{ vr0: vpop.8x128 v16, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 113]
+{ vst: vst.8x128 [vmem:0x1c0], v16 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 145]
+  vr0: vpop.8x128 v17, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 81]
+{ vst: vst.8x128 [vmem:0x140], v17 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 129]
+{ vr0: vpop.8x128 v18, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 114]
+{ vst: vst.8x128 [vmem:0x1c8], v18 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 146]
+  vr0: vpop.8x128 v19, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 82]
+{ vst: vst.8x128 [vmem:0x148], v19 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 130]
+{ vr0: vpop.8x128 v20, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 115]
+{ vst: vst.8x128 [vmem:0x1d0], v20 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 147]
+  vr0: vpop.8x128 v21, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 83]
+{ vst: vst.8x128 [vmem:0x150], v21 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 131]
+{ vr0: vpop.8x128 v22, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 116]
+{ vst: vst.8x128 [vmem:0x1d8], v22 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 148]
+  vr0: vpop.8x128 v23, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 84]
+{ vst: vst.8x128 [vmem:0x158], v23 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 132]
+{ vr0: vpop.8x128 v24, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 117]
+{ vst: vst.8x128 [vmem:0x1e0], v24 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 149]
+  vr0: vpop.8x128 v25, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 85]
+{ vst: vst.8x128 [vmem:0x160], v25 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 133]
+{ vr0: vpop.8x128 v26, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 118]
+{ vst: vst.8x128 [vmem:0x1e8], v26 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 150]
+  vr0: vpop.8x128 v27, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 86]
+{ vst: vst.8x128 [vmem:0x168], v27 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 134]
+{ vr0: vpop.8x128 v28, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 119]
+{ vst: vst.8x128 [vmem:0x1f0], v28 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 151]
+  vr0: vpop.8x128 v29, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 87]
+{ vst: vst.8x128 [vmem:0x170], v29 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 135]
+{ vr0: vpop.8x128 v30, trf1 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 120]
+{ vst: vst.8x128 [vmem:0x1f8], v30 ;  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 152]
+  vr0: vpop.8x128 v31, trf0 }  # examples/pallas/transpose.py:24:20-24:57 [transpose; LLO 88]
+{ vst: vst.8x128 [vmem:0x178], v31 }  # examples/pallas/transpose.py:24:4-24:17 [swap; LLO 136]
 { s0: dma.simple [hbm:s1], [vmem:s0], length=256, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 256 ;  # loc("examples/pallas/transpose.py":25:4 to :51)
+{ misc: vwait.ge [sflag:52], 256 ;  # examples/pallas/transpose.py:25:4-25:51 [dma_wait; LLO 169]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -256 ;
+{ misc: vsyncadd.s32 [sflag:52], -256 ;  # examples/pallas/transpose.py:25:4-25:51 [dma_wait; LLO 170]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/transpose/mpmd_map [symbol 4, transpose.1]
 # exit bundle: %transpose.1 = custom-call(%x_hbm.1)
@@ -1124,14 +1124,14 @@ L_02ae:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1163,7 +1163,7 @@ L_02ae:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1179,7 +1179,7 @@ L_02d5:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_02de ;

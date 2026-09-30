@@ -888,141 +888,141 @@ L_01c9:
 { s0: simm.s32 s10, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s10], [hbm:s0], length=64, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 64 ;  # loc("examples/pallas/matmul.py":23:4 to :51)
+{ misc: vwait.ge [sflag:52], 64 ;  # examples/pallas/matmul.py:23:4-23:51 [dma_wait; LLO 416]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s13, 64 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -64 ;
+  misc: vsyncadd.s32 [sflag:52], -64 ;  # examples/pallas/matmul.py:23:4-23:51 [dma_wait; LLO 417]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s13], [hbm:s1], length=64, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 64 ;  # loc("examples/pallas/matmul.py":23:4 to :51)
+{ misc: vwait.ge [sflag:52], 64 ;  # examples/pallas/matmul.py:24:4-24:51 [dma_wait; LLO 418]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s0, 128 ;  # materialized constant
-  vld: vld.8x128 v0, [vmem:0x78] ;  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 384] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
+  vld: vld.8x128 v0, [vmem:0x78] ;  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 384] | Coalesced load.
   vx0: vdwg.128x128.f16 gmr2, gsfn2 ;
   vx1: vdwg.128x128.f16 gmr3, gsfn3 ;
-  misc: vsyncadd.s32 [sflag:52], -64 ;
+  misc: vsyncadd.s32 [sflag:52], -64 ;  # examples/pallas/matmul.py:24:4-24:51 [dma_wait; LLO 419]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
-{ vld: vld.8x128 v1, [vmem:0x70] ;  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 383] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
+{ vld: vld.8x128 v1, [vmem:0x70] ;  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 383] | Coalesced load.
   vx0: vdwg.128x128.f16 gmr0, gsfn0 ;
   vx1: vdwg.128x128.f16 gmr1, gsfn1 }
-{ vld: vld.8x128 v2, [vmem:0x68] ;  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 382] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-  vx0: vmatpush.packed.8x128.f16 gsfn2, v0 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v0 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vld: vld.8x128 v2, [vmem:0x68] ;  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 382] | Coalesced load.
+  vx0: vmatpush.packed.8x128.f16 gsfn2, v0 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v0 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vld: vld.8x128 v3, [vmem:0x60] ;  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 381] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-  vx0: vmatpush.packed.8x128.f16 gsfn0, v0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 229] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v0 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vld: vld.8x128 v3, [vmem:0x60] ;  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 381] | Coalesced load.
+  vx0: vmatpush.packed.8x128.f16 gsfn0, v0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 229]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v0 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vld: vld.8x128 v4, [vmem:0x58] }  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 380] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v5, [vmem:0x50] }  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 379] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v6, [vmem:0x48] }  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 378] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v7, [vmem:0x40] }  # examples/pallas/matmul.py:25:43-25:56 <- examples/pallas/matmul.py:25:28-25:41 [get; LLO 340] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v8, [vmem:0x20] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 374] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v9, [vmem:0x30] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 376] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v10, [vmem:0x0] ;  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 308] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-  vx0: vmatpush.packed.8x128.f16 gsfn2, v1 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v1 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vld: vld.8x128 v4, [vmem:0x58] }  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 380] | Coalesced load.
+{ vld: vld.8x128 v5, [vmem:0x50] }  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 379] | Coalesced load.
+{ vld: vld.8x128 v6, [vmem:0x48] }  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 378] | Coalesced load.
+{ vld: vld.8x128 v7, [vmem:0x40] }  # examples/pallas/matmul.py:25:43-25:56 [get; LLO 340] | Coalesced load.
+{ vld: vld.8x128 v8, [vmem:0x20] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 374] | Coalesced load.
+{ vld: vld.8x128 v9, [vmem:0x30] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 376] | Coalesced load.
+{ vld: vld.8x128 v10, [vmem:0x0] ;  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 308] | Coalesced load.
+  vx0: vmatpush.packed.8x128.f16 gsfn2, v1 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v1 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vld: vld.8x128 v11, [vmem:0x10] ;  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 372] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-  vx0: vmatpush.packed.8x128.f16 gsfn0, v1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 230] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v1 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vld: vld.8x128 v11, [vmem:0x10] ;  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 372] | Coalesced load.
+  vx0: vmatpush.packed.8x128.f16 gsfn0, v1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 230]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v1 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vld: vld.8x128 v12, [vmem:0x28] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 375] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v13, [vmem:0x38] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 377] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v14, [vmem:0x8] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 371] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vld: vld.8x128 v15, [vmem:0x18] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 373] | loc("examples/pallas/matmul.py":25:28 to :41) :: Coalesced load.
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v2 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v2 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vld: vld.8x128 v12, [vmem:0x28] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 375] | Coalesced load.
+{ vld: vld.8x128 v13, [vmem:0x38] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 377] | Coalesced load.
+{ vld: vld.8x128 v14, [vmem:0x8] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 371] | Coalesced load.
+{ vld: vld.8x128 v15, [vmem:0x18] }  # examples/pallas/matmul.py:25:28-25:41 [get; LLO 373] | Coalesced load.
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v2 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v2 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 231] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v2 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 231]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v2 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v3 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v3 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v3 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v3 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 232] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v3 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 232]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v3 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v4 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v4 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v4 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v4 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v4 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 233] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v4 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v4 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 233]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v4 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v5 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v5 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v5 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v5 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v5 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 234] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v5 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v5 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 234]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v5 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v6 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v6 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v6 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v6 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v6 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 235] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v6 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v6 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 235]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v6 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn2, v7 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn3, v7 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn2, v7 ;  # examples/pallas/matmul.py:25:20-25:93
+  vx1: vmatpush.packed.8x128.f16 gsfn3, v7 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatpush.packed.8x128.f16 gsfn0, v7 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 236] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatpush.packed.8x128.f16 gsfn1, v7 ;  # loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatpush.packed.8x128.f16 gsfn0, v7 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 236]
+  vx1: vmatpush.packed.8x128.f16 gsfn1, v7 ;  # examples/pallas/matmul.py:25:20-25:93
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatmul.packed.8x128.f16 mrf2, v8 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 257] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatmul.packed.8x128.f16 mrf3, v9 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 267] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatmul.packed.8x128.f16 mrf2, v8 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 257]
+  vx1: vmatmul.packed.8x128.f16 mrf3, v9 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 267]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatmul.packed.8x128.f16 mrf0, v10 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 237] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatmul.packed.8x128.f16 mrf1, v11 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 247] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatmul.packed.8x128.f16 mrf0, v10 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 237]
+  vx1: vmatmul.packed.8x128.f16 mrf1, v11 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 247]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatmul.packed.8x128.f16 mrf2, v12 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 262] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatmul.packed.8x128.f16 mrf3, v13 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 272] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatmul.packed.8x128.f16 mrf2, v12 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 262]
+  vx1: vmatmul.packed.8x128.f16 mrf3, v13 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 272]
   .encoding { vx1.read = port.va0.y } }
-{ vx0: vmatmul.packed.8x128.f16 mrf0, v14 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 242] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vx1: vmatmul.packed.8x128.f16 mrf1, v15 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 252] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vx0: vmatmul.packed.8x128.f16 mrf0, v14 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 242]
+  vx1: vmatmul.packed.8x128.f16 mrf1, v15 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 252]
   .encoding { vx1.read = port.va0.y } }
-{ vr0: vpop.8x128 v16, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 238] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v17, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 248] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vr0: vpop.8x128 v16, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 238]
+  vr1: vpop.8x128 v17, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 248]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0x80], v16 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 278] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xa0], v17 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 282] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vr0: vpop.8x128 v18, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 240] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v19, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 250] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0x80], v16 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 278]
+{ vst: vst.8x128 [vmem:0xa0], v17 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 282]
+{ vr0: vpop.8x128 v18, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 240]
+  vr1: vpop.8x128 v19, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 250]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0x88], v18 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 279] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xa8], v19 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 283] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vr0: vpop.8x128 v20, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 243] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v21, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 253] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0x88], v18 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 279]
+{ vst: vst.8x128 [vmem:0xa8], v19 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 283]
+{ vr0: vpop.8x128 v20, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 243]
+  vr1: vpop.8x128 v21, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 253]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0x90], v20 ;  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 280] | loc("examples/pallas/matmul.py":25:4 to :17)
-  vr0: vpop.8x128 v22, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 258] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v23, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 268] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0x90], v20 ;  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 280]
+  vr0: vpop.8x128 v22, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 258]
+  vr1: vpop.8x128 v23, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 268]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0xc0], v22 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 286] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xe0], v23 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 290] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xb0], v21 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 284] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vr0: vpop.8x128 v24, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 245] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v25, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 255] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0xc0], v22 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 286]
+{ vst: vst.8x128 [vmem:0xe0], v23 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 290]
+{ vst: vst.8x128 [vmem:0xb0], v21 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 284]
+{ vr0: vpop.8x128 v24, mrf0 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 245]
+  vr1: vpop.8x128 v25, mrf1 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 255]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0x98], v24 ;  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 281] | loc("examples/pallas/matmul.py":25:4 to :17)
-  vr0: vpop.8x128 v26, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 260] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v27, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 270] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0x98], v24 ;  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 281]
+  vr0: vpop.8x128 v26, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 260]
+  vr1: vpop.8x128 v27, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 270]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0xc8], v26 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 287] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xe8], v27 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 291] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xb8], v25 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 285] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vr0: vpop.8x128 v28, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 263] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v29, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 273] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0xc8], v26 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 287]
+{ vst: vst.8x128 [vmem:0xe8], v27 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 291]
+{ vst: vst.8x128 [vmem:0xb8], v25 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 285]
+{ vr0: vpop.8x128 v28, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 263]
+  vr1: vpop.8x128 v29, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 273]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0xd0], v28 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 288] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xf0], v29 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 292] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vr0: vpop.8x128 v30, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 265] | loc("examples/pallas/matmul.py":25:20 to :93)
-  vr1: vpop.8x128 v31, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 275] | loc("examples/pallas/matmul.py":25:20 to :93)
+{ vst: vst.8x128 [vmem:0xd0], v28 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 288]
+{ vst: vst.8x128 [vmem:0xf0], v29 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 292]
+{ vr0: vpop.8x128 v30, mrf2 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 265]
+  vr1: vpop.8x128 v31, mrf3 ;  # examples/pallas/matmul.py:25:20-25:93 [dot_general; LLO 275]
   .encoding { vr1.write = port.va1.dst } }
-{ vst: vst.8x128 [vmem:0xd8], v30 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 289] | loc("examples/pallas/matmul.py":25:4 to :17)
-{ vst: vst.8x128 [vmem:0xf8], v31 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 293] | loc("examples/pallas/matmul.py":25:4 to :17)
+{ vst: vst.8x128 [vmem:0xd8], v30 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 289]
+{ vst: vst.8x128 [vmem:0xf8], v31 }  # examples/pallas/matmul.py:25:4-25:17 [swap; LLO 293]
 { s0: dma.simple [hbm:s2], [vmem:s0], length=128, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/matmul.py":26:4 to :51)
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/matmul.py:26:4-26:51 [dma_wait; LLO 420]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -128 ;
+{ misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/matmul.py:26:4-26:51 [dma_wait; LLO 421]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/matmul/mpmd_map [symbol 6, matmul.1]
 # exit bundle: %matmul.1 = custom-call(%lhs_hbm.1, %rhs_hbm.1)
@@ -1124,14 +1124,14 @@ L_0281:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1163,7 +1163,7 @@ L_0281:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1179,7 +1179,7 @@ L_02a8:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_02b1 ;

@@ -19,18 +19,29 @@ _SOURCE_SHA256 = {
 }
 
 _parent: ContextVar[NameStack | None] = ContextVar('tpuasm_source_parent', default=None)
+_parent_traceback: ContextVar[Any | None] = ContextVar('tpuasm_source_parent_traceback', default=None)
 
 def _stack(context_stack: NameStack, equation_stack: NameStack) -> NameStack:
     parent = _parent.get()
     return (context_stack if parent is None else parent) + equation_stack
 
+def _traceback(traceback: Any | None) -> Any | None:
+    parent = _parent_traceback.get()
+    if traceback is None:
+        return parent
+    if parent is None or traceback is parent:
+        return traceback
+    return traceback + parent
+
 @contextmanager
-def _scope(stack: NameStack) -> Iterator[None]:
-    token = _parent.set(stack)
+def _scope(stack: NameStack, traceback: Any | None) -> Iterator[None]:
+    stack_token = _parent.set(stack)
+    traceback_token = _parent_traceback.set(traceback)
     try:
         yield
     finally:
-        _parent.reset(token)
+        _parent_traceback.reset(traceback_token)
+        _parent.reset(stack_token)
 
 def _patched(original: Callable[..., Any], edits: tuple[tuple[str, str], ...], namespace: dict[str, Any]) -> Callable[..., Any]:
     """核对函数源码字节的 SHA-256 后做唯一匹配替换，以原文件名和行号重新编译。"""
@@ -59,13 +70,25 @@ def lowering_sources() -> Iterator[None]:
     subcomp = _patched(
         original_subcomp,
         (
-            ('ctx, eqn.primitive, eqn_name_stack, eqn.source_info.traceback', 'ctx, eqn.primitive, _tpuasm_stack(ctx.name_stack, eqn.source_info.name_stack), eqn.source_info.traceback'),
+            (
+                'eqn_name_stack = ctx.name_stack + eqn.source_info.name_stack\n    loc = mlir.source_info_to_location(\n        ctx, eqn.primitive, eqn_name_stack, eqn.source_info.traceback\n    )',
+                'eqn_name_stack = _tpuasm_stack(ctx.name_stack, eqn.source_info.name_stack)\n    eqn_traceback = _tpuasm_traceback(eqn.source_info.traceback)\n    loc = mlir.source_info_to_location(\n        ctx, eqn.primitive, eqn_name_stack, eqn_traceback\n    )',
+            ),
             (
                 'with (source_info_util.user_context(eqn.source_info.traceback), loc,',
-                'with (_tpuasm_scope(_tpuasm_stack(ctx.name_stack, eqn.source_info.name_stack)), source_info_util.user_context(eqn.source_info.traceback), loc,',
+                'with (_tpuasm_scope(eqn_name_stack, eqn_traceback), source_info_util.user_context(eqn_traceback), loc,',
+            ),
+            # The per-equation lowering cache emits the first equation as a detached
+            # function and inlines it for later equations with the same key, so their
+            # ops carry callsite(first equation at later equation). Lower each
+            # equation with its own rule and location instead.
+            # https://github.com/jax-ml/jax/issues/41147
+            (
+                'can_cache = (eqn.primitive not in _uncacheable_primitives and',
+                'can_cache = (False and eqn.primitive not in _uncacheable_primitives and',
             ),
         ),
-        {**vars(lowering), '_tpuasm_stack': _stack, '_tpuasm_scope': _scope},
+        {**vars(lowering), '_tpuasm_stack': _stack, '_tpuasm_traceback': _traceback, '_tpuasm_scope': _scope},
     )
     # inlined_func_call gives every cloned op the loop's primitive. Lower each
     # fully unrolled iteration directly so each op keeps its own location.

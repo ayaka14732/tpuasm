@@ -886,43 +886,43 @@ L_01c9:
 { s0: simm.s32 s7, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s7], [hbm:s0], length=64, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 64 ;  # loc("examples/pallas/local_dma.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 64 ;  # examples/pallas/local_dma.py:23:4-23:47 [dma_wait; LLO 62]
   .encoding { misc.value = imm2 } }
-{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 25] | loc("examples/pallas/local_dma.py":24:18 to :29)
-  misc: vsyncadd.s32 [sflag:52], -64 ;
+{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 25]
+  misc: vsyncadd.s32 [sflag:52], -64 ;  # examples/pallas/local_dma.py:23:4-23:47 [dma_wait; LLO 63]
   .encoding { misc.value = imm2 } }
-{ va0: vmul.8x128.f32 v1, 2.0, v0 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 33] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vld: vld.8x128 v2, [vmem:0x8] }  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 26] | loc("examples/pallas/local_dma.py":24:18 to :29)
-{ va0: vmul.8x128.f32 v3, 2.0, v2 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 34] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vld: vld.8x128 v4, [vmem:0x10] }  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 27] | loc("examples/pallas/local_dma.py":24:18 to :29)
-{ va0: vmul.8x128.f32 v5, 2.0, v4 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 35] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x0], v1 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 41] | loc("examples/pallas/local_dma.py":24:4 to :15)
-  vld: vld.8x128 v6, [vmem:0x18] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 28] | loc("examples/pallas/local_dma.py":24:18 to :29)
+{ va0: vmul.8x128.f32 v1, 2.0, v0 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 33]
+  vld: vld.8x128 v2, [vmem:0x8] }  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 26]
+{ va0: vmul.8x128.f32 v3, 2.0, v2 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 34]
+  vld: vld.8x128 v4, [vmem:0x10] }  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 27]
+{ va0: vmul.8x128.f32 v5, 2.0, v4 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 35]
+  vst: vst.8x128 [vmem:0x0], v1 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 41]
+  vld: vld.8x128 v6, [vmem:0x18] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 28]
   .encoding { vst.offset = imm2 } }
-{ va0: vmul.8x128.f32 v7, 2.0, v6 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 36] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x8], v3 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 42] | loc("examples/pallas/local_dma.py":24:4 to :15)
-  vld: vld.8x128 v8, [vmem:0x20] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 29] | loc("examples/pallas/local_dma.py":24:18 to :29)
+{ va0: vmul.8x128.f32 v7, 2.0, v6 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 36]
+  vst: vst.8x128 [vmem:0x8], v3 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 42]
+  vld: vld.8x128 v8, [vmem:0x20] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 29]
   .encoding { vst.offset = imm2 } }
-{ va0: vmul.8x128.f32 v9, 2.0, v8 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 37] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x10], v5 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 43] | loc("examples/pallas/local_dma.py":24:4 to :15)
-  vld: vld.8x128 v10, [vmem:0x28] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 30] | loc("examples/pallas/local_dma.py":24:18 to :29)
+{ va0: vmul.8x128.f32 v9, 2.0, v8 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 37]
+  vst: vst.8x128 [vmem:0x10], v5 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 43]
+  vld: vld.8x128 v10, [vmem:0x28] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 30]
   .encoding { vst.offset = imm2 } }
-{ va0: vmul.8x128.f32 v11, 2.0, v10 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 38] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x18], v7 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 44] | loc("examples/pallas/local_dma.py":24:4 to :15)
-  vld: vld.8x128 v12, [vmem:0x30] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 31] | loc("examples/pallas/local_dma.py":24:18 to :29)
+{ va0: vmul.8x128.f32 v11, 2.0, v10 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 38]
+  vst: vst.8x128 [vmem:0x18], v7 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 44]
+  vld: vld.8x128 v12, [vmem:0x30] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 31]
   .encoding { vst.offset = imm2 } }
-{ va0: vmul.8x128.f32 v13, 2.0, v12 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 39] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x20], v9 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 45] | loc("examples/pallas/local_dma.py":24:4 to :15)
-  vld: vld.8x128 v14, [vmem:0x38] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 32] | loc("examples/pallas/local_dma.py":24:18 to :29)
+{ va0: vmul.8x128.f32 v13, 2.0, v12 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 39]
+  vst: vst.8x128 [vmem:0x20], v9 ;  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 45]
+  vld: vld.8x128 v14, [vmem:0x38] ;  # examples/pallas/local_dma.py:24:18-24:29 [get; LLO 32]
   .encoding { vst.offset = imm2 } }
-{ va0: vmul.8x128.f32 v15, 2.0, v14 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 40] | loc("examples/pallas/local_dma.py":24:18 to :35)
-  vst: vst.8x128 [vmem:0x28], v11 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 46] | loc("examples/pallas/local_dma.py":24:4 to :15)
-{ vst: vst.8x128 [vmem:0x30], v13 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 47] | loc("examples/pallas/local_dma.py":24:4 to :15)
-{ vst: vst.8x128 [vmem:0x38], v15 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 48] | loc("examples/pallas/local_dma.py":24:4 to :15)
+{ va0: vmul.8x128.f32 v15, 2.0, v14 ;  # examples/pallas/local_dma.py:24:18-24:35 [mul; LLO 40]
+  vst: vst.8x128 [vmem:0x28], v11 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 46]
+{ vst: vst.8x128 [vmem:0x30], v13 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 47]
+{ vst: vst.8x128 [vmem:0x38], v15 }  # examples/pallas/local_dma.py:24:4-24:15 [swap; LLO 48]
 { s0: dma.simple [hbm:s1], [vmem:s7], length=64, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 64 ;  # loc("examples/pallas/local_dma.py":25:4 to :49)
+{ misc: vwait.ge [sflag:52], 64 ;  # examples/pallas/local_dma.py:25:4-25:49 [dma_wait; LLO 64]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -64 ;
+{ misc: vsyncadd.s32 [sflag:52], -64 ;  # examples/pallas/local_dma.py:25:4-25:49 [dma_wait; LLO 65]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/local_dma/mpmd_map [symbol 4, local_dma.1]
 # exit bundle: %local_dma.1 = custom-call(%x_hbm.1)
@@ -1024,14 +1024,14 @@ L_0251:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1063,7 +1063,7 @@ L_0251:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1079,7 +1079,7 @@ L_0278:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_0281 ;

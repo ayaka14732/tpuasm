@@ -843,15 +843,15 @@ L_01be:
 # entry bundle: %prefix_scan.1 = custom-call(%x_hbm.1)
 { s0: simm.s32 s6, 0 ;  # materialized constant
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s7, s6, 0x4 }  # loc("examples/pallas/prefix_scan.py":33:4 to :42) :: loc("examples/pallas/prefix_scan.py":23:4 to :40)
-{ dma: dma.simple [vmem:s7], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/prefix_scan.py:23:4-23:40 [dma_start; LLO 19] | loc("examples/pallas/prefix_scan.py":23:4 to :40)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/prefix_scan.py":23:4 to :47)
+{ s0: sshll.u32 s7, s6, 0x4 }  # examples/pallas/prefix_scan.py:33:4-33:42 | examples/pallas/prefix_scan.py:23:4-23:40
+{ dma: dma.simple [vmem:s7], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/prefix_scan.py:23:4-23:40 [dma_start; LLO 19]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/prefix_scan.py:23:4-23:47 [dma_wait; LLO 186]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s10, 1 ;  # materialized constant
   s1: simm.s32 s11, 2 ;  # materialized constant
-  va0: vlaneseq.8x128.u32 v4 ;  # examples/pallas/prefix_scan.py:24:12-24:44 [iota; LLO 22] | loc("examples/pallas/prefix_scan.py":24:12 to :44)
+  va0: vlaneseq.8x128.u32 v4 ;  # examples/pallas/prefix_scan.py:24:12-24:44 [iota; LLO 22]
   vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/prefix_scan.py:26:30-26:41 [get; LLO 163] | Coalesced load.
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/prefix_scan.py:23:4-23:47 [dma_wait; LLO 187]
   .encoding { misc.sync_flag_number = imm1 ; vld0.offset = imm2 } }
 { s0: simm.s32 s0, 4 ;  # materialized constant
   s1: simm.s32 s12, 8 ;  # materialized constant
@@ -859,86 +859,86 @@ L_01be:
   va1: vunpack.c.u.8x128.bf16 v2, v0 }
 { s0: simm.s32 s13, 16 ;  # materialized constant
   s1: simm.s32 s14, 32 ;  # materialized constant
-  va0: vand.8x128.u32 v5, 0x7f, v4 }  # loc("examples/pallas/prefix_scan.py":24:12 to :44)
+  va0: vand.8x128.u32 v5, 0x7f, v4 }  # examples/pallas/prefix_scan.py:24:12-24:44
 { s0: simm.s32 s15, 64 ;  # materialized constant
   va0: vpack.i.8x128.f32.bf16 v3, v2, v1 }
-{ va0: vge.8x128.s32 vm0, v5, 1 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 36] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
-  va1: vge.8x128.s32 vm1, v5, 2 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 51] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
-  va2: vge.8x128.s32 vm2, v5, 4 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 66] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
-  va3: vge.8x128.s32 vm3, v5, 8 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 81] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
+{ va0: vge.8x128.s32 vm0, v5, 1 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 36] | examples/pallas/prefix_scan.py:30:15-30:66
+  va1: vge.8x128.s32 vm1, v5, 2 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 51] | examples/pallas/prefix_scan.py:30:15-30:66
+  va2: vge.8x128.s32 vm2, v5, 4 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 66] | examples/pallas/prefix_scan.py:30:15-30:66
+  va3: vge.8x128.s32 vm3, v5, 8 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 81] | examples/pallas/prefix_scan.py:30:15-30:66
   .encoding { va3.y_src = zero_imm2 } }
-{ va0: vge.8x128.s32 vm4, v5, 16 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 96] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
-  va1: vge.8x128.s32 vm5, v5, 32 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 111] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
-  va2: vge.8x128.s32 vm6, v5, 64 ;  # examples/pallas/prefix_scan.py:30:25-30:42 [ge; LLO 126] | loc("examples/pallas/prefix_scan.py":30:25 to :42)
+{ va0: vge.8x128.s32 vm4, v5, 16 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 96] | examples/pallas/prefix_scan.py:30:15-30:66
+  va1: vge.8x128.s32 vm5, v5, 32 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 111] | examples/pallas/prefix_scan.py:30:15-30:66
+  va2: vge.8x128.s32 vm6, v5, 64 ;  # examples/pallas/prefix_scan.py:30:25-30:42 <- 26:5-26:75 [ge; LLO 126] | examples/pallas/prefix_scan.py:30:15-30:66
   vx0: vrot.lane.8x128 trf0, v3, s10 ;
   .encoding { va1.y_src = zero_imm1 ; va2.y_src = zero_imm2 } }
 { vr0: vpop.8x128 v6, trf0 }
-{ va0: vadd.high.8x128.f32.bf16 v7, v2, v6 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 184] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.low.8x128.f32.bf16 v8, v1, v6 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 185] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v9, vm0, v7, v2 ;  #  [select_n; LLO 42]
-  va1: vsel.8x128 v10, vm0, v8, v1 }  #  [select_n; LLO 41]
-{ vx0: vrot.lane.8x128 trf1, v9, s11 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 47] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf0, v10, s11 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 45] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ va0: vadd.high.8x128.f32.bf16 v7, v2, v6 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 184]
+  va1: vadd.low.8x128.f32.bf16 v8, v1, v6 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 185]
+{ va0: vsel.8x128 v9, vm0, v7, v2 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 42]
+  va1: vsel.8x128 v10, vm0, v8, v1 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 41]
+{ vx0: vrot.lane.8x128 trf1, v9, s11 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 47]
+  vx1: vrot.lane.8x128 trf0, v10, s11 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 45]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v11, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 48] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v12, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 46] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v13, v11, v9 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 53] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v14, v12, v10 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 52] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v15, vm1, v13, v9 ;  #  [select_n; LLO 57]
-  va1: vsel.8x128 v16, vm1, v14, v10 }  #  [select_n; LLO 56]
-{ vx0: vrot.lane.8x128 trf0, v15, s0 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 62] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf1, v16, s0 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 60] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ vr0: vpop.8x128 v11, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 48]
+  vr1: vpop.8x128 v12, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 46]
+{ va0: vadd.8x128.f32 v13, v11, v9 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 53]
+  va1: vadd.8x128.f32 v14, v12, v10 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 52]
+{ va0: vsel.8x128 v15, vm1, v13, v9 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 57]
+  va1: vsel.8x128 v16, vm1, v14, v10 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 56]
+{ vx0: vrot.lane.8x128 trf0, v15, s0 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 62]
+  vx1: vrot.lane.8x128 trf1, v16, s0 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 60]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v17, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 61] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v18, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 63] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v19, v17, v16 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 67] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v20, v18, v15 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 68] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v21, vm2, v19, v16 ;  #  [select_n; LLO 71]
-  va1: vsel.8x128 v22, vm2, v20, v15 }  #  [select_n; LLO 72]
-{ vx0: vrot.lane.8x128 trf1, v21, s12 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 75] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf0, v22, s12 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 77] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ vr0: vpop.8x128 v17, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 61]
+  vr1: vpop.8x128 v18, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 63]
+{ va0: vadd.8x128.f32 v19, v17, v16 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 67]
+  va1: vadd.8x128.f32 v20, v18, v15 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 68]
+{ va0: vsel.8x128 v21, vm2, v19, v16 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 71]
+  va1: vsel.8x128 v22, vm2, v20, v15 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 72]
+{ vx0: vrot.lane.8x128 trf1, v21, s12 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 75]
+  vx1: vrot.lane.8x128 trf0, v22, s12 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 77]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v23, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 76] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v24, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 78] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v25, v23, v21 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 82] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v26, v24, v22 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 83] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v27, vm3, v25, v21 ;  #  [select_n; LLO 86]
-  va1: vsel.8x128 v28, vm3, v26, v22 }  #  [select_n; LLO 87]
-{ vx0: vrot.lane.8x128 trf1, v27, s13 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 90] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf0, v28, s13 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 92] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ vr0: vpop.8x128 v23, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 76]
+  vr1: vpop.8x128 v24, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 78]
+{ va0: vadd.8x128.f32 v25, v23, v21 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 82]
+  va1: vadd.8x128.f32 v26, v24, v22 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 83]
+{ va0: vsel.8x128 v27, vm3, v25, v21 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 86]
+  va1: vsel.8x128 v28, vm3, v26, v22 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 87]
+{ vx0: vrot.lane.8x128 trf1, v27, s13 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 90]
+  vx1: vrot.lane.8x128 trf0, v28, s13 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 92]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v29, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 91] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v30, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 93] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v31, v29, v27 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 97] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v32, v30, v28 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 98] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v33, vm4, v31, v27 ;  #  [select_n; LLO 101]
-  va1: vsel.8x128 v34, vm4, v32, v28 }  #  [select_n; LLO 102]
-{ vx0: vrot.lane.8x128 trf1, v33, s14 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 105] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf0, v34, s14 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 107] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ vr0: vpop.8x128 v29, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 91]
+  vr1: vpop.8x128 v30, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 93]
+{ va0: vadd.8x128.f32 v31, v29, v27 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 97]
+  va1: vadd.8x128.f32 v32, v30, v28 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 98]
+{ va0: vsel.8x128 v33, vm4, v31, v27 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 101]
+  va1: vsel.8x128 v34, vm4, v32, v28 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 102]
+{ vx0: vrot.lane.8x128 trf1, v33, s14 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 105]
+  vx1: vrot.lane.8x128 trf0, v34, s14 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 107]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v35, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 106] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v36, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 108] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v37, v35, v33 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 112] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v38, v36, v34 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 113] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v39, vm5, v37, v33 ;  #  [select_n; LLO 116]
-  va1: vsel.8x128 v40, vm5, v38, v34 }  #  [select_n; LLO 117]
-{ vx0: vrot.lane.8x128 trf1, v39, s15 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 120] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vx1: vrot.lane.8x128 trf0, v40, s15 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 122] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
+{ vr0: vpop.8x128 v35, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 106]
+  vr1: vpop.8x128 v36, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 108]
+{ va0: vadd.8x128.f32 v37, v35, v33 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 112]
+  va1: vadd.8x128.f32 v38, v36, v34 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 113]
+{ va0: vsel.8x128 v39, vm5, v37, v33 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 116]
+  va1: vsel.8x128 v40, vm5, v38, v34 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 117]
+{ vx0: vrot.lane.8x128 trf1, v39, s15 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 120]
+  vx1: vrot.lane.8x128 trf0, v40, s15 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 122]
   .encoding { vx1.vex_source = v0_x } }
-{ vr0: vpop.8x128 v41, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 121] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-  vr1: vpop.8x128 v42, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 [roll; LLO 123] | loc("examples/pallas/prefix_scan.py":29:15 to :57)
-{ va0: vadd.8x128.f32 v43, v41, v39 ;  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 127] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-  va1: vadd.8x128.f32 v44, v42, v40 }  # examples/pallas/prefix_scan.py:30:44-30:57 [add; LLO 128] | loc("examples/pallas/prefix_scan.py":30:44 to :57)
-{ va0: vsel.8x128 v45, vm6, v43, v39 ;  #  [select_n; LLO 131]
-  va1: vsel.8x128 v46, vm6, v44, v40 }  #  [select_n; LLO 132]
+{ vr0: vpop.8x128 v41, trf1 ;  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 121]
+  vr1: vpop.8x128 v42, trf0 }  # examples/pallas/prefix_scan.py:29:15-29:57 <- 26:5-26:75 [roll; LLO 123]
+{ va0: vadd.8x128.f32 v43, v41, v39 ;  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 127]
+  va1: vadd.8x128.f32 v44, v42, v40 }  # examples/pallas/prefix_scan.py:30:44-30:57 <- 26:5-26:75 [add; LLO 128]
+{ va0: vsel.8x128 v45, vm6, v43, v39 ;  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 131]
+  va1: vsel.8x128 v46, vm6, v44, v40 }  # examples/pallas/prefix_scan.py:30:15-30:66 <- 26:5-26:75 [select_n; LLO 132]
 { va0: vpack.c.8x128.f32.bf16 v47, v46, v45 }
 { vst: vst.8x128 [vmem:0x0], v47 ;  # examples/pallas/prefix_scan.py:32:4-32:15 [swap; LLO 170] | Coalesced store.
   .encoding { vst.offset = imm0 } }
-{ dma: dma.simple [hbm:s1], [vmem:s7], length=128, dst_flag=[sflag:52] }  # examples/pallas/prefix_scan.py:33:4-33:42 [dma_start; LLO 155] | loc("examples/pallas/prefix_scan.py":33:4 to :42)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/prefix_scan.py":33:4 to :49)
+{ dma: dma.simple [hbm:s1], [vmem:s7], length=128, dst_flag=[sflag:52] }  # examples/pallas/prefix_scan.py:33:4-33:42 [dma_start; LLO 155]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/prefix_scan.py:33:4-33:49 [dma_wait; LLO 188]
   .encoding { misc.sync_flag_number = imm1 } }
 # exit bundle: %prefix_scan.1 = custom-call(%x_hbm.1)
-{ misc: vsyncadd.s32 [sflag:52], -128 ;
+{ misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/prefix_scan.py:33:4-33:49 [dma_wait; LLO 189]
   .encoding { misc.sync_flag_number = imm1 } }
 { misc: vtrace 0x90000000 }
 # end function jit(wrapper)/prefix_scan/mpmd_map [symbol 4, prefix_scan.1]
@@ -1000,7 +1000,7 @@ L_022a:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -1008,7 +1008,7 @@ L_022a:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -1045,7 +1045,7 @@ L_022a:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -1064,7 +1064,7 @@ L_0255:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1135,7 +1135,7 @@ L_0268:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1180,7 +1180,7 @@ L_0297:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

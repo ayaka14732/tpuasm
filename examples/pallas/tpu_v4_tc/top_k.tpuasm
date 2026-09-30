@@ -854,7 +854,7 @@ L_01c9:
 { s0: dma.simple [smem:s4], [hbm:s3], length=1, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:51], -1 ;
+{ misc: vsyncadd.s32 [sflag:51], -1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s1: sld s1, [smem:0x3e] }
@@ -895,168 +895,168 @@ L_01c9:
 { s0: simm.s32 s10, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s10], [hbm:s0], length=16, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 16 ;  # loc("examples/pallas/top_k.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 16 ;  # examples/pallas/top_k.py:23:4-23:47 [dma_wait; LLO 223]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s0, 16 ;  # materialized constant
-  va0: vlaneseq.8x128.u32 v3 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/iota/iota/top_k; LLO 29] | loc("examples/pallas/top_k.py":25:4 to :20) :: loc("examples/pallas/top_k.py":24:22 to :68)
-  vld: vld.8x128 v0, [vmem:0x0] ;  # loc("examples/pallas/top_k.py":24:36 to :47)
-  misc: vsyncadd.s32 [sflag:52], -16 ;
+  va0: vlaneseq.8x128.u32 v3 ;  # examples/pallas/top_k.py:24:22-24:68 [iota, argmax; LLO 29] | examples/pallas/top_k.py:25:4-25:20
+  vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/top_k.py:24:36-24:47
+  misc: vsyncadd.s32 [sflag:52], -16 ;  # examples/pallas/top_k.py:23:4-23:47 [dma_wait; LLO 224]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
-{ va0: vand.8x128.u32 v5, 0x7f, v3 ;  # loc("examples/pallas/top_k.py":25:4 to :20) :: loc("examples/pallas/top_k.py":24:22 to :68)
-  vld: vld.8x128 v1, [vmem:0x8] }  # loc("examples/pallas/top_k.py":24:36 to :47)
-{ va0: vge.8x128.f32 vm0, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 32] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vadd.8x128.s32 v6, 128, v5 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/iota/iota/top_k; LLO 31] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v2, vm0, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 33] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v7, vm0, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 34] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.index.xlane.0.8x128.f32 trf0, v2 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 35] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v4, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 36] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ va0: vand.8x128.u32 v5, 0x7f, v3 ;  # examples/pallas/top_k.py:25:4-25:20 | examples/pallas/top_k.py:24:22-24:68
+  vld: vld.8x128 v1, [vmem:0x8] }  # examples/pallas/top_k.py:24:36-24:47
+{ va0: vge.8x128.f32 vm0, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 32]
+  va1: vadd.8x128.s32 v6, 128, v5 }  # examples/pallas/top_k.py:24:22-24:68 [iota, argmax; LLO 31]
+{ va0: vsel.8x128 v2, vm0, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 33]
+  va1: vsel.8x128 v7, vm0, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 34]
+{ vx0: vmax.index.xlane.0.8x128.f32 trf0, v2 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 35]
+{ vr0: vpop.8x128 v4, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 36]
 { vx0: vsetperm.2.all.u8 pcr0, v4 }
-{ vx0: vperm.0.8x128 trf0, v7 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 38] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v8, trf0 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm1, v5, v8 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 43] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm2, v6, v8 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 44] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v9, vm1, 0xff800000, v0 ;  # loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v10, vm2, 0xff800000, v1 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm3, v9, v10 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 47] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v11, vm3, v9, v10 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 48] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v13, vm3, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 49] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.index.xlane.1.8x128.f32 trf1, v11 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 50] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v12, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 51] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.0.8x128 trf0, v7 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 38] | Set PCR instruction
+{ vr0: vpop.8x128 v8, trf0 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm1, v5, v8 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 43]
+  va1: veq.8x128.s32 vm2, v6, v8 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 44]
+{ va0: vsel.8x128 v9, vm1, 0xff800000, v0 ;  # examples/pallas/top_k.py:24:22-24:68
+  va1: vsel.8x128 v10, vm2, 0xff800000, v1 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: vge.8x128.f32 vm3, v9, v10 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 47]
+{ va0: vsel.8x128 v11, vm3, v9, v10 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 48]
+  va1: vsel.8x128 v13, vm3, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 49]
+{ vx0: vmax.index.xlane.1.8x128.f32 trf1, v11 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 50]
+{ vr0: vpop.8x128 v12, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 51]
 { vx0: vsetperm.3.all.u8 pcr1, v12 }
-{ vx0: vperm.1.8x128 trf1, v13 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 53] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v14, trf1 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm4, v5, v14 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 58] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm5, v6, v14 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 59] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v15, vm4, 0xff800000, v9 ;  # loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v16, vm5, 0xff800000, v10 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm6, v15, v16 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 62] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v17, vm6, v15, v16 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 63] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v19, vm6, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 64] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.index.xlane.2.8x128.f32 trf0, v17 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 65] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v18, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 66] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.1.8x128 trf1, v13 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 53] | Set PCR instruction
+{ vr0: vpop.8x128 v14, trf1 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm4, v5, v14 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 58]
+  va1: veq.8x128.s32 vm5, v6, v14 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 59]
+{ va0: vsel.8x128 v15, vm4, 0xff800000, v9 ;  # examples/pallas/top_k.py:24:22-24:68
+  va1: vsel.8x128 v16, vm5, 0xff800000, v10 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: vge.8x128.f32 vm6, v15, v16 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 62]
+{ va0: vsel.8x128 v17, vm6, v15, v16 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 63]
+  va1: vsel.8x128 v19, vm6, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 64]
+{ vx0: vmax.index.xlane.2.8x128.f32 trf0, v17 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 65]
+{ vr0: vpop.8x128 v18, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 66]
 { vx0: vsetperm.3.all.u8 pcr1, v18 }
-{ vx0: vperm.1.8x128 trf1, v19 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 68] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v20, trf1 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm7, v5, v20 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 73] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm0, v6, v20 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 74] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v21, vm7, 0xff800000, v15 ;  # loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v22, vm0, 0xff800000, v16 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm1, v21, v22 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 77] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v23, vm1, v21, v22 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 78] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v25, vm1, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 79] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.index.xlane.0.8x128.f32 trf0, v23 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 80] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 81] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.1.8x128 trf1, v19 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 68] | Set PCR instruction
+{ vr0: vpop.8x128 v20, trf1 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm7, v5, v20 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 73]
+  va1: veq.8x128.s32 vm0, v6, v20 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 74]
+{ va0: vsel.8x128 v21, vm7, 0xff800000, v15 ;  # examples/pallas/top_k.py:24:22-24:68
+  va1: vsel.8x128 v22, vm0, 0xff800000, v16 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: vge.8x128.f32 vm1, v21, v22 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 77]
+{ va0: vsel.8x128 v23, vm1, v21, v22 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 78]
+  va1: vsel.8x128 v25, vm1, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 79]
+{ vx0: vmax.index.xlane.0.8x128.f32 trf0, v23 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 80]
+{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 81]
 { vx0: vsetperm.2.all.u8 pcr0, v24 }
-{ va0: vmax.8x128.f32 v25, v9, v10 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 55] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vperm.0.8x128 trf0, v25 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 83] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v26, trf0 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm2, v5, v26 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 88] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm3, v6, v26 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 89] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v27, vm2, 0xff800000, v21 ;  # loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v28, vm3, 0xff800000, v22 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm4, v27, v28 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 92] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v29, vm4, v27, v28 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 93] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v31, vm4, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 94] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vmax.8x128.f32 v29, v21, v22 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 85] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vmax.8x128.f32 v22, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 40] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.index.xlane.3.8x128.f32 trf1, v29 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 95] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v30, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 96] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ va0: vmax.8x128.f32 v25, v9, v10 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 55]
+  vx0: vperm.0.8x128 trf0, v25 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 83] | Set PCR instruction
+{ vr0: vpop.8x128 v26, trf0 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm2, v5, v26 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 88]
+  va1: veq.8x128.s32 vm3, v6, v26 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 89]
+{ va0: vsel.8x128 v27, vm2, 0xff800000, v21 ;  # examples/pallas/top_k.py:24:22-24:68
+  va1: vsel.8x128 v28, vm3, 0xff800000, v22 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: vge.8x128.f32 vm4, v27, v28 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 92]
+{ va0: vsel.8x128 v29, vm4, v27, v28 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 93]
+  va1: vsel.8x128 v31, vm4, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 94]
+{ va0: vmax.8x128.f32 v29, v21, v22 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 85]
+  va1: vmax.8x128.f32 v22, v0, v1 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 40]
+  vx0: vmax.index.xlane.3.8x128.f32 trf1, v29 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 95]
+{ vr0: vpop.8x128 v30, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 96]
 { vx0: vsetperm.1.all.u8 pcr1, v30 }
-{ vx0: vperm.3.8x128 trf1, v31 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 98] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v2, trf1 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm5, v5, v2 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 103] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm6, v6, v2 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 104] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v3, vm5, 0xff800000, v27 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/select_n/select_n/top_k; LLO 105] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v4, vm6, 0xff800000, v28 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/select_n/select_n/top_k; LLO 106] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm7, v3, v4 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 107] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vmax.8x128.f32 v30, v3, v4 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 115] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v7, vm7, v3, v4 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 108] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v12, vm7, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 109] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm6, v5, 0 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 150] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vlt.8x128.s32 vm7, v5, 2 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 154] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.index.xlane.2.8x128.f32 trf0, v7 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 110] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v11, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 111] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.3.8x128 trf1, v31 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 98] | Set PCR instruction
+{ vr0: vpop.8x128 v2, trf1 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm5, v5, v2 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 103]
+  va1: veq.8x128.s32 vm6, v6, v2 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 104]
+{ va0: vsel.8x128 v3, vm5, 0xff800000, v27 ;  # examples/pallas/top_k.py:24:22-24:68 [select_n; LLO 105]
+  va1: vsel.8x128 v4, vm6, 0xff800000, v28 }  # examples/pallas/top_k.py:24:22-24:68 [select_n; LLO 106]
+{ va0: vge.8x128.f32 vm7, v3, v4 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 107]
+  va1: vmax.8x128.f32 v30, v3, v4 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 115]
+{ va0: vsel.8x128 v7, vm7, v3, v4 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 108]
+  va1: vsel.8x128 v12, vm7, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 109]
+{ va0: veq.8x128.s32 vm6, v5, 0 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 150]
+  va1: vlt.8x128.s32 vm7, v5, 2 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 154]
+  vx0: vmax.index.xlane.2.8x128.f32 trf0, v7 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 110]
+{ vr0: vpop.8x128 v11, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 111]
 { vx0: vsetperm.0.all.u8 pcr0, v11 }
-{ vx0: vperm.2.8x128 trf0, v12 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 113] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v13, trf0 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm0, v5, v13 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 118] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm1, v6, v13 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 119] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v17, vm0, 0xff800000, v3 ;  # loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v18, vm1, 0xff800000, v4 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vge.8x128.f32 vm2, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 122] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vmax.8x128.f32 v3, v15, v16 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 70] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v19, vm2, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 123] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v24, vm2, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 124] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vmax.8x128.f32 v4, v27, v28 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 100] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vmax.8x128.f32 v11, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 130] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.index.xlane.1.8x128.f32 trf1, v19 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 125] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vlt.8x128.s32 vm0, v5, 3 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 158] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vlt.8x128.s32 vm1, v5, 4 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 162] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.2.8x128 trf0, v12 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 113] | Set PCR instruction
+{ vr0: vpop.8x128 v13, trf0 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm0, v5, v13 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 118]
+  va1: veq.8x128.s32 vm1, v6, v13 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 119]
+{ va0: vsel.8x128 v17, vm0, 0xff800000, v3 ;  # examples/pallas/top_k.py:24:22-24:68
+  va1: vsel.8x128 v18, vm1, 0xff800000, v4 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: vge.8x128.f32 vm2, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 122]
+  va1: vmax.8x128.f32 v3, v15, v16 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 70]
+{ va0: vsel.8x128 v19, vm2, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 123]
+  va1: vsel.8x128 v24, vm2, v5, v6 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 124]
+{ va0: vmax.8x128.f32 v4, v27, v28 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 100]
+  va1: vmax.8x128.f32 v11, v17, v18 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 130]
+  vx0: vmax.index.xlane.1.8x128.f32 trf1, v19 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 125]
+{ va0: vlt.8x128.s32 vm0, v5, 3 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 158]
+  va1: vlt.8x128.s32 vm1, v5, 4 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 162]
   .encoding { va1.y = lo(imm1) } }
-{ va0: vlt.8x128.s32 vm2, v5, 5 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 166] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v23, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 126] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ va0: vlt.8x128.s32 vm2, v5, 5 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 166]
+{ vr0: vpop.8x128 v23, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 126]
 { vx0: vsetperm.3.all.u8 pcr1, v23 }
-{ vx0: vperm.1.8x128 trf1, v24 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 128] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.xlane.3.8x128.f32 trf1, v25 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 56] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.xlane.1.8x128.f32 trf1, v29 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 86] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.xlane.3.8x128.f32 trf1, v30 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 116] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v31, trf1 }  # loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: veq.8x128.s32 vm3, v5, v31 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 133] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: veq.8x128.s32 vm4, v6, v31 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/eq/eq/top_k; LLO 134] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v7, vm3, 0xff800000, v17 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/select_n/select_n/top_k; LLO 135] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v9, vm4, 0xff800000, v18 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/select_n/select_n/top_k; LLO 136] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vmax.8x128.f32 v10, v7, v9 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 145] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vge.8x128.f32 vm5, v7, v9 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 137] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v21, vm5, v7, v9 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 138] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vsel.8x128 v0, vm5, v5, v6 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 139] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.xlane.1.8x128.f32 trf1, v10 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 146] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vlt.8x128.s32 vm3, v5, 6 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 170] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vlt.8x128.s32 vm4, v5, 7 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 174] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.index.xlane.0.8x128.f32 trf0, v21 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 140] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ vx0: vperm.1.8x128 trf1, v24 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 128] | Set PCR instruction
+{ vx0: vmax.xlane.3.8x128.f32 trf1, v25 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 56]
+{ vx0: vmax.xlane.1.8x128.f32 trf1, v29 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 86]
+{ vx0: vmax.xlane.3.8x128.f32 trf1, v30 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 116]
+{ vr0: vpop.8x128 v31, trf1 }  # examples/pallas/top_k.py:24:22-24:68
+{ va0: veq.8x128.s32 vm3, v5, v31 ;  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 133]
+  va1: veq.8x128.s32 vm4, v6, v31 }  # examples/pallas/top_k.py:24:22-24:68 [eq; LLO 134]
+{ va0: vsel.8x128 v7, vm3, 0xff800000, v17 ;  # examples/pallas/top_k.py:24:22-24:68 [select_n; LLO 135]
+  va1: vsel.8x128 v9, vm4, 0xff800000, v18 }  # examples/pallas/top_k.py:24:22-24:68 [select_n; LLO 136]
+{ va0: vmax.8x128.f32 v10, v7, v9 ;  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 145]
+  va1: vge.8x128.f32 vm5, v7, v9 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 137]
+{ va0: vsel.8x128 v21, vm5, v7, v9 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 138]
+  va1: vsel.8x128 v0, vm5, v5, v6 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 139]
+  vx0: vmax.xlane.1.8x128.f32 trf1, v10 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 146]
+{ va0: vlt.8x128.s32 vm3, v5, 6 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 170]
+  va1: vlt.8x128.s32 vm4, v5, 7 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 174]
+  vx0: vmax.index.xlane.0.8x128.f32 trf0, v21 ;  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 140]
   .encoding { va1.y = lo(imm1) } }
-{ va0: vsel.8x128 v9, vm6, v8, v14 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 176] | loc("examples/pallas/top_k.py":24:22 to :68)
-  va1: vlt.8x128.s32 vm5, v5, 8 }  # examples/pallas/top_k.py:25:4-25:20 [swap; LLO 185] | loc("examples/pallas/top_k.py":25:4 to :20)
-{ va0: vsel.8x128 v10, vm7, v9, v20 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 177] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v21, vm0, v10, v26 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 178] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v22, vm1, v21, v2 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 179] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.xlane.2.8x128.f32 trf0, v22 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 41] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v19, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 57] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v3, vm2, v22, v13 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 180] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vmax.xlane.0.8x128.f32 trf0, v3 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 71] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v8, vm3, v3, v31 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 181] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v1, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 87] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.xlane.2.8x128.f32 trf0, v4 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 101] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v28, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 117] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vx0: vmax.xlane.0.8x128.f32 trf0, v11 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 131] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v29, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 147] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v12, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 141] | loc("examples/pallas/top_k.py":24:22 to :68)
+{ va0: vsel.8x128 v9, vm6, v8, v14 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 176]
+  va1: vlt.8x128.s32 vm5, v5, 8 }  # examples/pallas/top_k.py:25:4-25:20 [swap; LLO 185] | examples/pallas/top_k.py:26:4-26:21 [swap; LLO 185]
+{ va0: vsel.8x128 v10, vm7, v9, v20 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 177]
+{ va0: vsel.8x128 v21, vm0, v10, v26 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 178]
+{ va0: vsel.8x128 v22, vm1, v21, v2 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 179]
+  vx0: vmax.xlane.2.8x128.f32 trf0, v22 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 41]
+{ vr0: vpop.8x128 v19, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 57]
+{ va0: vsel.8x128 v3, vm2, v22, v13 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 180]
+  vx0: vmax.xlane.0.8x128.f32 trf0, v3 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 71]
+{ va0: vsel.8x128 v8, vm3, v3, v31 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 181]
+{ vr0: vpop.8x128 v1, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 87]
+{ vx0: vmax.xlane.2.8x128.f32 trf0, v4 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 101]
+{ vr0: vpop.8x128 v28, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 117]
+{ vx0: vmax.xlane.0.8x128.f32 trf0, v11 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 131]
+{ vr0: vpop.8x128 v29, trf1 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 147]
+{ vr0: vpop.8x128 v12, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 141]
 { vx0: vsetperm.2.all.u8 pcr0, v12 }
-{ vr0: vpop.8x128 v23, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 42] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v16, vm6, v23, v19 ;  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 151] | loc("examples/pallas/top_k.py":24:22 to :68)
-  vx0: vperm.0.8x128 trf0, v0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 143] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v15, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 72] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v17, vm7, v16, v15 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 155] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v6, vm0, v17, v1 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 159] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v27, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 102] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v18, vm1, v6, v27 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 163] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v25, vm2, v18, v28 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 167] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/reduce_max/reduce_max/top_k; LLO 132] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v30, vm3, v25, v24 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 171] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v7, vm4, v30, v29 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 175] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vst: vst.msk.8x128 [vmem:0x10], vm5, v7 }  # examples/pallas/top_k.py:25:4-25:20 [swap; LLO 186] | loc("examples/pallas/top_k.py":25:4 to :20)
+{ vr0: vpop.8x128 v23, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 42]
+{ va0: vsel.8x128 v16, vm6, v23, v19 ;  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 151]
+  vx0: vperm.0.8x128 trf0, v0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 143] | Set PCR instruction
+{ vr0: vpop.8x128 v15, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 72]
+{ va0: vsel.8x128 v17, vm7, v16, v15 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 155]
+{ va0: vsel.8x128 v6, vm0, v17, v1 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 159]
+{ vr0: vpop.8x128 v27, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 102]
+{ va0: vsel.8x128 v18, vm1, v6, v27 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 163]
+{ va0: vsel.8x128 v25, vm2, v18, v28 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 167]
+{ vr0: vpop.8x128 v24, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [reduce_max; LLO 132]
+{ va0: vsel.8x128 v30, vm3, v25, v24 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 171]
+{ va0: vsel.8x128 v7, vm4, v30, v29 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 175]
+{ vst: vst.msk.8x128 [vmem:0x10], vm5, v7 }  # examples/pallas/top_k.py:25:4-25:20 [swap; LLO 186]
 { s0: dma.simple [hbm:s1], [vmem:s0], length=8, dst_flag=[sflag:52] }
-{ vr0: vpop.8x128 v14, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/argmax/argmax/top_k; LLO 144] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ va0: vsel.8x128 v20, vm4, v8, v14 }  # examples/pallas/top_k.py:24:22-24:68 [top_k/stack/stack/top_k; LLO 182] | loc("examples/pallas/top_k.py":24:22 to :68)
-{ vst: vst.msk.8x128 [vmem:0x18], vm5, v20 }  # examples/pallas/top_k.py:26:4-26:21 [swap; LLO 187] | loc("examples/pallas/top_k.py":26:4 to :21)
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/top_k.py":27:4 to :57)
+{ vr0: vpop.8x128 v14, trf0 }  # examples/pallas/top_k.py:24:22-24:68 [argmax; LLO 144]
+{ va0: vsel.8x128 v20, vm4, v8, v14 }  # examples/pallas/top_k.py:24:22-24:68 [stack; LLO 182]
+{ vst: vst.msk.8x128 [vmem:0x18], vm5, v20 }  # examples/pallas/top_k.py:26:4-26:21 [swap; LLO 187]
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/top_k.py:27:4-27:57 [dma_wait; LLO 225]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s1, 24 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/top_k.py:27:4-27:57 [dma_wait; LLO 226]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
 { s0: dma.simple [hbm:s2], [vmem:s1], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/top_k.py":28:4 to :59)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/top_k.py:28:4-28:59 [dma_wait; LLO 227]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -8 ;
+{ misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/top_k.py:28:4-28:59 [dma_wait; LLO 228]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/top_k/mpmd_map [symbol 4, top_k.1]
 # exit bundle: %top_k.1 = custom-call(%x_hbm.1)
@@ -1158,14 +1158,14 @@ L_02b6:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1197,7 +1197,7 @@ L_02b6:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1213,7 +1213,7 @@ L_02dd:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_02e6 ;

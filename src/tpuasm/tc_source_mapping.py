@@ -10,7 +10,7 @@ from ._protobuf import fields, read_varint
 from .targets import HardwareTarget, TPU_V4_TC, TPU_V6E_TC
 from .program_container import executable_records, resolve_executable_target
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 # Native annotation keys are physical slots, not LLO instruction positions.
 _SLOTS = {
     TPU_V4_TC.identifier: {
@@ -162,7 +162,7 @@ class SlotSource:
 
     origins 保存独立的 InstructionOrigin 集合。空来源表示未知，不能据此推断该指令一定由编译器生成。function_symbols 引用本程序映像内的函数 symbol ID。
 
-    compiler_annotation 保留原编译器注释；annotation_locations 单独保存其中 ``loc(...)`` 文本明确记录的位置，不用它猜测已经丢失的 primitive 或 scope。
+    source_frames 是供调用者直接消费的统一源码位置：它合并捕获的 SourceMap frame 与原编译器 ``loc(...)`` 并按坐标去重。source_kind 区分 ``captured``、``compiler_location`` 和 ``unknown``。compiler_annotation、annotation_locations 和 origins 保留原始编译器证据；不从机器码数据依赖推断源码。
     """
     image_pc: int
     slot: str
@@ -175,6 +175,8 @@ class SlotSource:
     annotation_locations: tuple[SourceFrame, ...]
     origins: tuple[InstructionOrigin, ...]
     function_symbols: tuple[int, ...]
+    source_frames: tuple[SourceFrame, ...]
+    source_kind: str
 
 @dataclass(frozen=True)
 class BundleAnnotation:
@@ -193,8 +195,8 @@ class ProgramSourceMap:
 
     status 为 ``'captured'`` 表示保存了 tpuasm 记录，不表示每条指令都有完整来源；``'absent'`` 表示没有 tpuasm 来源记录，仍可包含编译器原生注释或函数归属。空来源表示未知，不能据此判定指令一定由编译器生成。
 
-    :meth:`to_dict` 和 :meth:`to_json` 导出版本 2 的结构化记录；
-    :func:`source_maps_json` 将多份映射导出到同一个 JSON 文档。版本 2 相对版本 1 增加了 target 和 Overlay.image_start。
+    :meth:`to_dict` 和 :meth:`to_json` 导出版本 3 的结构化记录；
+    :func:`source_maps_json` 将多份映射导出到同一个 JSON 文档。版本 3 相对版本 2 增加统一来源 source_frames 与 source_kind，并列出函数范围中未保存注释的已占用槽。
     """
     target: str
     record: int
@@ -217,7 +219,7 @@ class ProgramSourceMap:
     diagnostics: tuple[str, ...]
 
     def to_dict(self) -> dict[str, Any]:
-        """返回含 ``schema_version=2`` 和全部映射字段的字典，不写文件。
+        """返回含 ``schema_version=3`` 和全部映射字段的字典，不写文件。
 
         嵌套数据类递归转换为字典，tuple 集合仍为 tuple；字段和状态含义见 :class:`ProgramSourceMap`。
         """
@@ -332,21 +334,50 @@ def _origins(annotation: str) -> tuple[str, tuple[InstructionOrigin, ...]]:
             result.append(origin)
     return _RECORD.sub('', annotation).strip(), tuple(result)
 
+def _annotation_frame(match: re.Match[str]) -> SourceFrame | None:
+    path, line, col, end_line, end_col = match.groups()
+    try:
+        decoded_path = json.loads(path)
+    except json.JSONDecodeError:
+        return None  # Keep unrecognized MLIR escapes in compiler_annotation.
+    return SourceFrame(decoded_path, int(line), int(end_line or line), int(col), int(end_col or col))
+
 def _annotation_locations(text: str) -> tuple[SourceFrame, ...]:
-    frames = []
+    frames: list[SourceFrame] = []
     for match in _LOCATION.finditer(text):
-        path, line, col, end_line, end_col = match.groups()
-        try:
-            decoded_path = json.loads(path)
-        except json.JSONDecodeError:
-            continue  # Keep unrecognized MLIR escapes in compiler_annotation.
-        frame = SourceFrame(decoded_path, int(line), int(end_line or line), int(col), int(end_col or col))
+        frame = _annotation_frame(match)
+        if frame is None:
+            continue
         if frame not in frames:
             frames.append(frame)
     return tuple(frames)
 
+def _frame_position(frame: SourceFrame) -> tuple[str, int, int, int, int]:
+    return frame.path, frame.line_start, frame.line_end, frame.col_start, frame.col_end
+
+def _append_frame(frames: list[SourceFrame], frame: SourceFrame) -> None:
+    """按坐标去重；同一坐标优先保留带函数名的 frame。"""
+    for index, existing in enumerate(frames):
+        if _frame_position(existing) != _frame_position(frame):
+            continue
+        if not existing.function_name and frame.function_name:
+            frames[index] = frame
+        return
+    frames.append(frame)
+
+def _source_frames(origins: tuple[InstructionOrigin, ...], annotation_locations: tuple[SourceFrame, ...]) -> tuple[SourceFrame, ...]:
+    """合并两类编译器明确保存的源码 frame，不推断缺失位置。"""
+    frames: list[SourceFrame] = []
+    for origin in origins:
+        for location in origin.locations:
+            for frame in location.frames:
+                _append_frame(frames, frame)
+    for frame in annotation_locations:
+        _append_frame(frames, frame)
+    return tuple(frames)
+
 def _decode(image: bytes, hardware: HardwareTarget) -> list[set[str]]:
-    """每个 bundle 实际占用的物理槽。"""
+    """每个 bundle 实际占用的物理槽；不从寄存器或邻近指令推断来源。"""
     if hardware == TPU_V6E_TC:
         from .tpu_v6e_tc_codec import decode_program as decode_v6e
         return [{form.slot for form, _ in forms} for _, forms in decode_v6e(image)]
@@ -356,6 +387,7 @@ def _decode(image: bytes, hardware: HardwareTarget) -> list[set[str]]:
 def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap:
     occupied = _decode(program.image, hardware)
     native_slots = _SLOTS[hardware.identifier]
+    physical_slots = {slot: native for native, slot in native_slots.items()}
     count = len(occupied)
     metadata = b'' if program.diagnostic else program.metadata
     diagnostics = [program.diagnostic] if program.diagnostic else []
@@ -420,7 +452,48 @@ def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap
                             diagnostics.append(f'annotation {space}:{key}/{native_slot} does not match an occupied physical slot at image PC {pc}')
                             continue
                         text, origins = _origins(_text(value, 2))
-                        slots.append(SlotSource(pc, slot, native_slot, key, inner_pc, space, overlay_index, text, _annotation_locations(text), origins, owners))
+                        annotation_locations = _annotation_locations(text)
+                        source_frames = _source_frames(origins, annotation_locations)
+                        slots.append(SlotSource(
+                            pc,
+                            slot,
+                            native_slot,
+                            key,
+                            inner_pc,
+                            space,
+                            overlay_index,
+                            text,
+                            annotation_locations,
+                            origins,
+                            owners,
+                            source_frames,
+                            'captured' if any(location.frames for origin in origins for location in origin.locations) else 'compiler_location' if annotation_locations else 'unknown',
+                        ))
+    existing = {(slot.image_pc, slot.slot) for slot in slots}
+    for pc, bundle in enumerate(occupied):
+        owners = tuple(f.symbol_id for f in functions if any(r.image_start <= pc < r.image_limit for r in f.ranges))
+        if not owners:
+            continue
+        overlay_index = next((overlay.index for overlay in overlays if overlay.image_start <= pc < overlay.body_limit + overlay.suffix_size), -1)
+        for slot in hardware.slots:
+            if slot not in bundle or (pc, slot) in existing:
+                continue
+            slots.append(SlotSource(
+                pc,
+                slot,
+                physical_slots[slot],
+                pc,
+                pc,
+                'image',
+                overlay_index,
+                '',
+                (),
+                (),
+                owners,
+                (),
+                'unknown',
+            ))
+            existing.add((pc, slot))
     status = 'captured' if any(slot.origins for slot in slots) else 'absent'
     if status != 'captured':
         diagnostics.append('no tpuasm source records saved; recompile inside compiler_source_mapping with caches cleared')
@@ -455,7 +528,7 @@ def executable_source_maps(serialized: bytes) -> list[ProgramSourceMap]:
         serialized: ``bytes(compiled.runtime_executable().serialize())`` 得到的字节。
 
     Returns:
-        每份程序映像对应一个 ProgramSourceMap，与 :func:`executable_programs` 的顺序相同。每份映射包含程序身份、overlay、函数范围、逐槽来源和诊断。``status='captured'`` 不保证来源完整，``'absent'`` 仍可含原生注释或函数归属；详细字段含义见 :class:`ProgramSourceMap`、:class:`SlotSource` 和 :class:`InstructionOrigin`。可用 ProgramSourceMap.to_dict() / .to_json() 导出版本 2 的记录，或用 :func:`source_maps_json` 合并为一个 JSON 文档。
+        每份程序映像对应一个 ProgramSourceMap，与 :func:`executable_programs` 的顺序相同。每份映射包含程序身份、overlay、函数范围、逐槽来源和诊断。``status='captured'`` 不保证来源完整，``'absent'`` 仍可含原生注释或函数归属；客户端应直接读取 SlotSource.source_frames，详细原始证据见 :class:`SlotSource` 和 :class:`InstructionOrigin`。可用 ProgramSourceMap.to_dict() / .to_json() 导出版本 3 的记录，或用 :func:`source_maps_json` 合并为一个 JSON 文档。
 
     Raises:
         ValueError: 容器或来源元数据无效，或程序映像包含不支持的指令形式。
@@ -471,15 +544,33 @@ def source_maps_json(maps: list[ProgramSourceMap]) -> str:
         maps: 待导出的 ProgramSourceMap 列表，例如 :func:`executable_source_maps` 的返回值。
 
     Returns:
-        含 ``schema_version=2`` 和 ``programs`` 数组的 JSON 文本。数组按输入顺序保存每份映射的 :meth:`ProgramSourceMap.to_dict` 结果。保留非 ASCII 字符，以两个空格缩进并以换行结尾。
+        含 ``schema_version=3`` 和 ``programs`` 数组的 JSON 文本。数组按输入顺序保存每份映射的 :meth:`ProgramSourceMap.to_dict` 结果。保留非 ASCII 字符，以两个空格缩进并以换行结尾。
     """
     return json.dumps({'schema_version': SCHEMA_VERSION, 'programs': [source.to_dict() for source in maps]}, ensure_ascii=False, indent=2) + '\n'
 
 def _comment(text: str) -> str:
     return text.replace('\r', r'\r').replace('\n', r'\n')
 
+def _frame_text(frame: SourceFrame, previous: SourceFrame | None = None) -> str:
+    """与前一 frame 同文件时省略路径。"""
+    text = f'{frame.line_start}:{frame.col_start}-{frame.line_end}:{frame.col_end}'
+    if previous is None or previous.path != frame.path:
+        text = f'{frame.path}:{text}'
+    return text + f' ({frame.function_name})' if frame.function_name else text
+
+def _chain_text(frames: list[SourceFrame], scopes: dict[str, list[int]]) -> str:
+    """``path:inner <- caller [scope, ...; LLO n, ...]``；共享同一组 ordinal 的 scope 合并为一项。"""
+    groups: dict[tuple[int, ...], list[str]] = {}
+    for scope, ordinals in scopes.items():
+        groups.setdefault(tuple(ordinals), []).append(scope)
+    labels = '; '.join(
+        ', '.join(scope for scope in names if scope) + ('; ' if any(names) else '') + 'LLO ' + ', '.join(map(str, ordinals))
+        for ordinals, names in groups.items()
+    )
+    return ' <- '.join(_frame_text(frame, frames[index - 1] if index else None) for index, frame in enumerate(frames)) + (' ' if frames else '') + f'[{labels}]'
+
 def source_comments(source: ProgramSourceMap) -> tuple[dict[int, list[str]], dict[tuple[int, str], str]]:
-    """展示层消费结构化坐标；任何来源文字均位于 # 注释内。"""
+    """逐槽来源按调用链去重，保留编译器解释性注释及无法解析的位置文本。"""
     outside: dict[int, list[str]] = {}
     inline: dict[tuple[int, str], str] = {}
     outside[0] = [f'source mapping: {source.status}; image {source.record}:{source.image_index}; metadata program {source.metadata_program_id}']
@@ -492,20 +583,39 @@ def source_comments(source: ProgramSourceMap) -> tuple[dict[int, list[str]], dic
             outside.setdefault(region.image_limit, []).append(f'end function {label}')
     for annotation in source.annotations:
         outside.setdefault(annotation.image_pc, []).append(_comment(annotation.text))
+    records: dict[tuple[int, str], list[SlotSource]] = {}
     for slot in source.slots:
-        parts = []
-        for origin in slot.origins:
-            for location in origin.locations:
-                frames = ' <- '.join(
-                    f'{frame.path}:{frame.line_start}:{frame.col_start}-{frame.line_end}:{frame.col_end}' + (f' ({frame.function_name})' if frame.function_name else '')
-                    for frame in location.frames
-                )
-                scope = '/'.join((*location.scope_stack, location.primitive))
-                parts.append(f'{frames} [{scope}; LLO {origin.llo_ordinal}]')
-        if slot.compiler_annotation:
-            parts.append(slot.compiler_annotation)
+        records.setdefault((slot.image_pc, slot.slot), []).append(slot)
+    for key, slots in records.items():
+        # 同一调用链只输出一次；frame 从内到外排列，合并该链上的全部 scope 与 LLO ordinal。
+        chains: dict[tuple[tuple[str, int, int, int, int], ...], tuple[list[SourceFrame], dict[str, list[int]]]] = {}
+        for slot in slots:
+            for origin in slot.origins:
+                for location in origin.locations:
+                    frames = location.frames[::-1]
+                    chain = tuple(_frame_position(frame) for frame in frames)
+                    if chain not in chains:
+                        chains[chain] = list(frames), {}
+                    shown, scopes = chains[chain]
+                    for index, frame in enumerate(frames):
+                        if not shown[index].function_name and frame.function_name:
+                            shown[index] = frame
+                    ordinals = scopes.setdefault('/'.join((*location.scope_stack, location.primitive)), [])
+                    if origin.llo_ordinal not in ordinals:
+                        ordinals.append(origin.llo_ordinal)
+        parts = [_chain_text(frames, scopes) for frames, scopes in chains.values()]
+        # 编译器 loc(...) 只在坐标未出现在任何调用链中时单独列出，不带标签。
+        displayed = {position for chain in chains for position in chain}
+        for slot in slots:
+            for frame in slot.annotation_locations:
+                if _frame_position(frame) not in displayed:
+                    displayed.add(_frame_position(frame))
+                    parts.append(_frame_text(frame))
+        for slot in slots:
+            remaining = _LOCATION.sub(lambda match: match[0] if _annotation_frame(match) is None else '', slot.compiler_annotation)
+            remaining = ' :: '.join(part.strip() for part in remaining.split(' :: ') if part.strip())
+            if remaining:
+                parts.append(remaining)
         if parts:
-            key = slot.image_pc, slot.slot
-            text = _comment(' | '.join(dict.fromkeys(parts)))
-            inline[key] = inline[key] + ' | ' + text if key in inline else text
+            inline[key] = _comment(' | '.join(dict.fromkeys(parts)))
     return outside, inline

@@ -845,65 +845,65 @@ L_01be:
 # entry bundle: %matmul_transposed.1 = custom-call(%lhs_hbm.1, %rhs_hbm.1)
 { s0: simm.s32 s9, 0 ;  # materialized constant
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/matmul_transposed.py:23:4-23:44 [dma_start; LLO 18] | loc("examples/pallas/matmul_transposed.py":23:4 to :44)
-{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/matmul_transposed.py:23:4-23:44 [dma_start; LLO 21] | loc("examples/pallas/matmul_transposed.py":23:4 to :44)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/matmul_transposed.py":23:4 to :51)
+{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/matmul_transposed.py:23:4-23:44 [dma_start; LLO 18]
+{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/matmul_transposed.py:23:4-23:44 [dma_start; LLO 21]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/matmul_transposed.py:23:4-23:51 [dma_wait; LLO 223]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s13, 8 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/matmul_transposed.py:23:4-23:51 [dma_wait; LLO 224]
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/matmul_transposed.py:24:4-24:44 [dma_start; LLO 34] | loc("examples/pallas/matmul_transposed.py":24:4 to :44)
-{ dma: dma.simple [vmem:s14], [hbm:s1], length=1024, dst_flag=[sflag:52] ;  # examples/pallas/matmul_transposed.py:24:4-24:44 [dma_start; LLO 37] | loc("examples/pallas/matmul_transposed.py":24:4 to :44)
+{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/matmul_transposed.py:24:4-24:44 [dma_start; LLO 34]
+{ dma: dma.simple [vmem:s14], [hbm:s1], length=1024, dst_flag=[sflag:52] ;  # examples/pallas/matmul_transposed.py:24:4-24:44 [dma_start; LLO 37]
   .encoding { imm1 = 52 } }
-{ misc: vwait.ge [sflag:52], 1024 ;  # loc("examples/pallas/matmul_transposed.py":24:4 to :51)
+{ misc: vwait.ge [sflag:52], 1024 ;  # examples/pallas/matmul_transposed.py:24:4-24:51 [dma_wait; LLO 225]
   .encoding { misc.sync_flag_number = imm1 } }
 { va0: vimm.8x128.s32 v0, 0 ;  # materialized constant
   va1: vnez.u8 vm0, 0x0 ;  # materialized constant
-  vld0: vld.8x128 v1, [vmem:0x40] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 214] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  vld1: vld.8x128 v2, [vmem:0x38] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 215] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  misc: vsyncadd.s32 [sflag:52], -1024 ;
+  vld0: vld.8x128 v1, [vmem:0x40] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 214] | combined load
+  vld1: vld.8x128 v2, [vmem:0x38] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 215] | combined load
+  misc: vsyncadd.s32 [sflag:52], -1024 ;  # examples/pallas/matmul_transposed.py:24:4-24:51 [dma_wait; LLO 226]
   .encoding { misc.sync_flag_number = imm1 ; vld1.offset = imm3 } }
 { s0: simm.s32 s0, 72 ;  # materialized constant
-  vld0: vld.8x128 v3, [vmem:0x30] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 216] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  vld1: vld.8x128 v4, [vmem:0x28] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 217] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  misc: vld.8x128 v5, [vmem:0x20] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 218] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  vx0: vmatpushprep subr0, v0 ;
-  vx1: vmatmulprep.b16.msk mubr0, vm0, v0 ;
+  vld0: vld.8x128 v3, [vmem:0x30] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 216] | combined load
+  vld1: vld.8x128 v4, [vmem:0x28] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 217] | combined load
+  misc: vld.8x128 v5, [vmem:0x20] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 218] | combined load
+  vx0: vmatpushprep subr0, v0 ;  # examples/pallas/matmul_transposed.py:25:20-25:95
+  vx1: vmatmulprep.b16.msk mubr0, vm0, v0 ;  # examples/pallas/matmul_transposed.py:25:20-25:95
   .encoding { s0.y = zero_imm0 ; vld0.offset = imm1 ; vld1.offset = imm2 ; vx1.vex_source = v0_x } }
-{ s0: sshll.u32 s1, s0, 0x4 ;  # examples/pallas/matmul_transposed.py:26:4-26:44 [dma_start; LLO 165] | loc("examples/pallas/matmul_transposed.py":26:4 to :44)
-  vld0: vld.8x128 v6, [vmem:0x18] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 219] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  vld1: vld.8x128 v7, [vmem:0x10] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 220] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  misc: vld.8x128 v8, [vmem:0x8] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 221] | loc("examples/pallas/matmul_transposed.py":25:43 to :56) :: combined load
-  vx0: vmatpush3.8x128.bf16.xpose msra0, v1 ;  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
+{ s0: sshll.u32 s1, s0, 0x4 ;  # examples/pallas/matmul_transposed.py:26:4-26:44 [dma_start; LLO 165]
+  vld0: vld.8x128 v6, [vmem:0x18] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 219] | combined load
+  vld1: vld.8x128 v7, [vmem:0x10] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 220] | combined load
+  misc: vld.8x128 v8, [vmem:0x8] ;  # examples/pallas/matmul_transposed.py:25:43-25:56 [get; LLO 221] | combined load
+  vx0: vmatpush3.8x128.bf16.xpose msra0, v1 ;  # examples/pallas/matmul_transposed.py:25:20-25:95
   .encoding { vld0.offset = imm0 ; vld1.offset = imm1 } }
-{ vld0: vld.8x128 v9, [vmem:0x0] ;  # examples/pallas/matmul_transposed.py:25:28-25:41 [get; LLO 222] | loc("examples/pallas/matmul_transposed.py":25:28 to :41) :: combined load
-  vx0: vmatpushprep subr0, v0 ;
+{ vld0: vld.8x128 v9, [vmem:0x0] ;  # examples/pallas/matmul_transposed.py:25:28-25:41 [get; LLO 222] | combined load
+  vx0: vmatpushprep subr0, v0 ;  # examples/pallas/matmul_transposed.py:25:20-25:95
   .encoding { vld0.offset = imm0 } }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v2 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v3 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v4 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v5 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v6 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v7 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatpushprep subr0, v0 }
-{ vx0: vmatpush3.8x128.bf16.xpose msra0, v8 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vx0: vmatmul.8x128.bf16.lgmr (mrf0, gmr0, msra0), v9 }  # loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vr0: vpop.8x128 v10, mrf0 }  # examples/pallas/matmul_transposed.py:25:20-25:95 [dot_general; LLO 146] | loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vst: vst.8x128 [vmem:0x48], v10 }  # examples/pallas/matmul_transposed.py:25:4-25:17 [swap; LLO 153] | loc("examples/pallas/matmul_transposed.py":25:4 to :17)
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v2 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v3 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v4 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v5 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v6 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v7 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpushprep subr0, v0 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatpush3.8x128.bf16.xpose msra0, v8 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vx0: vmatmul.8x128.bf16.lgmr (mrf0, gmr0, msra0), v9 }  # examples/pallas/matmul_transposed.py:25:20-25:95
+{ vr0: vpop.8x128 v10, mrf0 }  # examples/pallas/matmul_transposed.py:25:20-25:95 [dot_general; LLO 146]
+{ vst: vst.8x128 [vmem:0x48], v10 }  # examples/pallas/matmul_transposed.py:25:4-25:17 [swap; LLO 153]
 { vr0: vpop.8x128 v11, mrf0 }
-{ vr0: vpop.8x128 v12, mrf0 }  # examples/pallas/matmul_transposed.py:25:20-25:95 [dot_general; LLO 149] | loc("examples/pallas/matmul_transposed.py":25:20 to :95)
-{ vst: vst.8x128 [vmem:0x50], v12 }  # examples/pallas/matmul_transposed.py:25:4-25:17 [swap; LLO 154] | loc("examples/pallas/matmul_transposed.py":25:4 to :17)
-{ dma: dma.simple [hbm:s2], [vmem:s1], length=256, dst_flag=[sflag:52] ;  # examples/pallas/matmul_transposed.py:26:4-26:44 [dma_start; LLO 168] | loc("examples/pallas/matmul_transposed.py":26:4 to :44)
+{ vr0: vpop.8x128 v12, mrf0 }  # examples/pallas/matmul_transposed.py:25:20-25:95 [dot_general; LLO 149]
+{ vst: vst.8x128 [vmem:0x50], v12 }  # examples/pallas/matmul_transposed.py:25:4-25:17 [swap; LLO 154]
+{ dma: dma.simple [hbm:s2], [vmem:s1], length=256, dst_flag=[sflag:52] ;  # examples/pallas/matmul_transposed.py:26:4-26:44 [dma_start; LLO 168]
   vr0: vpop.8x128 v13, mrf0 }
-{ misc: vwait.ge [sflag:52], 256 ;  # loc("examples/pallas/matmul_transposed.py":26:4 to :51)
+{ misc: vwait.ge [sflag:52], 256 ;  # examples/pallas/matmul_transposed.py:26:4-26:51 [dma_wait; LLO 227]
   .encoding { misc.sync_flag_number = imm1 } }
 # exit bundle: %matmul_transposed.1 = custom-call(%lhs_hbm.1, %rhs_hbm.1)
-{ misc: vsyncadd.s32 [sflag:52], -256 ;
+{ misc: vsyncadd.s32 [sflag:52], -256 ;  # examples/pallas/matmul_transposed.py:26:4-26:51 [dma_wait; LLO 228]
   .encoding { misc.sync_flag_number = imm1 } }
 { misc: vtrace 0x90000000 }
 # end function jit(wrapper)/matmul_transposed/mpmd_map [symbol 6, matmul_transposed.1]
@@ -965,7 +965,7 @@ L_0223:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -973,7 +973,7 @@ L_0223:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -1010,7 +1010,7 @@ L_0223:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -1029,7 +1029,7 @@ L_024e:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1100,7 +1100,7 @@ L_0261:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1145,7 +1145,7 @@ L_0290:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

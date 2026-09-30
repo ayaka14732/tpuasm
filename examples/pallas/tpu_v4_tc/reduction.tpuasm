@@ -854,7 +854,7 @@ L_01c9:
 { s0: dma.simple [smem:s4], [hbm:s3], length=1, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:51], -1 ;
+{ misc: vsyncadd.s32 [sflag:51], -1 ;  # local-dma-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s1: sld s1, [smem:0x3e] }
@@ -895,47 +895,47 @@ L_01c9:
 { s0: simm.s32 s10, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s10], [hbm:s0], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/reduction.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/reduction.py:23:4-23:47 [dma_wait; LLO 100]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s0, 8 ;  # materialized constant
-  vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/reduction.py:24:14-24:25 [get; LLO 27] | loc("examples/pallas/reduction.py":24:14 to :25)
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+  vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/reduction.py:24:14-24:25 [get; LLO 27]
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/reduction.py:23:4-23:47 [dma_wait; LLO 101]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
-{ va0: vrot.slane.down.8x128.u32 v1, v0 }  # examples/pallas/reduction.py:25:35-25:71 [roll; LLO 30] | loc("examples/pallas/reduction.py":25:35 to :71)
-{ va0: vmax.8x128.f32 v2, v0, v1 ;  # examples/pallas/reduction.py:25:14-25:72 [max; LLO 32] | loc("examples/pallas/reduction.py":25:14 to :72)
-  va1: vadd.8x128.f32 v3, v1, v0 }  # examples/pallas/reduction.py:30:4-30:47 [add; LLO 55] | loc("examples/pallas/reduction.py":30:4 to :47)
-{ va0: vrot.slane.down.8x128.u32 v4, v2 }  # examples/pallas/reduction.py:26:35-26:71 [roll; LLO 35] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vrot.slane.down.8x128.u32 v5, v3 }  # examples/pallas/reduction.py:31:13-31:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 58] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vrot.slane.down.8x128.u32 v6, v4 }  # examples/pallas/reduction.py:26:35-26:71 [roll; LLO 36] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vrot.slane.down.8x128.u32 v7, v5 }  # examples/pallas/reduction.py:31:13-31:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 59] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vmax.8x128.f32 v8, v2, v6 }  # examples/pallas/reduction.py:26:14-26:72 [max; LLO 38] | loc("examples/pallas/reduction.py":26:14 to :72)
-{ va0: vrot.slane.down.8x128.u32 v9, v8 ;  # examples/pallas/reduction.py:27:35-27:71 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 41] | loc("examples/pallas/reduction.py":26:35 to :71)
-  va1: vadd.8x128.f32 v10, v7, v3 }  # examples/pallas/reduction.py:31:4-31:47 [add; LLO 61] | loc("examples/pallas/reduction.py":31:4 to :47)
-{ va0: vrot.slane.down.8x128.u32 v11, v9 ;  # examples/pallas/reduction.py:27:35-27:71 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 42] | loc("examples/pallas/reduction.py":26:35 to :71)
-  va1: vrot.slane.down.8x128.u32 v12, v10 }  # examples/pallas/reduction.py:32:13-32:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 64] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vrot.slane.down.8x128.u32 v13, v11 ;  # examples/pallas/reduction.py:27:35-27:71 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 43] | loc("examples/pallas/reduction.py":26:35 to :71)
-  va1: vrot.slane.down.8x128.u32 v14, v12 }  # examples/pallas/reduction.py:32:13-32:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 65] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vrot.slane.down.8x128.u32 v15, v13 ;  # examples/pallas/reduction.py:27:35-27:71 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 44] | loc("examples/pallas/reduction.py":26:35 to :71)
-  va1: vrot.slane.down.8x128.u32 v16, v14 }  # examples/pallas/reduction.py:32:13-32:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 66] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ va0: vmax.8x128.f32 v17, v8, v15 ;  # examples/pallas/reduction.py:27:14-27:72 <- examples/pallas/reduction.py:26:14-26:72 [max; LLO 46] | loc("examples/pallas/reduction.py":26:14 to :72)
-  va1: vrot.slane.down.8x128.u32 v18, v16 }  # examples/pallas/reduction.py:32:13-32:47 <- examples/pallas/reduction.py:26:35-26:71 [roll; LLO 67] | loc("examples/pallas/reduction.py":26:35 to :71)
-{ vx0: vmax.xlane.2.8x128.f32 trf0, v17 }  # examples/pallas/reduction.py:28:37-28:76 [reduce_max; LLO 47] | loc("examples/pallas/reduction.py":28:37 to :76)
-{ va1: vadd.8x128.f32 v19, v18, v10 }  # examples/pallas/reduction.py:32:4-32:47 <- examples/pallas/reduction.py:31:4-31:47 [add; LLO 69] | loc("examples/pallas/reduction.py":31:4 to :47)
-{ vx0: vadd.xlane.0.8x128.f32 trf0, v19 }  # examples/pallas/reduction.py:33:37-33:74 [reduce_sum; LLO 70] | loc("examples/pallas/reduction.py":33:37 to :74)
-{ vr0: vpop.8x128 v20, trf0 }  # examples/pallas/reduction.py:28:37-28:76 [reduce_max; LLO 48] | loc("examples/pallas/reduction.py":28:37 to :76)
-{ vst: vst.8x128 [vmem:0x8], v20 }  # examples/pallas/reduction.py:28:4-28:17 [swap; LLO 49] | loc("examples/pallas/reduction.py":28:4 to :17)
+{ va0: vrot.slane.down.8x128.u32 v1, v0 }  # examples/pallas/reduction.py:25:35-25:71 [roll; LLO 30]
+{ va0: vmax.8x128.f32 v2, v0, v1 ;  # examples/pallas/reduction.py:25:14-25:72 [max; LLO 32]
+  va1: vadd.8x128.f32 v3, v1, v0 }  # examples/pallas/reduction.py:30:4-30:47 [add; LLO 55]
+{ va0: vrot.slane.down.8x128.u32 v4, v2 }  # examples/pallas/reduction.py:26:35-26:71 [roll; LLO 35]
+{ va0: vrot.slane.down.8x128.u32 v5, v3 }  # examples/pallas/reduction.py:31:13-31:47 [roll; LLO 58]
+{ va0: vrot.slane.down.8x128.u32 v6, v4 }  # examples/pallas/reduction.py:26:35-26:71 [roll; LLO 36]
+{ va0: vrot.slane.down.8x128.u32 v7, v5 }  # examples/pallas/reduction.py:31:13-31:47 [roll; LLO 59]
+{ va0: vmax.8x128.f32 v8, v2, v6 }  # examples/pallas/reduction.py:26:14-26:72 [max; LLO 38]
+{ va0: vrot.slane.down.8x128.u32 v9, v8 ;  # examples/pallas/reduction.py:27:35-27:71 [roll; LLO 41]
+  va1: vadd.8x128.f32 v10, v7, v3 }  # examples/pallas/reduction.py:31:4-31:47 [add; LLO 61]
+{ va0: vrot.slane.down.8x128.u32 v11, v9 ;  # examples/pallas/reduction.py:27:35-27:71 [roll; LLO 42]
+  va1: vrot.slane.down.8x128.u32 v12, v10 }  # examples/pallas/reduction.py:32:13-32:47 [roll; LLO 64]
+{ va0: vrot.slane.down.8x128.u32 v13, v11 ;  # examples/pallas/reduction.py:27:35-27:71 [roll; LLO 43]
+  va1: vrot.slane.down.8x128.u32 v14, v12 }  # examples/pallas/reduction.py:32:13-32:47 [roll; LLO 65]
+{ va0: vrot.slane.down.8x128.u32 v15, v13 ;  # examples/pallas/reduction.py:27:35-27:71 [roll; LLO 44]
+  va1: vrot.slane.down.8x128.u32 v16, v14 }  # examples/pallas/reduction.py:32:13-32:47 [roll; LLO 66]
+{ va0: vmax.8x128.f32 v17, v8, v15 ;  # examples/pallas/reduction.py:27:14-27:72 [max; LLO 46]
+  va1: vrot.slane.down.8x128.u32 v18, v16 }  # examples/pallas/reduction.py:32:13-32:47 [roll; LLO 67]
+{ vx0: vmax.xlane.2.8x128.f32 trf0, v17 }  # examples/pallas/reduction.py:28:37-28:76 [reduce_max; LLO 47]
+{ va1: vadd.8x128.f32 v19, v18, v10 }  # examples/pallas/reduction.py:32:4-32:47 [add; LLO 69]
+{ vx0: vadd.xlane.0.8x128.f32 trf0, v19 }  # examples/pallas/reduction.py:33:37-33:74 [reduce_sum; LLO 70]
+{ vr0: vpop.8x128 v20, trf0 }  # examples/pallas/reduction.py:28:37-28:76 [reduce_max; LLO 48]
+{ vst: vst.8x128 [vmem:0x8], v20 }  # examples/pallas/reduction.py:28:4-28:17 [swap; LLO 49]
 { s0: dma.simple [hbm:s1], [vmem:s0], length=8, dst_flag=[sflag:52] }
-{ vr0: vpop.8x128 v21, trf0 }  # examples/pallas/reduction.py:33:37-33:74 [reduce_sum; LLO 71] | loc("examples/pallas/reduction.py":33:37 to :74)
-{ vst: vst.8x128 [vmem:0x10], v21 }  # examples/pallas/reduction.py:33:4-33:17 <- examples/pallas/reduction.py:28:4-28:17 [swap; LLO 73] | loc("examples/pallas/reduction.py":28:4 to :17)
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/reduction.py":34:4 to :51)
+{ vr0: vpop.8x128 v21, trf0 }  # examples/pallas/reduction.py:33:37-33:74 [reduce_sum; LLO 71]
+{ vst: vst.8x128 [vmem:0x10], v21 }  # examples/pallas/reduction.py:33:4-33:17 [swap; LLO 73]
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/reduction.py:34:4-34:51 [dma_wait; LLO 102]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s15, 16 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/reduction.py:34:4-34:51 [dma_wait; LLO 103]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
 { s0: dma.simple [hbm:s2], [vmem:s15], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/reduction.py":34:4 to :51)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/reduction.py:35:4-35:51 [dma_wait; LLO 104]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -8 ;
+{ misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/reduction.py:35:4-35:51 [dma_wait; LLO 105]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/reduction/mpmd_map [symbol 4, reduction.1]
 # exit bundle: %reduction.1 = custom-call(%x_hbm.1)
@@ -1037,14 +1037,14 @@ L_0264:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1076,7 +1076,7 @@ L_0264:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1092,7 +1092,7 @@ L_028b:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_0294 ;

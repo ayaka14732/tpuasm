@@ -888,39 +888,39 @@ L_01c9:
 { s0: simm.s32 s10, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s10], [hbm:s0], length=16, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 16 ;  # loc("examples/pallas/concatenate.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 16 ;  # examples/pallas/concatenate.py:23:4-23:47 [dma_wait; LLO 77]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s13, 16 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -16 ;
+  misc: vsyncadd.s32 [sflag:52], -16 ;  # examples/pallas/concatenate.py:23:4-23:47 [dma_wait; LLO 78]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s13], [hbm:s1], length=16, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 16 ;  # loc("examples/pallas/concatenate.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 16 ;  # examples/pallas/concatenate.py:24:4-24:47 [dma_wait; LLO 79]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s16, 1 ;  # materialized constant
   s1: simm.s32 s0, 32 ;  # materialized constant
-  va0: vlaneseq.8x128.u32 v2 ;  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 47] | loc("examples/pallas/concatenate.py":25:4 to :17) :: loc("examples/pallas/concatenate.py":25:37 to :48)
-  vld: vld.8x128 v0, [vmem:0x10] ;  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 39] | loc("examples/pallas/concatenate.py":25:37 to :48)
-  misc: vsyncadd.s32 [sflag:52], -16 ;
+  va0: vlaneseq.8x128.u32 v2 ;  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 47] | examples/pallas/concatenate.py:25:20-25:71 [concatenate; LLO 47] | examples/pallas/concatenate.py:25:4-25:17
+  vld: vld.8x128 v0, [vmem:0x10] ;  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 39]
+  misc: vsyncadd.s32 [sflag:52], -16 ;  # examples/pallas/concatenate.py:24:4-24:47 [dma_wait; LLO 80]
   .encoding { misc.value = imm2 ; s1.y = lo(imm0) } }
-{ va0: vand.8x128.u32 v3, 0x7f, v2 ;  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 48] | loc("examples/pallas/concatenate.py":25:4 to :17) :: loc("examples/pallas/concatenate.py":25:37 to :48)
-  vld: vld.8x128 v1, [vmem:0x18] ;  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 40] | loc("examples/pallas/concatenate.py":25:37 to :48)
-  vx0: vrot.2.8x128 trf0, v0, s16 }  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 43] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ va0: veq.8x128.s32 vm0, v3, 0 ;  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 49] | loc("examples/pallas/concatenate.py":25:37 to :48)
-  va1: vlt.8x128.s32 vm1, v3, 2 ;  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 58] | loc("examples/pallas/concatenate.py":25:4 to :17)
-  vld: vld.8x128 v4, [vmem:0x8] }  # examples/pallas/concatenate.py:25:37-25:48 [get; LLO 38] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ vld: vld.8x128 v7, [vmem:0x0] }  # examples/pallas/concatenate.py:25:37-25:48 [get; LLO 37] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ vst: vst.8x128 [vmem:0x20], v7 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 54] | loc("examples/pallas/concatenate.py":25:4 to :17)
-{ vx0: vrot.0.8x128 trf0, v1, s16 }  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 45] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ vr0: vpop.8x128 v5, trf0 }  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 44] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ va0: vsel.8x128 v6, vm0, v4, v5 }  # examples/pallas/concatenate.py:25:20-25:71 [concatenate; LLO 53] | loc("examples/pallas/concatenate.py":25:20 to :71)
-{ vst: vst.8x128 [vmem:0x28], v6 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 55] | loc("examples/pallas/concatenate.py":25:4 to :17)
-{ vr0: vpop.8x128 v8, trf0 }  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 46] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ va0: vsel.8x128 v9, vm0, v5, v8 }  # examples/pallas/concatenate.py:25:50-25:61 <- examples/pallas/concatenate.py:25:37-25:48 [get; LLO 50] | loc("examples/pallas/concatenate.py":25:37 to :48)
-{ vst: vst.msk.8x128 [vmem:0x30], vm1, v9 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 59] | loc("examples/pallas/concatenate.py":25:4 to :17)
+{ va0: vand.8x128.u32 v3, 0x7f, v2 ;  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 48] | examples/pallas/concatenate.py:25:20-25:71 [concatenate; LLO 48] | examples/pallas/concatenate.py:25:4-25:17
+  vld: vld.8x128 v1, [vmem:0x18] ;  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 40]
+  vx0: vrot.2.8x128 trf0, v0, s16 }  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 43]
+{ va0: veq.8x128.s32 vm0, v3, 0 ;  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 49] | examples/pallas/concatenate.py:25:20-25:71 [concatenate; LLO 49]
+  va1: vlt.8x128.s32 vm1, v3, 2 ;  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 58]
+  vld: vld.8x128 v4, [vmem:0x8] }  # examples/pallas/concatenate.py:25:37-25:48 [get; LLO 38]
+{ vld: vld.8x128 v7, [vmem:0x0] }  # examples/pallas/concatenate.py:25:37-25:48 [get; LLO 37]
+{ vst: vst.8x128 [vmem:0x20], v7 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 54]
+{ vx0: vrot.0.8x128 trf0, v1, s16 }  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 45]
+{ vr0: vpop.8x128 v5, trf0 }  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 44]
+{ va0: vsel.8x128 v6, vm0, v4, v5 }  # examples/pallas/concatenate.py:25:20-25:71 [concatenate; LLO 53]
+{ vst: vst.8x128 [vmem:0x28], v6 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 55]
+{ vr0: vpop.8x128 v8, trf0 }  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 46]
+{ va0: vsel.8x128 v9, vm0, v5, v8 }  # examples/pallas/concatenate.py:25:50-25:61 [get; LLO 50]
+{ vst: vst.msk.8x128 [vmem:0x30], vm1, v9 }  # examples/pallas/concatenate.py:25:4-25:17 [swap; LLO 59]
 { s0: dma.simple [hbm:s2], [vmem:s0], length=24, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 24 ;  # loc("examples/pallas/concatenate.py":26:4 to :51)
+{ misc: vwait.ge [sflag:52], 24 ;  # examples/pallas/concatenate.py:26:4-26:51 [dma_wait; LLO 81]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -24 ;
+{ misc: vsyncadd.s32 [sflag:52], -24 ;  # examples/pallas/concatenate.py:26:4-26:51 [dma_wait; LLO 82]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/concatenate/mpmd_map [symbol 6, concatenate.1]
 # exit bundle: %concatenate.1 = custom-call(%x_hbm.1, %y_hbm.1)
@@ -1022,14 +1022,14 @@ L_0257:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1061,7 +1061,7 @@ L_0257:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1077,7 +1077,7 @@ L_027e:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_0287 ;

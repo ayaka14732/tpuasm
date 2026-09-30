@@ -886,42 +886,42 @@ L_01c9:
 { s0: simm.s32 s7, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s7], [hbm:s0], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/softmax.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/softmax.py:23:4-23:47 [dma_wait; LLO 67]
   .encoding { misc.value = imm2 } }
-{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/softmax.py:24:12-24:23 [get; LLO 25] | loc("examples/pallas/softmax.py":24:12 to :23)
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+{ vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/softmax.py:24:12-24:23 [get; LLO 25]
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/softmax.py:23:4-23:47 [dma_wait; LLO 68]
   .encoding { misc.value = imm2 } }
-{ vx0: vmax.xlane.2.8x128.f32 trf0, v0 }  # examples/pallas/softmax.py:25:26-25:63 [reduce_max; LLO 26] | loc("examples/pallas/softmax.py":25:26 to :63)
-{ vr0: vpop.8x128 v1, trf0 }  # examples/pallas/softmax.py:25:26-25:63 [reduce_max; LLO 27] | loc("examples/pallas/softmax.py":25:26 to :63)
-{ va1: vsub.8x128.f32 v2, v0, v1 }  # examples/pallas/softmax.py:25:18-25:63 [sub; LLO 28] | loc("examples/pallas/softmax.py":25:18 to :63)
-{ va0: vmul.8x128.f32 v3, 1.4426950216293335, v2 }  # examples/pallas/softmax.py:25:10-25:64 [exp; LLO 29] | loc("examples/pallas/softmax.py":25:10 to :64)
+{ vx0: vmax.xlane.2.8x128.f32 trf0, v0 }  # examples/pallas/softmax.py:25:26-25:63 [reduce_max; LLO 26]
+{ vr0: vpop.8x128 v1, trf0 }  # examples/pallas/softmax.py:25:26-25:63 [reduce_max; LLO 27]
+{ va1: vsub.8x128.f32 v2, v0, v1 }  # examples/pallas/softmax.py:25:18-25:63 [sub; LLO 28]
+{ va0: vmul.8x128.f32 v3, 1.4426950216293335, v2 }  # examples/pallas/softmax.py:25:10-25:64 [exp; LLO 29]
 { va0: vpow2.8x128.f32 erf, v3 }
-{ vr0: vpop.8x128 v4, erf }  # loc("examples/pallas/softmax.py":25:10 to :64)
-{ vx0: vadd.xlane.0.8x128.f32 trf0, v4 }  # examples/pallas/softmax.py:26:24-26:59 [reduce_sum; LLO 31] | loc("examples/pallas/softmax.py":26:24 to :59)
-{ vr0: vpop.8x128 v5, trf0 }  # examples/pallas/softmax.py:26:24-26:59 [reduce_sum; LLO 32] | loc("examples/pallas/softmax.py":26:24 to :59)
+{ vr0: vpop.8x128 v4, erf }  # examples/pallas/softmax.py:25:10-25:64
+{ vx0: vadd.xlane.0.8x128.f32 trf0, v4 }  # examples/pallas/softmax.py:26:24-26:59 [reduce_sum; LLO 31]
+{ vr0: vpop.8x128 v5, trf0 }  # examples/pallas/softmax.py:26:24-26:59 [reduce_sum; LLO 32]
 { va0: vrcp.8x128.f32 erf, v5 ;
-  va1: vand.8x128.u32 v9, 0x7fffffff, v5 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 43] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vand.8x128.u32 v11, 0x80000000, v5 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 45] | loc("examples/pallas/softmax.py":26:18 to :59)
-  va1: vweird.8x128.f32 vm1, v5 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 39] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: veq.8x128.f32 vm3, v9, 8.507059173023462e+37 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 44] | loc("examples/pallas/softmax.py":26:18 to :59)
-  va1: vor.8x128.u32 v13, 0x800000, v11 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 46] | loc("examples/pallas/softmax.py":26:18 to :59)
+  va1: vand.8x128.u32 v9, 0x7fffffff, v5 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 43]
+{ va0: vand.8x128.u32 v11, 0x80000000, v5 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 45]
+  va1: vweird.8x128.f32 vm1, v5 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 39]
+{ va0: veq.8x128.f32 vm3, v9, 8.507059173023462e+37 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 44]
+  va1: vor.8x128.u32 v13, 0x800000, v11 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 46]
   .encoding { va1.y = hi(imm1) } }
-{ vr0: vpop.8x128 v6, erf }  # loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vmul.8x128.f32 v7, v6, v5 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 35] | loc("examples/pallas/softmax.py":26:18 to :59)
-  va1: vweird.8x128.f32 vm0, v6 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 40] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ misc: vmor.8x128.u1 vm2, vm1, vm0 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 41] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va1: vsub.8x128.f32 v8, 1.0, v7 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 36] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vmul.8x128.f32 v10, v6, v8 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 37] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va1: vadd.8x128.f32 v12, v6, v10 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 38] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vsel.8x128 v14, vm2, v6, v12 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 42] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vsel.8x128 v15, vm3, v13, v14 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 47] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ va0: vmul.8x128.f32 v16, v4, v15 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 48] | loc("examples/pallas/softmax.py":26:18 to :59)
-{ vst: vst.8x128 [vmem:0x0], v16 ;  # examples/pallas/softmax.py:26:4-26:15 [swap; LLO 49] | loc("examples/pallas/softmax.py":26:4 to :15)
+{ vr0: vpop.8x128 v6, erf }  # examples/pallas/softmax.py:26:18-26:59
+{ va0: vmul.8x128.f32 v7, v6, v5 ;  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 35]
+  va1: vweird.8x128.f32 vm0, v6 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 40]
+{ misc: vmor.8x128.u1 vm2, vm1, vm0 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 41]
+{ va1: vsub.8x128.f32 v8, 1.0, v7 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 36]
+{ va0: vmul.8x128.f32 v10, v6, v8 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 37]
+{ va1: vadd.8x128.f32 v12, v6, v10 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 38]
+{ va0: vsel.8x128 v14, vm2, v6, v12 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 42]
+{ va0: vsel.8x128 v15, vm3, v13, v14 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 47]
+{ va0: vmul.8x128.f32 v16, v4, v15 }  # examples/pallas/softmax.py:26:18-26:59 [div; LLO 48]
+{ vst: vst.8x128 [vmem:0x0], v16 ;  # examples/pallas/softmax.py:26:4-26:15 [swap; LLO 49]
   .encoding { vst.opcode = s0 } }
 { s0: dma.simple [hbm:s1], [vmem:s7], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/softmax.py":27:4 to :49)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/softmax.py:27:4-27:49 [dma_wait; LLO 69]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -8 ;
+{ misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/softmax.py:27:4-27:49 [dma_wait; LLO 70]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/softmax/mpmd_map [symbol 4, softmax.1]
 # exit bundle: %softmax.1 = custom-call(%x_hbm.1)
@@ -1023,14 +1023,14 @@ L_025c:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1062,7 +1062,7 @@ L_025c:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1078,7 +1078,7 @@ L_0283:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_028c ;

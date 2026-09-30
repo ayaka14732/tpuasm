@@ -845,39 +845,39 @@ L_01be:
 # entry bundle: %rms_norm.1 = custom-call(%x_hbm.1, %weight_hbm.1)
 { s0: simm.s32 s9, 0 ;  # materialized constant
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/rms_norm.py:23:4-23:40 [dma_start; LLO 17] | loc("examples/pallas/rms_norm.py":28:4 to :42) :: loc("examples/pallas/rms_norm.py":23:4 to :40)
-{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:23:4-23:40 [dma_start; LLO 20] | loc("examples/pallas/rms_norm.py":23:4 to :40)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/rms_norm.py":23:4 to :47)
+{ s0: sshll.u32 s10, s9, 0x4 }  # examples/pallas/rms_norm.py:23:4-23:40 [dma_start; LLO 17] | examples/pallas/rms_norm.py:28:4-28:42
+{ dma: dma.simple [vmem:s10], [hbm:s0], length=128, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:23:4-23:40 [dma_start; LLO 20]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/rms_norm.py:23:4-23:47 [dma_wait; LLO 74]
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: simm.s32 s13, 8 ;  # materialized constant
-  misc: vsyncadd.s32 [sflag:52], -128 ;
+  misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/rms_norm.py:23:4-23:47 [dma_wait; LLO 75]
   .encoding { s0.y = zero_imm0 } }
-{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/rms_norm.py:24:4-24:50 [dma_start; LLO 33] | loc("examples/pallas/rms_norm.py":24:4 to :50)
-{ dma: dma.simple [vmem:s14], [hbm:s1], length=16, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:24:4-24:50 [dma_start; LLO 36] | loc("examples/pallas/rms_norm.py":24:4 to :50)
-{ misc: vwait.ge [sflag:52], 16 ;  # loc("examples/pallas/rms_norm.py":24:4 to :57)
+{ s0: sshll.u32 s14, s13, 0x4 }  # examples/pallas/rms_norm.py:24:4-24:50 [dma_start; LLO 33]
+{ dma: dma.simple [vmem:s14], [hbm:s1], length=16, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:24:4-24:50 [dma_start; LLO 36]
+{ misc: vwait.ge [sflag:52], 16 ;  # examples/pallas/rms_norm.py:24:4-24:57 [dma_wait; LLO 76]
   .encoding { misc.sync_flag_number = imm1 } }
-{ vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/rms_norm.py:25:12-25:23 [get; LLO 39] | loc("examples/pallas/rms_norm.py":25:12 to :23)
-  vld1: vld.8x128 v5, [vmem:0x8, sm=0x1] ;  # examples/pallas/rms_norm.py:27:69-27:85 [get; LLO 48] | loc("examples/pallas/rms_norm.py":27:69 to :85)
-  misc: vsyncadd.s32 [sflag:52], -16 ;
+{ vld0: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/rms_norm.py:25:12-25:23 [get; LLO 39]
+  vld1: vld.8x128 v5, [vmem:0x8, sm=0x1] ;  # examples/pallas/rms_norm.py:27:69-27:85 [get; LLO 48]
+  misc: vsyncadd.s32 [sflag:52], -16 ;  # examples/pallas/rms_norm.py:24:4-24:57 [dma_wait; LLO 77]
   .encoding { misc.sync_flag_number = imm1 ; vld0.offset = imm2 ; vld1.offset = imm3 } }
-{ va0: vmul.8x128.f32 v1, v0, v0 ;  # examples/pallas/rms_norm.py:26:26-26:39 [mul; LLO 40] | loc("examples/pallas/rms_norm.py":26:26 to :39)
-  va1: vadd.8x128.f32 v6, 1.0, v5 }  # examples/pallas/rms_norm.py:27:63-27:85 [add; LLO 49] | loc("examples/pallas/rms_norm.py":27:63 to :85)
-{ va0: vperm.slane.8x128 v7, v6, 403703808 ;  # examples/pallas/rms_norm.py:27:63-27:85 [add; LLO 51] | loc("examples/pallas/rms_norm.py":27:63 to :85)
-  vx0: vadd.xlane.8x128.f32 trf0, v1 }  # examples/pallas/rms_norm.py:26:18-26:63 [reduce_sum; LLO 41] | loc("examples/pallas/rms_norm.py":26:18 to :63)
-{ vr0: vpop.8x128 v2, trf0 }  # examples/pallas/rms_norm.py:26:18-26:63 [reduce_sum; LLO 42] | loc("examples/pallas/rms_norm.py":26:18 to :63)
-{ va0: vmul.8x128.f32 v3, 0.0078125, v2 }  # examples/pallas/rms_norm.py:26:18-26:75 [mul; LLO 44] | loc("examples/pallas/rms_norm.py":26:18 to :75)
-{ va0: vadd.8x128.f32 v4, 9.999999974752427e-07, v3 }  # examples/pallas/rms_norm.py:27:40-27:58 [add; LLO 45] | loc("examples/pallas/rms_norm.py":27:40 to :58)
+{ va0: vmul.8x128.f32 v1, v0, v0 ;  # examples/pallas/rms_norm.py:26:26-26:39 [mul; LLO 40]
+  va1: vadd.8x128.f32 v6, 1.0, v5 }  # examples/pallas/rms_norm.py:27:63-27:85 [add; LLO 49]
+{ va0: vperm.slane.8x128 v7, v6, 403703808 ;  # examples/pallas/rms_norm.py:27:63-27:85 [add; LLO 51]
+  vx0: vadd.xlane.8x128.f32 trf0, v1 }  # examples/pallas/rms_norm.py:26:18-26:63 [reduce_sum; LLO 41]
+{ vr0: vpop.8x128 v2, trf0 }  # examples/pallas/rms_norm.py:26:18-26:63 [reduce_sum; LLO 42]
+{ va0: vmul.8x128.f32 v3, 0.0078125, v2 }  # examples/pallas/rms_norm.py:26:18-26:75 [mul; LLO 44]
+{ va0: vadd.8x128.f32 v4, 9.999999974752427e-07, v3 }  # examples/pallas/rms_norm.py:27:40-27:58 [add; LLO 45]
 { va3: vrsqrt.8x128.f32 erf, v4 }
-{ vr0: vpop.8x128 v8, erf }  # loc("examples/pallas/rms_norm.py":27:26 to :59)
-{ va0: vmul.8x128.f32 v9, v8, v0 }  # examples/pallas/rms_norm.py:27:18-27:59 [mul; LLO 47] | loc("examples/pallas/rms_norm.py":27:18 to :59)
-{ va0: vmul.8x128.f32 v10, v7, v9 }  # examples/pallas/rms_norm.py:27:18-27:86 [mul; LLO 53] | loc("examples/pallas/rms_norm.py":27:18 to :86)
-{ vst: vst.8x128 [vmem:0x0], v10 ;  # examples/pallas/rms_norm.py:27:4-27:15 [swap; LLO 54] | loc("examples/pallas/rms_norm.py":27:4 to :15)
+{ vr0: vpop.8x128 v8, erf }  # examples/pallas/rms_norm.py:27:26-27:59
+{ va0: vmul.8x128.f32 v9, v8, v0 }  # examples/pallas/rms_norm.py:27:18-27:59 [mul; LLO 47]
+{ va0: vmul.8x128.f32 v10, v7, v9 }  # examples/pallas/rms_norm.py:27:18-27:86 [mul; LLO 53]
+{ vst: vst.8x128 [vmem:0x0], v10 ;  # examples/pallas/rms_norm.py:27:4-27:15 [swap; LLO 54]
   .encoding { vst.offset = imm0 } }
-{ dma: dma.simple [hbm:s2], [vmem:s10], length=128, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:28:4-28:42 [dma_start; LLO 67] | loc("examples/pallas/rms_norm.py":28:4 to :42)
-{ misc: vwait.ge [sflag:52], 128 ;  # loc("examples/pallas/rms_norm.py":28:4 to :49)
+{ dma: dma.simple [hbm:s2], [vmem:s10], length=128, dst_flag=[sflag:52] }  # examples/pallas/rms_norm.py:28:4-28:42 [dma_start; LLO 67]
+{ misc: vwait.ge [sflag:52], 128 ;  # examples/pallas/rms_norm.py:28:4-28:49 [dma_wait; LLO 78]
   .encoding { misc.sync_flag_number = imm1 } }
 # exit bundle: %rms_norm.1 = custom-call(%x_hbm.1, %weight_hbm.1)
-{ misc: vsyncadd.s32 [sflag:52], -128 ;
+{ misc: vsyncadd.s32 [sflag:52], -128 ;  # examples/pallas/rms_norm.py:28:4-28:49 [dma_wait; LLO 79]
   .encoding { misc.sync_flag_number = imm1 } }
 { misc: vtrace 0x90000000 }
 # end function jit(wrapper)/rms_norm/mpmd_map [symbol 6, rms_norm.1]
@@ -939,7 +939,7 @@ L_0217:
 { misc: vsyncmov sfrf, [sflag:506] }
 { s0: spop s12, sfrf }
 { misc: vwait.ge [sflag:s4], 16 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s4], -16 }
+{ misc: vsyncadd.s32 [sflag:s4], -16 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s13, 1056735232 ;  # materialized constant
   s1: simm.s32 s14, 262016 }  # materialized constant
@@ -947,7 +947,7 @@ L_0217:
 { dma: dma.simple [smem:s14], [hbm:s15], length=16, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:511], -16 ;
+{ misc: vsyncadd.s32 [sflag:511], -16 ;  # continuation-tail-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s16, 16 ;  # materialized constant
@@ -984,7 +984,7 @@ L_0217:
 { s0: ssub.s32 s6, 0, s22 ;
   misc: vwait.ge [sflag:s5], s22 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
-{ misc: vsyncadd.s32 [sflag:s5], s6 ;
+{ misc: vsyncadd.s32 [sflag:s5], s6 ;  # continuation-tail-wait
   .encoding { vs1 = s5 } }
 { s0: sfence }
 { s0: @!p10 smov s4, s22 ;
@@ -1003,7 +1003,7 @@ L_0242:
 { s0: sadd.s32 s1, s25, s22 }
 { s0: ssub.s32 s5, 0, s1 ;
   misc: vwait.ge [sflag:511], s1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s5 }
+{ misc: vsyncadd.s32 [sflag:511], s5 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p12, !p8, !p8 }
 { s0: @!p12 sadd.s32 s14, s12, s20 ;
@@ -1074,7 +1074,7 @@ L_0255:
 { dma: dma.simple [hbm:s7], [smem:s6], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s8, 16383 ;  # materialized constant
@@ -1119,7 +1119,7 @@ L_0284:
 { dma: dma.simple [hbm:s3], [smem:s2], length=16, dst_flag=[sflag:51] }
 { misc: vwait.ge [sflag:51], 16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
-{ misc: vsyncadd.s32 [sflag:51], -16 ;
+{ misc: vsyncadd.s32 [sflag:51], -16 ;  # local-dma-wait
   .encoding { misc.sync_flag_number = imm1 } }
 { s0: sfence }
 { s0: simm.s32 s27, 16383 ;  # materialized constant

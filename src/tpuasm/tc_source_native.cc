@@ -108,26 +108,81 @@ std::string source_record(void* inst) {
     }
     return result;
 }
+
+std::vector<void*> source_locations(void* source_map, const std::unordered_set<int>& ordinals) {
+    std::vector<void*> locations;
+    if (!source_map || ordinals.empty()) return locations;
+    // LloSourceMap.locations is a native RepeatedPtrField<SourceInfo>.
+    int count = read<int>(source_map, 0x20);
+    uintptr_t tagged = read<uintptr_t>(source_map, 0x18);
+    for (int i = 0; i < count; ++i) {
+        void* loc = tagged & 1 ? read<void*>(reinterpret_cast<void*>(tagged - 1), 8 + 8 * i) : read<void*>(source_map, 0x18);
+        // SourceInfo.ordinals is a native RepeatedField<int>, inline or heap.
+        void* field = static_cast<char*>(loc) + 0x38;
+        void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;
+        for (int j = 0; j < read<int>(field, 4); ++j) {
+            if (ordinals.count(read<int>(data, 8 + 4 * j))) {
+                locations.push_back(loc);
+                break;
+            }
+        }
+    }
+    return locations;
+}
+
+bool append_sources(void* value, const std::vector<void*>& locations) {
+    if (locations.empty()) return false;
+    int ordinal = read<int>(value, -0xc);
+    auto append = reinterpret_cast<void(*)(void*, const void*, int)>(base + kAppendOrdinal);
+    bool changed = false;
+    for (void* loc : locations) {
+        void* field = static_cast<char*>(loc) + 0x38;
+        void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;
+        bool present = false;
+        for (int j = 0; j < read<int>(field, 4); ++j) present |= read<int>(data, 8 + 4 * j) == ordinal;
+        if (present) continue;
+        // Native append handles inline storage, arena ownership, and growth.
+        append(field, loc, ordinal);
+        remapped.fetch_add(1, std::memory_order_relaxed);
+        changed = true;
+    }
+    if (changed) rewrites.fetch_add(1, std::memory_order_relaxed);
+    return changed;
+}
+
+std::vector<void*> operands(void* value) {
+    std::vector<void*> result;
+    int count = read<int>(value, -0x10) - (read<uint16_t>(value, 0x1c) & 3);
+    auto operand = reinterpret_cast<void*(*)(void*, int)>(base + kOperands);
+    for (int i = 0; i < count; ++i) result.push_back(operand(value, i));
+    return result;
+}
+
+void annotate_source_record(void* inst) {
+    std::string record = source_record(inst);
+    if (record.empty()) return;
+    const void* old = reinterpret_cast<const void*(*)(void*)>(base + kAnnotation)(inst);
+    std::string annotation = native_string(old);
+    if (annotation.find("[[tpuasm:v1:") != std::string::npos) return;
+    annotation += " [[tpuasm:v1:";
+    const char hex[] = "0123456789abcdef";
+    for (unsigned char c : record) {
+        annotation += hex[c >> 4];
+        annotation += hex[c & 15];
+    }
+    annotation += "]]";
+    // Native setter owns a copy for the entire LLO instruction lifetime,
+    // including delayed emission and bundle finalization.
+    reinterpret_cast<void(*)(void*, View)>(base + kSetAnnotation)(inst, {annotation.data(), annotation.size()});
+    added.fetch_add(1, std::memory_order_relaxed);
+}
+
 }  // namespace
 
 extern "C" uintptr_t source_emit_hook(void* generator, void* inst) noexcept {
     calls.fetch_add(1, std::memory_order_relaxed);
     try {
-        std::string record = source_record(inst);
-        if (!record.empty()) {
-            const void* old = reinterpret_cast<const void*(*)(void*)>(base + kAnnotation)(inst);
-            std::string annotation = native_string(old);
-            if (annotation.find("[[tpuasm:v1:") == std::string::npos) {
-                annotation += " [[tpuasm:v1:";
-                const char hex[] = "0123456789abcdef";
-                for (unsigned char c : record) { annotation += hex[c >> 4]; annotation += hex[c & 15]; }
-                annotation += "]]";
-                // Native setter owns a copy for the entire LLO instruction lifetime,
-                // including delayed emission and bundle finalization.
-                reinterpret_cast<void(*)(void*, View)>(base + kSetAnnotation)(inst, {annotation.data(), annotation.size()});
-                added.fetch_add(1, std::memory_order_relaxed);
-            }
-        }
+        annotate_source_record(inst);
     } catch (...) { failures.fetch_add(1, std::memory_order_relaxed); }
     return reinterpret_cast<uintptr_t(*)(void*, void*)>(base + kEmit)(generator, inst);
 }
@@ -153,13 +208,8 @@ static void propagate_sources(void* old_value, void* new_value, bool expression 
     void* source_map = read<void*>(module, 0x340);
     std::vector<void*> locations;
     if (source_map) {
-        auto operands = [expression](void* value) {
-            std::vector<void*> result;
-            if (!expression) return result;
-            int count = read<int>(value, -0x10) - (read<uint16_t>(value, 0x1c) & 3);
-            auto operand = reinterpret_cast<void*(*)(void*, int)>(base + kOperands);
-            for (int i = 0; i < count; ++i) result.push_back(operand(value, i));
-            return result;
+        auto graph_operands = [expression](void* value) {
+            return expression ? operands(value) : std::vector<void*>{};
         };
         std::unordered_set<void*> old_graph;
         std::vector<void*> pending{old_value};
@@ -167,7 +217,7 @@ static void propagate_sources(void* old_value, void* new_value, bool expression 
             void* value = pending.back();
             pending.pop_back();
             if (!old_graph.insert(value).second) continue;
-            auto children = operands(value);
+            auto children = graph_operands(value);
             pending.insert(pending.end(), children.begin(), children.end());
         }
         // Eliminating an operation in favor of an existing value must not attach
@@ -183,7 +233,7 @@ static void propagate_sources(void* old_value, void* new_value, bool expression 
                 boundary.insert(value);
                 continue;
             }
-            auto children = operands(value);
+            auto children = graph_operands(value);
             pending.insert(pending.end(), children.begin(), children.end());
         }
         visited.clear();
@@ -194,40 +244,12 @@ static void propagate_sources(void* old_value, void* new_value, bool expression 
             pending.pop_back();
             if (boundary.count(value) || !visited.insert(value).second) continue;
             origins.insert(read<int>(value, -0xc));
-            auto children = operands(value);
+            auto children = graph_operands(value);
             pending.insert(pending.end(), children.begin(), children.end());
         }
-        // LloSourceMap.locations is a native RepeatedPtrField<SourceInfo>.
-        int count = read<int>(source_map, 0x20);
-        uintptr_t tagged = read<uintptr_t>(source_map, 0x18);
-        for (int i = 0; i < count; ++i) {
-            void* loc = tagged & 1 ? read<void*>(reinterpret_cast<void*>(tagged - 1), 8 + 8 * i) : read<void*>(source_map, 0x18);
-            // SourceInfo.ordinals is a native RepeatedField<int>, inline or heap.
-            void* field = static_cast<char*>(loc) + 0x38;
-            void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;
-            for (int j = 0; j < read<int>(field, 4); ++j) {
-                if (origins.count(read<int>(data, 8 + 4 * j))) {
-                    locations.push_back(loc);
-                    break;
-                }
-            }
-        }
+        locations = source_locations(source_map, origins);
     }
-    if (!locations.empty()) {
-        int ordinal = read<int>(new_value, -0xc);
-        auto add = reinterpret_cast<void(*)(void*, const void*, int)>(base + kAppendOrdinal);
-        for (void* loc : locations) {
-            void* field = static_cast<char*>(loc) + 0x38;
-            void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;
-            bool present = false;
-            for (int j = 0; j < read<int>(field, 4); ++j) present |= read<int>(data, 8 + 4 * j) == ordinal;
-            if (present) continue;
-            // Native append handles inline storage, arena ownership, and growth.
-            add(field, loc, ordinal);
-            remapped.fetch_add(1, std::memory_order_relaxed);
-        }
-        rewrites.fetch_add(1, std::memory_order_relaxed);
-    }
+    append_sources(new_value, locations);
 }
 
 extern "C" void* source_replace_hook(void* old_value, void* new_value) {

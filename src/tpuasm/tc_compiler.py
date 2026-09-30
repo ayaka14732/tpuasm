@@ -83,14 +83,16 @@ class CompilerSourceMapping:
         self.gateway = self._allocate_gateway()
         try:
             self.replacements = {}
-            for index, (site, (_, symbol, prefix)) in enumerate(self.backend.calls.items()):
+            for index, (site, (raw, symbol, prefix)) in enumerate(self.backend.calls.items()):
                 destination = self.gateway + index * 32
                 target = ctypes.cast(getattr(self.native, symbol), ctypes.c_void_p).value
                 code = prefix + bytes.fromhex('ff2500000000') + struct.pack('<Q', target)
                 ctypes.memmove(destination, code, len(code))
                 if ctypes.string_at(destination, len(code)) != code:
                     raise RuntimeError('compiler trampoline readback failed')
-                self.replacements[site] = b'\xe8' + struct.pack('<i', destination - (self.base + site + 5))
+                # A tail call (jmp rel32) stays a jmp so the hook returns to the original caller.
+                opcode = b'\xe9' if raw[0] == 0xe9 else b'\xe8'
+                self.replacements[site] = opcode + struct.pack('<i', destination - (self.base + site + 5)) + b'\x90' * (len(raw) - 5)
             self._protect(self.gateway, 5)
         except BaseException:
             self._unmap()

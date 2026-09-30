@@ -886,20 +886,20 @@ L_01c9:
 { s0: simm.s32 s7, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s7], [hbm:s0], length=8, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 8 ;  # loc("examples/pallas/dtype_conversion.py":23:4 to :47)
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/dtype_conversion.py:23:4-23:47 [dma_wait; LLO 50]
   .encoding { misc.value = imm2 } }
 { s0: simm.s32 s10, 8 ;  # materialized constant
   vld: vld.8x128 v0, [vmem:0x0] ;  # examples/pallas/dtype_conversion.py:24:20-24:31 [get; LLO 45] | Coalesced load.
-  misc: vsyncadd.s32 [sflag:52], -8 ;
+  misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/dtype_conversion.py:23:4-23:47 [dma_wait; LLO 51]
   .encoding { misc.value = imm2 ; s0.y = lo(imm0) } }
 { va0: vunpackl.8x128.f16.f32 v1, v0 ;
   va1: vunpacku.8x128.f16.f32 v2, v0 }
-{ vst: vst.8x128 [vmem:0x8], v1 }  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 29] | loc("examples/pallas/dtype_conversion.py":24:4 to :17)
-{ vst: vst.8x128 [vmem:0x10], v2 }  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 30] | loc("examples/pallas/dtype_conversion.py":24:4 to :17)
+{ vst: vst.8x128 [vmem:0x8], v1 }  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 29]
+{ vst: vst.8x128 [vmem:0x10], v2 }  # examples/pallas/dtype_conversion.py:24:4-24:17 [swap; LLO 30]
 { s0: dma.simple [hbm:s1], [vmem:s10], length=16, dst_flag=[sflag:52] }
-{ misc: vwait.ge [sflag:52], 16 ;  # loc("examples/pallas/dtype_conversion.py":25:4 to :51)
+{ misc: vwait.ge [sflag:52], 16 ;  # examples/pallas/dtype_conversion.py:25:4-25:51 [dma_wait; LLO 52]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -16 ;
+{ misc: vsyncadd.s32 [sflag:52], -16 ;  # examples/pallas/dtype_conversion.py:25:4-25:51 [dma_wait; LLO 53]
   .encoding { misc.value = imm2 } }
 # end function jit(wrapper)/dtype_conversion/mpmd_map [symbol 4, dtype_conversion.1]
 # exit bundle: %dtype_conversion.1 = custom-call(%x_hbm.1)
@@ -1001,14 +1001,14 @@ L_024a:
   .encoding { s1.y = pair(imm3, imm2) } }
 { s0: spop s17, v2sf }
 { misc: vwait.ge [sflag:s7], 1 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:s7], -1 }
+{ misc: vsyncadd.s32 [sflag:s7], -1 }  # continuation-tail-wait
 { s0: sfence }
 { s0: simm.s32 s19, 262016 ;  # materialized constant
   s1: sadd.s32 s18, s17, s16 }
 { s0: dma.simple [smem:s19], [hbm:s18], length=1, dst_flag=[sflag:511] }
 { misc: vwait.ge [sflag:511], 1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:511], -1 ;
+{ misc: vsyncadd.s32 [sflag:511], -1 ;  # continuation-tail-wait
   .encoding { misc.value = imm2 } }
 { s0: sfence }
 { s0: sadd.s32 s20, s17, s1 ;
@@ -1040,7 +1040,7 @@ L_024a:
 { s0: ssub.s32 s7, 0, s25 ;
   misc: vwait.ge [sflag:s8], s25 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
-{ misc: vsyncadd.s32 [sflag:s8], s7 ;
+{ misc: vsyncadd.s32 [sflag:s8], s7 ;  # continuation-tail-wait
   .encoding { vs1 = s8 ; vs2 = s0 } }
 { s0: sfence }
 { s0: @!p12 smov s6, s25 ;
@@ -1056,7 +1056,7 @@ L_0271:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
-{ misc: vsyncadd.s32 [sflag:511], s8 }
+{ misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
 { s0: @p14 sbr.rel L_027a ;
