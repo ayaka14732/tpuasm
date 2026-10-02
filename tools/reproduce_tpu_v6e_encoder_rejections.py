@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 import random
 from typing import TypedDict
-from generate_tpu_v6e_tc_isa import Isa, bundle, descriptors, encode
+from generate_tpu_v6e_tc_isa import SPEC
+from ghostlite_isa import Isa, bundle, descriptors, encode
 from tpuasm.tpu_v6e_tc_isa_data import REJECTED
 
 class Control(TypedDict):
@@ -23,7 +24,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('/tmp/tpuasm-v6e-rejections.json'))
     args = parser.parse_args()
-    isa = Isa(*descriptors(Path(str(distribution('libtpu').locate_file('libtpu/libtpu.so')))))
+    isa = Isa(SPEC, *descriptors(Path(str(distribution('libtpu').locate_file('libtpu/libtpu.so')))))
+    shared = dict(zip((name for name, _, _ in SPEC.shared), (0xa1357, 0x5b246, 0xc369a, 0x7d48b, 0xe5abc, 0x9f6de, 20, 21, 22, 23)))
     rng = random.Random(9817)
     results: list[Rejection] = []
     for slot, names in REJECTED.items():
@@ -38,7 +40,7 @@ def main() -> None:
                 cases.extend({field.name: value} for value in values)
             cases.extend({field.name: value for field in operands if field.kind != 14} for value in (1, 3, 7, 15, 31))
             cases.extend({field.name: rng.choice(domains[field.name]) for field in operands} for _ in range(128))
-            words = encode([bundle(isa.slot_bundle(slot, form, values), (0xa1357, 0x5b246, 0xc369a, 0x7d48b, 0xe5abc, 0x9f6de), (20, 21, 22, 23)) for values in cases])
+            words = encode(SPEC, [bundle(SPEC, isa.slot_bundle(slot, form, values), shared) for values in cases])
             accepted = [i for i, word in enumerate(words) if word is not None]
             controls: list[Control] = []
             for other in isa.slot_messages:
@@ -46,7 +48,7 @@ def main() -> None:
                     continue
                 alternative = next((f for f in isa.forms(other) if f.name == name), None)
                 if alternative is not None:
-                    control = encode([bundle(isa.slot_bundle(other, alternative, {field.name: 1 for field in operands if field.kind != 14}))])[0]
+                    control = encode(SPEC, [bundle(SPEC, isa.slot_bundle(other, alternative, {field.name: 1 for field in operands if field.kind != 14}))])[0]
                     controls.append({'slot': other, 'accepted': control is not None})
             result: Rejection = {'slot': slot, 'form': name, 'cases': len(cases), 'accepted': accepted, 'controls': controls}
             results.append(result)

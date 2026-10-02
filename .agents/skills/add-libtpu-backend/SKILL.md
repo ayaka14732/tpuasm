@@ -1,6 +1,6 @@
 ---
 name: add-libtpu-backend
-description: 为 tpuasm 登记新的 libtpu 构建（新 release、nightly 或新 Python ABI）：下载 wheel，从已登记后端出发定位新地址，写入 TC/BCS 编解码后端和 TC 来源后端，并完成离线、TPU、旧版本回归和分发验证。升级 JAX 后来源捕获失效时，以及删除已登记的旧构建时，也用本流程。
+description: 为 tpuasm 登记新的 libtpu 构建（新 release、nightly 或新 Python ABI）：下载 wheel，从已登记后端出发定位新地址，写入 TC/BCS/TEC 编解码后端和 TC 来源后端，并完成离线、TPU、旧版本回归和分发验证。升级 JAX 后来源捕获失效时，以及删除已登记的旧构建时，也用本流程。
 ---
 
 # 为 tpuasm 添加 libtpu 后端
@@ -12,9 +12,10 @@ description: 为 tpuasm 登记新的 libtpu 构建（新 release、nightly 或�
 | `src/tpuasm/native_backends/libtpu_<stem>_tpu_v4_tc.cc` | `backends.LIBTPU_RELEASES` | v4 TC 编解码与逐槽校验 |
 | `src/tpuasm/native_backends/libtpu_<stem>_tpu_v4_bcs.cc` | 同上 | v4 BCS 编解码 |
 | `src/tpuasm/native_backends/libtpu_<stem>_tpu_v6e_tc.cc` | 同上 | v6e TC 编解码与逐槽校验，可选 |
+| `src/tpuasm/native_backends/libtpu_<stem>_tpu_v6e_tec.cc` | 同上 | v6e TEC 编解码，可选；另记录生成 TEC 字段表所用的 LLVM TPU printer 与 TEC emitter 地址，桥接层不使用这些地址 |
 | `src/tpuasm/source_backends/libtpu_<stem>.cc` | `tc_source_backend.SOURCE_BACKENDS` | TC 编译来源捕获，v4 与 v6e 共用 |
 
-v6e 后端是可选的：`LIBTPU_RELEASES` 的每一行列出该版本支持的目标，没有登记 v6e 的版本对 `tpu-v6e-tc` 报告没有后端。登记 v6e 时还要按第 7 节重新生成字段表。
+v6e 的两个后端是可选的：`LIBTPU_RELEASES` 的每一行列出该版本支持的目标，没有登记的版本对 `tpu-v6e-tc` 或 `tpu-v6e-tec` 报告没有后端。登记 v6e 时还要按第 7 节重新生成对应的字段表。
 
 硬件程序格式在 `targets.py` 中按代际和执行单元定义，与 libtpu 版本无关，本流程不修改它。各常量的含义见[原生后端设计](../../../docs/design/native_backend.md)和[来源映射设计](../../../docs/design/tc_source_mapping.md#版本相关的部分)。
 
@@ -74,7 +75,7 @@ PYTHONPATH=src "$PY" tools/locate_libtpu_backend.py "$REF_LIB" "$REF_VERSION" "$
 | `bytes differ`，位于函数入口 | 用 `objdump` 对照新旧反汇编。若差异只在 rel32 调用目标、RIP 相对位移或栈帧大小，采用新地址；否则按函数体已改变处理，重新核对该函数被依赖的行为。 |
 | `same-name candidates ...` | 同名的内部链接函数在不同编译单元中各有一份。反汇编相关调用方（例如 hook 所在的函数），看它实际调用的是哪一份。 |
 | `no symbol` / `missing in target` | 符号被改名或剥离。从已确认的调用方、数据引用和重定位恢复，方法见 `$reverse-engineer-libtpu`。未定位完成前，不要运行猜测出来的地址。 |
-| `kEmptyAnnotations`（数据，不比较字节） | 在 formatter 的调用方中找到 `lea <AnnotationMetadata_globals_>(%rip)` 及随后加上的偏移；再用 `readelf -rW` 确认该地址的重定位指向 `AnnotationMetadata` 的 vtable + 0x10。 |
+| `kEmptyAnnotations`、`kImmExprVtable`（数据，不比较字节） | 在 formatter 的调用方中找到 `lea <AnnotationMetadata_globals_>(%rip)` 及随后加上的偏移；再用 `readelf -rW` 确认该地址的重定位指向 `AnnotationMetadata` 的 vtable + 0x10。`kImmExprVtable` 是 `TPUMCImmExpr` 的 vtable 符号（`_ZTV` 开头），确认它仍有同名符号即可。 |
 | `call site kept at the same offset` | 调用点仍在函数内同一偏移，且目标仍是同一个被调函数，采用。 |
 | `call moved` | 函数体被重新编排。脚本会列出新函数中调用同一被调函数的所有位置，逐一对照参数准备和控制流，把旧调用点对应到新调用点。 |
 | signature `bytes differ` | 先判断旧字节在守护什么（见下一段），然后在新库中找到起同样作用的指令，取相同长度的新字节。 |
@@ -109,6 +110,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
 - **bundle presence mask**：确认其偏移，以及各位与物理槽的对应关系。`kBundleSlotMasks` 按 `targets.py` 中 `slots` 的顺序排列；最终由逐槽拼回校验来证明。
 - **libc++ 字符串**：长短两种表示的布局和释放方式；不能当成宿主 g++ 的 `std::string` 使用。
 - **来源 hook 读取的对象偏移**：指令、region、module、HLO module、SourceMap、SourceInfo 和 emitter 中被读取的字段。它们写死在公共的 `tc_source_native.cc` 中，由第三类 signature 守护。
+- **TEC 字段表生成用到的 LLVM 布局**（仅登记 v6e TEC 时）：`tools/tec_llvm.cc` 开头列出的 `MCInstrInfo`、`MCInstrDesc`、`MCOperandInfo`、`MCRegisterInfo`、寄存器类的布局，以及 `MCInst`、`MCOperand`、`TPUMCImmExpr` 的布局和 `ConsumeBundle` 的调用约定。LLVM 快照升级可能改变它们；从 `TPUInstPrinter::printInst`、`ConsumeBundle` 和 `TPUMCImmExpr` 构造函数的反汇编核对，方法见 `$reverse-engineer-libtpu`。这些布局只影响离线生成工具，不影响编解码后端。
 
 任何一项与现有版本不同时，都在新版本文件中实现同样的 C ABI（编解码为 `tpuasm_verify` / `tpuasm_program_proto` / `tpuasm_free`，来源为 `source_*` 导出函数），或者把相关偏移改为按版本定义的常量，不要直接改公共文件，以免破坏已有版本。
 
@@ -127,7 +129,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
 
 按以下顺序执行，前一步失败就先修复，不要跳过。
 
-1. **后端选择**：`PYTHONPATH=src "$PY" -c 'from tpuasm.backends import select_backend; print([select_backend(t)[0].identifier for t in ("tpu-v4-tc", "tpu-v4-bcs")])'` 应输出新版本的两个标识；登记了 v6e 时把 `"tpu-v6e-tc"` 也加入。不要通过改写 `RuntimeEnvironment.current()` 来冒充目标解释器。
+1. **后端选择**：`PYTHONPATH=src "$PY" -c 'from tpuasm.backends import select_backend; print([select_backend(t)[0].identifier for t in ("tpu-v4-tc", "tpu-v4-bcs")])'` 应输出新版本的两个标识；登记了 v6e 时把 `"tpu-v6e-tc"`、`"tpu-v6e-tec"` 也加入。不要通过改写 `RuntimeEnvironment.current()` 来冒充目标解释器。
 2. **离线编解码**：
 
    ```sh
@@ -135,7 +137,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
    PYTHONPATH=src "$PY" tests/reproduce_tpu_v4_bcs.py
    ```
 
-   这两步检查 bundle 数、decode→encode 逐字节一致、逐槽拼回、编码歧义对和 BCS 的 semantic 互操作。若失败，依次排查函数入口、第 3 节的 ABI、输入格式。登记了 v6e 时，先按第 7 节重新生成字段表，再运行 `PYTHONPATH=src "$PY" tests/reproduce_tpu_v6e_tc.py`。
+   这两步检查 bundle 数、decode→encode 逐字节一致、逐槽拼回、编码歧义对和 BCS 的 semantic 互操作。若失败，依次排查函数入口、第 3 节的 ABI、输入格式。登记了 v6e 时，先按第 7 节重新生成字段表，再运行 `PYTHONPATH=src "$PY" tests/reproduce_tpu_v6e_tc.py` 和 `PYTHONPATH=src "$PY" tests/reproduce_tpu_v6e_tec.py`。
 3. **TPU 来源捕获**（需要匹配的 TPU）：
 
    ```sh
@@ -144,7 +146,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
    ```
 
    每个案例都必须满足 `failures == 0`、`isa_equal`、`numerical_equal`，最后打印 `full outputs`。若 `isa_equal` 成立但来源断言失败（缺少 primitive、scope 重复或归属错误），应先怀疑 JAX lowering 发生了变化，而不是 libtpu，见第 6 节。
-4. **示例**：运行 `examples/pallas/run_all.sh tpu-v4-tc`，它会检查数值并重新生成 `examples/pallas/tpu_v4_tc/` 中的清单；登记了 v6e 时再运行 `examples/pallas/run_all.sh --aot tpu-v6e-tc`，重新生成 `tpu_v6e_tc/` 中的清单。去掉 `#` 注释后与 git 中的旧版本比较，分清哪些示例只是来源注释变了，哪些机器码变了；机器码变化属于编译器行为变化，需要在提交说明中列出。其中 `insert_program.py` 检查变长写回、独立计数器读数和循环成本，登记新版本时需确认装载尺寸与 metadata 迁移仍然成立。`replace_program.py` 在设备上先执行原程序、再执行写回的修改版：若它得到原结果，说明新版本 runtime 识别已装载程序的身份字段变了，按[回灌与执行](../../../docs/design/executable_replacement.md#程序身份)的方法重新确定需要改写的字段。
+4. **示例**：运行 `examples/pallas/run_all.sh tpu-v4-tc`，它会检查数值并重新生成 `examples/pallas/tpu_v4_tc/` 中的清单；登记了 v6e 时再运行 `examples/pallas/run_all.sh --aot tpu-v6e-tc` 和 `examples/pallas/run_all.sh --aot tpu-v6e-tec`，重新生成 `tpu_v6e_tc/` 与 `tpu_v6e_tec/` 中的清单。TEC 示例还会把 tpuasm 的反汇编与编译器 dump 中 LLVM TPU printer 的文本逐条比较，不一致时失败。有 v6e 时再运行 `run_all.sh tpu-v6e-tec` 检查数值，并运行 `PYTHONPATH=src "$PY" tests/reproduce_tpu_v6e_tec_execution.py` 在设备上核对 TEC 的 selector 数值含义与写回。去掉 `#` 注释后与 git 中的旧版本比较，分清哪些示例只是来源注释变了，哪些机器码变了；机器码变化属于编译器行为变化，需要在提交说明中列出。其中 `insert_program.py` 检查变长写回、独立计数器读数和循环成本，登记新版本时需确认装载尺寸与 metadata 迁移仍然成立。`replace_program.py` 在设备上先执行原程序、再执行写回的修改版：若它得到原结果，说明新版本 runtime 识别已装载程序的身份字段变了，按[回灌与执行](../../../docs/design/executable_replacement.md#程序身份)的方法重新确定需要改写的字段。
 5. **拒绝路径**：在 `$WORK` 写一个临时脚本，检查空映像和未按块对齐的映像，并用 monkeypatch 模拟 ABI 不符、build-id 不符和版本未登记。只有拒绝路径允许 monkeypatch。
 6. **旧版本回归**：为每个仍登记的版本建临时 venv（`pip install --no-deps` 该版本的 wheel，并加上 `.pth`），重跑第 2 步。这次若修改了 `tc_source_lowering.py` 或公共 `.cc` 文件，还要在旧版本上重跑第 3 步。
 7. **分发**：
@@ -157,7 +159,7 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
    在仓库之外、不设置 `PYTHONPATH` 的目录中完成以下检查：`python -m tpuasm <executable> --input-format executable --output-dir ...` 的输出与源码运行逐字节一致；`tpuasm <image> --target tpu-v4-tc --input-format image --output x.tpuasm` 后，再以 `--input-format listing --output-format image` 汇编回去，结果逐字节相同；把 `examples/pallas/` 目录复制到仓库外，设置 `TPUASM_EXAMPLES_TARGET` 后运行其中一个脚本，确认安装包中的来源后端和函数源码摘要校验能正常工作。
 8. **收尾**：运行 `mypy src tests` 和 `MYPYPATH=src mypy tools`，以及 `git diff --check`；删除 `pip wheel` 在仓库中生成的 `build/` 和 `src/*.egg-info`。
 
-示例可以在任何机器上用 `examples/pallas/run_all.sh --aot` 按参考拓扑离线编译两个目标并导出清单，这一步同时验证来源捕获和精确导出，但不检查数值；v4 的离线清单与在 TPU v4 上编译的逐字节相同。有对应的 TPU 时运行 `run_all.sh tpu-v4-tc` 或 `run_all.sh tpu-v6e-tc`，会检查数值。
+示例可以在任何机器上用 `examples/pallas/run_all.sh --aot` 按参考拓扑离线编译各目标并导出清单，这一步同时验证来源捕获和精确导出，但不检查数值；v4 的离线清单与在 TPU v4 上编译的逐字节相同。有对应的 TPU 时运行 `run_all.sh tpu-v4-tc` 或 `run_all.sh tpu-v6e-tc`，会检查数值。
 
 没有 TPU 时只能完成第 1、2、5、6、7 步中的离线部分，以及第 4 步中用 `run_all.sh --aot` 离线编译示例。此时要写明数值和第 3 步的来源断言未经验证，不能把离线编解码与离线编译通过说成目标版本在设备上已验证。
 
@@ -170,14 +172,15 @@ hook 会对调用点的寄存器状态做假设，调用点移动之后要逐一
 
 ## 7. 重新生成 v6e 字段表
 
-v6e 的字段表 `src/tpuasm/tpu_v6e_tc_isa_data.py` 由 `tools/generate_tpu_v6e_tc_isa.py` 从已安装的 libtpu 生成，不手工修改。登记了 v6e 编解码后端之后运行：
+v6e TC 的字段表 `src/tpuasm/tpu_v6e_tc_isa_data.py` 由 `tools/generate_tpu_v6e_tc_isa.py` 从已安装的 libtpu 生成，不手工修改。v6e TEC 的 `src/tpuasm/tpu_v6e_tec_isa_data.py` 同样由 `tools/generate_tpu_v6e_tec_isa.py` 生成。两个工具共用 `tools/ghostlite_isa.py` 中的 descriptor 读取、encoder 探测和随机核对。登记了对应的编解码后端之后运行：
 
 ```sh
 PYTHONPATH=src "$PY" tools/generate_tpu_v6e_tc_isa.py
-git diff --stat src/tpuasm/tpu_v6e_tc_isa_data.py
+PYTHONPATH=src "$PY" tools/generate_tpu_v6e_tec_isa.py
+git diff --stat src/tpuasm/tpu_v6e_tc_isa_data.py src/tpuasm/tpu_v6e_tec_isa_data.py
 ```
 
-工具需要几分钟，会用 2 万个随机指令包核对字段表，不一致时失败。生成结果与旧版本不同时，逐项确认差异：新增或删除的形式、字段位置、互斥槽、`REJECTED` 和 `FORMATTER_ABORTS` 的变化，以及 formatter 助记符或操作数顺序的变化。字段表在版本之间不同时，同一份数据无法同时服务新旧版本，这时要先把字段表改为按版本选择，再登记新版本。之后重新生成指令索引（`PYTHONPATH=src "$PY" tools/generate_isa_reference.py`），并运行第 5 节第 2 步的 v6e 检查。各步骤的原理见 [v6e 设计文档](../../../docs/design/tpu_v6e_tc.md#字段表的生成)。
+工具需要几分钟，会用 2 万个随机指令包核对字段表，不一致时失败。生成结果与旧版本不同时，逐项确认差异：新增或删除的形式、字段位置、互斥槽、`REJECTED` 和 `FORMATTER_ABORTS` 的变化，以及 formatter 助记符或操作数顺序的变化。字段表在版本之间不同时，同一份数据无法同时服务新旧版本，这时要先把字段表改为按版本选择，再登记新版本。TEC 的生成工具约需七十五分钟，还要用 g++ 编译 `tools/tec_llvm.cc`，用 TEC 后端文件中的 LLVM 地址驱动 printer 与 emitter；除上述差异外，还要确认 `INSTRUCTIONS` 中助记符、操作数写法的变化，以及没有 printer 写法的形式列表的变化。stream 与 DMA 的模式字起点（`mode_seed`）取自编译器交给 emitter 的 MCInst；若这些指令失去 printer 写法，先离线编译一个 SparseCore 示例，在 gdb 中于 `ConsumeBundle` 处断下读出编译器实际的 MCInst，再更新起点。之后重新生成指令索引（`PYTHONPATH=src "$PY" tools/generate_isa_reference.py`），并运行第 5 节第 2 步的 v6e 检查。各步骤的原理见 [v6e TC 设计文档](../../../docs/design/tpu_v6e_tc.md#字段表的生成)和 [v6e TEC 设计文档](../../../docs/design/tpu_v6e_tec.md#字段表的生成)。
 
 ## 8. 删除已登记的构建
 

@@ -1,0 +1,171 @@
+.target tpu-v6e-tec
+entry:
+{ s0: ssettag 0x1 }
+{ s1: rddreg s4, [dreg:0x0] }
+{ s1: rddreg s6, [dreg:0x1] }
+{ s1: rddreg s2, [dreg:0x2] }
+{ s1: rddreg s1, [dreg:0x3] }
+{ s1: rddreg s0, [dreg:0x4] }
+{ s0: sadd.s32 s5, 0x4e, s4 ;
+  s1: simm.s32 s28, 0x1 ;
+  misc: simm.s32 s3, 0x0 }
+{ s0: stileid.u32 s29 ;
+  s1: sst [smem:0x7ff], s3 ;
+  misc: sand.u32 s7, 0xfffffff, s5 }
+{ s0: sor.u32 s7, 0x80000000, s7 ;
+  s1: sshll.u32 s8, s29, 0x4 ;
+  misc: ssyncset.s32 [sflag:s28], 0x0 }
+{ s0: sadd.s32 s6, s6, s8 ;
+  misc: strace s7 }
+{ misc: simm.s32 s30, 0x3 ;
+  vst: vst [tilespmem:0x100], v63 ;
+  stream: stream.linear.gather [tilespmem:s3], [sflag:0x3], [hbm4b:s6+s3], 0x80, 0x38 ;
+  .encoding { vst.offset = imm4 } }
+{ misc: swait.ge [sflag:s30], 0x80 }
+{ misc: ssyncset.done [sflag:s30], 0x0 }
+{ misc: ssyncadd.s32 [sflag:s30], 0xffffff80 }
+{ vld: vld v0, [tilespmem:0x0] }
+{ vld: vld v1, [tilespmem:0x8] ;
+  .encoding { vld.offset = imm4 } }
+{ vld: vld v2, [tilespmem:0x10] ;
+  .encoding { vld.offset = imm4 } }
+{ vld: vld v3, [tilespmem:0x18] ;
+  .encoding { vld.offset = imm4 } }
+{ vld: vld v4, [tilespmem:0x20] ;
+  .encoding { vld.offset = imm4 } }
+{ va0: vshll.u32 v0, v0, 0x1 ;
+  vld: vld v5, [tilespmem:0x28] ;
+  .encoding { vld.offset = imm4 } }
+{ va0: vadd.s32 v0, s29, v0 ;
+  va1: vshll.u32 v1, v1, 0x1 ;
+  vld: vld v6, [tilespmem:0x30] ;
+  .encoding { vld.offset = imm4 } }
+{ va0: vadd.s32 v1, s29, v1 ;
+  va1: vshll.u32 v2, v2, 0x1 ;
+  vld: vld v7, [tilespmem:0x38] ;
+  vst: vst [tilespmem:0x0], v0 ;
+  .encoding { vld.offset = imm4 } }
+{ va0: vadd.s32 v2, s29, v2 ;
+  va1: vshll.u32 v3, v3, 0x1 ;
+  vld: vld v51, [tilespmem:0x40] ;
+  vst: vst [tilespmem:0x8], v1 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v3, s29, v3 ;
+  va1: vshll.u32 v4, v4, 0x1 ;
+  vld: vld v52, [tilespmem:0x48] ;
+  vst: vst [tilespmem:0x10], v2 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v4, s29, v4 ;
+  va1: vshll.u32 v5, v5, 0x1 ;
+  vld: vld v53, [tilespmem:0x50] ;
+  vst: vst [tilespmem:0x18], v3 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v5, s29, v5 ;
+  va1: vshll.u32 v6, v6, 0x1 ;
+  vld: vld v54, [tilespmem:0x58] ;
+  vst: vst [tilespmem:0x20], v4 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v6, s29, v6 ;
+  va1: vshll.u32 v7, v7, 0x1 ;
+  vld: vld v55, [tilespmem:0x60] ;
+  vst: vst [tilespmem:0x28], v5 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vshll.u32 v0, v51, 0x1 ;
+  va1: vadd.s32 v7, s29, v7 ;
+  vld: vld v56, [tilespmem:0x68] ;
+  vst: vst [tilespmem:0x30], v6 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v0, s29, v0 ;
+  va1: vshll.u32 v1, v52, 0x1 ;
+  vld: vld v57, [tilespmem:0x70] ;
+  vst: vst [tilespmem:0x38], v7 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v1, s29, v1 ;
+  va1: vshll.u32 v2, v53, 0x1 ;
+  vld: vld v58, [tilespmem:0x78] ;
+  vst: vst [tilespmem:0x40], v0 ;
+  .encoding { vld.offset = imm5 ; vst.offset = imm4 } }
+{ va0: vadd.s32 v2, s29, v2 ;
+  va1: vshll.u32 v59, v54, 0x1 ;
+  vst: vst [tilespmem:0x48], v1 ;
+  .encoding { vst.offset = imm4 } }
+{ va0: vadd.s32 v0, s29, v59 ;
+  va1: vshll.u32 v60, v55, 0x1 ;
+  vst: vst [tilespmem:0x50], v2 ;
+  .encoding { vst.offset = imm4 } }
+{ va0: vadd.s32 v1, s29, v60 ;
+  va1: vshll.u32 v61, v56, 0x1 ;
+  vst: vst [tilespmem:0x58], v0 ;
+  .encoding { vst.offset = imm4 } }
+{ va0: vadd.s32 v2, s29, v61 ;
+  va1: vshll.u32 v62, v57, 0x1 ;
+  vst: vst [tilespmem:0x60], v1 ;
+  .encoding { vst.offset = imm4 } }
+{ va0: vadd.s32 v0, s29, v62 ;
+  va1: vshll.u32 v63, v58, 0x1 ;
+  vst: vst [tilespmem:0x68], v2 ;
+  .encoding { vst.offset = imm4 } }
+{ s0: sshll.u32 s31, s29, 0x7 ;
+  va0: vadd.s32 v1, s29, v63 ;
+  vst: vst [tilespmem:0x70], v0 ;
+  .encoding { vst.offset = imm4 } }
+{ s0: sor.u32 s6, 0x800, s31 ;
+  misc: ssyncadd.s32 [sflag:s28], 0xffffff80 ;
+  vst: vst [tilespmem:0x78], v1 ;
+  .encoding { vst.offset = imm4 } }
+{ vst: vst [tilespmem:0x100], v63 ;
+  stream: stream.linear.scatter [spmem:s6], [tilespmem:s3], [sflag:0x1], 0x80, 0x38 ;
+  .encoding { vs0_used = 1 ; vst.offset = imm4 } }
+{ misc: swait.eq [sflag:s28], 0x0 }
+{ s0: sfence.stream.spmem ;
+  s1: sne.s32 p0, s29, 0x0 }
+{ s0: @p0 sadd.s32 s3, 0x4e, s1 ;
+  misc: sbarrier.arrive [bflag:0x0], 0xffff }
+{ s0: @p0 sfence.sel 0x180000 ;
+  s1: @p0 sand.u32 s3, 0xfffffff, s3 ;
+  .encoding { s1.y = imm3_imm2 } }
+{ s0: @p0 sor.u32 s3, 0x90000000, s3 ;
+  misc: @p0 sbarrier.arrive [bflag:0x0], 0xffff }
+{ misc: @p0 strace s3 }
+{ s0: @p0 sfence ;
+  s1: @p0 simm.s32 s3, 0x1 }
+{ misc: @p0 swait.eq [sflag:s3], 0x0 }
+{ s0: @!p0 simm.s32 s3, 0x100 ;
+  s1: @!p0 simm.s32 s4, 0x1c02 ;
+  misc: @p0 sbarrier.arrive [bflag:0x2], 0xffff }
+{ dma: @!p0 dma.local [hbm:s2], [sflag:s4], [spmem:s3], 0x100 ;
+  misc: @!p0 simm.s32 s2, 0x2 }
+{ misc: @!p0 swait.ge [sflag:s2], 0x100 }
+{ misc: @!p0 ssyncset.done [sflag:s2], 0x0 }
+{ s0: @!p0 sadd.s32 s1, 0x4e, s1 ;
+  misc: @!p0 ssyncadd.s32 [sflag:s2], 0xffffff00 }
+{ s0: @!p0 sfence.sel 0x180000 ;
+  s1: @!p0 sand.u32 s1, 0xfffffff, s1 ;
+  .encoding { s1.y = imm3_imm2 } }
+{ s0: @!p0 sor.u32 s1, 0x90000000, s1 ;
+  misc: @!p0 sbarrier.arrive [bflag:0x0], 0xffff }
+{ misc: @!p0 strace s1 }
+{ s0: @!p0 sfence ;
+  s1: @!p0 simm.s32 s1, 0x1 }
+{ misc: @!p0 swait.eq [sflag:s1], 0x0 }
+{ s0: @!p0 sadd.s32 s0, 0x100000, s0 ;
+  misc: @!p0 sbarrier.arrive [bflag:0x2], 0xffff }
+{ s0: shalt ;
+  misc: @!p0 ssyncadd.tile.s32 [sflag:s0], 0x1 }
+{ s0: ssettag 0x2 }
+{ s0: stileid.u32 s2 ;
+  s1: rddreg s0, [dreg:0x0] }
+{ s0: sne.s32 p0, s2, 0x0 ;
+  s1: rddreg s1, [dreg:0x1] }
+{ s0: @!p0 simm.s32 s2, 0x1c01 ;
+  s1: rddreg s3, [dreg:0x2] ;
+  misc: sbarrier.arrive [bflag:0x3], 0xffff ;
+  .encoding { s0.y = zero_imm0 } }
+{ dma: @!p0 dma.local [timem:s3], [sflag:s2], [hbm:s0], s1 ;
+  misc: @!p0 simm.s32 s0, 0x1 }
+{ misc: @!p0 swait.ge [sflag:s0], s1 }
+{ s0: @!p0 ssub.s32 s1, 0x0, s1 ;
+  misc: @!p0 ssyncset.done [sflag:s0], 0x0 }
+{ misc: @!p0 ssyncadd.s32 [sflag:s0], s1 }
+{ misc: sbarrier.arrive [bflag:0x3], 0xffff }
+{ s0: shalt }

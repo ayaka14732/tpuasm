@@ -85,6 +85,8 @@ def describe(expression: Expression, form: Form) -> str:
             spaces.extend(('memseti', 'memsetd'))
         register = describe(('register', 'dest_address' if dest else 'source_address', 's'), form)
         return '[' + '(' + ' / '.join(spaces) + '):' + register + ']'
+    if kind == 'pattern':
+        return expression[1].format(*(describe(part, form) for part in expression[2]))
     if kind == 'trace':
         return 's[0..31] / u32'
     raise ValueError(f'unhandled operand expression {kind!r}')
@@ -198,6 +200,37 @@ def render_tpu_v6e_tc() -> str:
     lines.extend(slot_tables(TPU_V6E_TC.slots, v6e_signatures))
     return '\n'.join(lines)
 
+def render_tpu_v6e_tec() -> str:
+    from tpuasm.tpu_v6e_tec_isa import FALLBACKS, SIGNATURES as all_signatures
+    from tpuasm.tpu_v6e_tec_isa_data import INSTRUCTIONS, REJECTED
+    from tpuasm.tpu_v6e_tec_model import FORMS as tec_forms
+    from tpuasm.targets import TPU_V6E_TEC
+    printed = {(entry[0], entry[1]) for entry in INSTRUCTIONS}
+    # The named-field syntax exists for every form; the tables list it only where the printer has none.
+    tec_signatures = tuple(signature for signature in all_signatures if signature not in FALLBACKS or (signature.form.slot, signature.form.name) not in printed)
+    pairs = {(signature.form.slot, signature.mnemonic) for signature in tec_signatures}
+    names = {form.name for form in tec_forms}
+    rejected = sum(len(slots) for slots in REJECTED.values())
+    fallback = sorted({form.name for form in tec_forms if (form.slot, form.name) not in printed})
+    lines = [
+        '# TPU v6e TEC 指令索引',
+        '',
+        f'由 libtpu 0.0.49 的 descriptor、encoder、LLVM TPU printer 与 TEC emitter 生成：登记 **{len(names)} 种形式、{len(tec_forms)} 个槽与形式组合、{len(tec_signatures)} 条展开签名、{len(pairs)} 个槽与助记符组合**。encoder 拒绝的 {rejected} 个槽与形式组合不登记。这里的覆盖是编码、解码与重汇编覆盖，没有在设备上执行。',
+        '',
+        '## 如何阅读',
+        '',
+        '`s[0..31]`、`v[0..63]` 表示寄存器编号，`/` 表示可选的拼写，`iN/uN/f32` 是数值类型，其余字符照写。操作数顺序与 LLVM TPU printer 相同，目的在前。数值类型只限定输入位宽，立即数槽和整个指令包的资源是否够用由汇编器检查。写法见[格式参考](tpu_v6e_tec.md)。',
+        '',
+        '每个形式另有具名字段写法：助记符是 descriptor 中的形式名，操作数是按字段顺序排列的具名参数，用于 printer 写法表达不了的编码。表中只对没有 printer 写法的槽与形式组合列出这种写法，涉及以下形式：' + '、'.join(f'`{name}`' for name in fallback) + '。',
+        '',
+        '## 按槽查找',
+        '',
+        ' · '.join(f'[{slot}](#{slot})' for slot in TPU_V6E_TEC.slots),
+        '',
+    ]
+    lines.extend(slot_tables(TPU_V6E_TEC.slots, tec_signatures))
+    return '\n'.join(lines)
+
 def main() -> None:
     destination = Path(__file__).resolve().parents[1] / 'docs' / 'references'
     destination.mkdir(exist_ok=True)
@@ -205,6 +238,7 @@ def main() -> None:
         ('tpu_v4_tc_isa.md', render_tpu_v4_tc()),
         ('tpu_v4_bcs_isa.md', render_tpu_v4_bcs()),
         ('tpu_v6e_tc_isa.md', render_tpu_v6e_tc()),
+        ('tpu_v6e_tec_isa.md', render_tpu_v6e_tec()),
     ):
         path = destination / filename
         if not path.exists() or path.read_text(encoding='utf-8') != content:

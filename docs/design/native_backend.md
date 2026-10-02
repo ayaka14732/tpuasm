@@ -11,13 +11,13 @@ TPU v4 TC 的程序映像按块编排：每个 512 字节块内含 10 个 51 字
 3. 当前运行环境的 Python 实现、版本、`abiflags`、操作系统和 CPU 架构与后端的登记一致；
 4. `libtpu.so` 的 ELF note 中的 GNU build-id 与后端的登记一致。
 
-libtpu 为不同的 Python ABI 分别发布 wheel，其中的函数地址各不相同，所以运行环境是后端身份的一部分。版本号字符串只用来缩小候选范围，最终以 build-id 判定是否为同一个二进制。每个 `NativeBackend` 由 release、运行环境、build-id、版本源文件和硬件目标组成。每个 release 为 v4 TC 和 BCS 各登记一个后端，libtpu 0.0.49 另外登记 v6e TC 后端；release 没有某个目标的后端时，选择后端直接报错。
+libtpu 为不同的 Python ABI 分别发布 wheel，其中的函数地址各不相同，所以运行环境是后端身份的一部分。版本号字符串只用来缩小候选范围，最终以 build-id 判定是否为同一个二进制。每个 `NativeBackend` 由 release、运行环境、build-id、版本源文件和硬件目标组成。每个 release 为 v4 TC 和 BCS 各登记一个后端，libtpu 0.0.49 另外登记 v6e TC 和 v6e TEC 后端；release 没有某个目标的后端时，选择后端直接报错。
 
 ## 编译与加载
 
 `printer._load_native` 在首次使用某个后端时，用 g++ 把它的版本源文件编译成临时共享库，放在 `/tmp` 下，并在进程内按 (后端, 目标) 缓存。块大小、每块 bundle 数、槽数等硬件常量由 `HardwareTarget` 生成为 `target.h`，通过 `-include` 注入。因此，版本源文件只记录 libtpu 的 ABI 信息，不重复硬件格式。
 
-版本源文件在 `tpuasm_backend` 命名空间中定义常量，然后 `#include "../native.cc"`。BCS 的源文件另外定义 `TPUASM_CODEC_ONLY`，编译时去掉与 formatter 有关的代码。常量按作用分为以下几组：
+版本源文件在 `tpuasm_backend` 命名空间中定义常量，然后 `#include "../native.cc"`。BCS 与 v6e TEC 的源文件另外定义 `TPUASM_CODEC_ONLY`，编译时去掉与 formatter 有关的代码。常量按作用分为以下几组：
 
 | 常量 | 作用 |
 |---|---|
@@ -28,7 +28,8 @@ libtpu 为不同的 Python ABI 分别发布 wheel，其中的函数地址各不�
 | `kProgramBundleCountOffset` | 解码后 program 对象中 bundle 数的位置。 |
 | `kFunctionPrologue` | 调用函数前比对的入口字节。 |
 | `kFormatBundle`、`kEmptyAnnotations`、`kProgramBundleStorageOffset`、`kBundleMaskOffset`、`kBundleSlotMasks` | 仅 TC 使用，服务于逐槽 formatter 校验（见下文）。 |
-| `kScalarOneofPointerOffset`、`kScalarOneofCaseOffset`、`kScalarBundleMaskOffset`、`kScalarBundleCase`、`kBundleSharedMask`、`kScalarSlotCases`、`kScalarSlotMasks` | 仅 v6e 使用（定义 `TPUASM_SCALAR_ONEOF`）：两个标量槽位于标量子 bundle，与 DMA 同属一个 oneof；立即数与标量操作数消息在每个 bundle 中都存在。 |
+| `kScalarOneofPointerOffset`、`kScalarOneofCaseOffset`、`kScalarBundleMaskOffset`、`kScalarBundleCase`、`kBundleSharedMask`、`kScalarSlotCases`、`kScalarSlotMasks` | 仅 v6e TC 使用（定义 `TPUASM_SCALAR_ONEOF`）：两个标量槽位于标量子 bundle，与 DMA 同属一个 oneof；立即数与标量操作数消息在每个 bundle 中都存在。 |
+| `kTripleCtor`、`kCreateInstPrinter`、`kPrintInst`、`kConsumeBundle` 等 | 仅 v6e TEC 源文件登记，桥接层不使用。离线生成 TEC 字段表时，[tec_llvm.cc](../../tools/tec_llvm.cc) 用它们驱动 LLVM TPU printer 与 TEC emitter（见 [TPU v6e TEC 目标](tpu_v6e_tec.md#字段表的生成)）。 |
 
 地址一律是 ELF VA，使用前加上运行时基址。具体数值写在各版本源文件中，本文不重复。
 
@@ -57,11 +58,13 @@ Python 进程通过 ctypes 持有一个指向 libtpu 的句柄，使其一直保
 
 逐槽检查的做法是：暂时把解码后 bundle 对象的 presence mask 改成只含某一个槽的位，调用 libtpu formatter，然后恢复原掩码；各槽输出拼接的结果必须与整个 bundle 的 formatter 输出完全相同。presence mask 属于 libtpu 的内存表示，这项检查是槽名映射唯一的交叉证据。formatter 的文本在这里只用于比较，不会出现在任何输出中。
 
-v6e 的 bundle 对象中，两个标量槽不是 presence 位，而是 oneof case 1 指向的标量子 bundle 里的两个 presence 位；DMA 是同一 oneof 的 case 4。只保留一个槽时，立即数和标量操作数两条消息的 presence 位保持不变，否则 formatter 读不到操作数。FormatterGl 对少数 descriptor 形式没有输出（例如 `vector_f32_remap`、`sync_*_yieldable`），这类槽不参与拼接比较，其余槽照常比较；对部分保留编码 formatter 会直接终止进程，v6e 的 Python 解码在调用原生校验之前拒绝这些编码（见 [TPU v6e TC 目标](tpu_v6e_tc.md#formatter-的限制)）。
+v6e TC 的 bundle 对象中，两个标量槽不是 presence 位，而是 oneof case 1 指向的标量子 bundle 里的两个 presence 位；DMA 是同一 oneof 的 case 4。只保留一个槽时，立即数和标量操作数两条消息的 presence 位保持不变，否则 formatter 读不到操作数。FormatterGl 对少数 descriptor 形式没有输出（例如 `vector_f32_remap`、`sync_*_yieldable`），这类槽不参与拼接比较，其余槽照常比较；对部分保留编码 formatter 会直接终止进程，v6e 的 Python 解码在调用原生校验之前拒绝这些编码（见 [TPU v6e TC 目标](tpu_v6e_tc.md#formatter-的限制)）。
 
 这些检查不证明 formatter 的文本与机器字节一一对应。从 libtpu formatter 的文本出发，确实无法唯一恢复程序映像，因为可见文本不能决定全部机器位。它们也不验证程序在设备上的执行效果。
 
 BCS 只做 codec 校验。libtpu 中没有与当前 Pufferfish BCS program 对象匹配的 formatter，旧代际的 formatter 不能用于这个对象。BCS 的 bundle 在程序映像中连续排列、没有分隔字节，所以 Python 直接从映像字节读取机器字，并与原生结果逐字节比较，槽的对应关系也由这项比较覆盖。
+
+v6e TEC 同样只做 codec 校验：libtpu 没有 TEC bundle 的 descriptor formatter。TEC 的程序映像是连续的 64 字节 bundle，Python 同样直接读取机器字并与原生结果逐字节比较。
 
 ## 增加 libtpu 版本
 

@@ -126,7 +126,8 @@ patched = replace_executable_programs(serialized, {(record, index): edited})
   - [TPU v4 TC](https://ayaka14732.github.io/tpuasm/references/tpu_v4_tc.html)：各目标共用的源码语法，以及 v4 TC 的操作数与约束。
   - [TPU v4 BCS](https://ayaka14732.github.io/tpuasm/references/tpu_v4_bcs.html)：BCS 的写法、semantic protobuf 转换与容器提取。
   - [TPU v6e TC](https://ayaka14732.github.io/tpuasm/references/tpu_v6e_tc.html)：v6e 与 v4 TC 写法的差异。
-  - 三份指令索引：各目标每个槽的助记符与操作数签名，由 `tools/generate_isa_reference.py` 在构建文档时生成。
+  - [TPU v6e TEC](https://ayaka14732.github.io/tpuasm/references/tpu_v6e_tec.html)：SparseCore TEC 与 v6e TC 写法的差异。
+  - 四份指令索引：各目标每个槽的助记符与操作数签名，由 `tools/generate_isa_reference.py` 在构建文档时生成。
 - [**API 参考**](https://ayaka14732.github.io/tpuasm/api.html)：公开函数和类型的签名与说明。
 - [**版本兼容性**](https://ayaka14732.github.io/tpuasm/compatibility.html)：各版本支持的 Python、libtpu 与 JAX。
 - [**更新日志**](https://ayaka14732.github.io/tpuasm/changelog.html)：各版本面向用户的变化。
@@ -136,6 +137,7 @@ patched = replace_executable_programs(serialized, {(record, index): edited})
   - [汇编与可逆导出](https://ayaka14732.github.io/tpuasm/design/assembly.html)：位模型、指令包求解、命名约束、导出，以及 v4 TC ISA 表的维护。
   - [TPU v4 BCS 目标](https://ayaka14732.github.io/tpuasm/design/tpu_v4_bcs.html)：BCS 在实现上与 TC 的差异。
   - [TPU v6e TC 目标](https://ayaka14732.github.io/tpuasm/design/tpu_v6e_tc.html)：字段表的生成、签名规则与 formatter 的限制。
+  - [TPU v6e TEC 目标](https://ayaka14732.github.io/tpuasm/design/tpu_v6e_tec.html)：从 LLVM TPU printer 与 TEC emitter 生成字段表，以及与 TC 的差异。
   - [TPU v6e 指令执行语义核对](https://ayaka14732.github.io/tpuasm/design/tpu_v6e_execution.html)：selector、延迟常量等指令语义的设备证据，含 v4 的 Delay 对照。
   - [TC 编译来源映射](https://ayaka14732.github.io/tpuasm/design/tc_source_mapping.html)：编译期捕获来源与离线恢复。
   - [回灌与执行](https://ayaka14732.github.io/tpuasm/design/executable_replacement.html)：替换、插入 bundle、程序身份与装载。
@@ -155,6 +157,8 @@ examples/pallas/run_all.sh tpu-v4-tc
 
 ```sh
 examples/pallas/run_all.sh tpu-v6e-tc
+examples/pallas/run_all.sh tpu-v6e-tec
+PYTHONPATH=src python tests/reproduce_tpu_v6e_tec_execution.py --output /tmp/tpuasm-v6e-tec-execution
 ```
 
 `all_reduce`、`remote_dma_devices` 与 `remote_dma_ring` 需要 2 或 4 颗芯片。

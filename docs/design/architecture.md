@@ -4,7 +4,7 @@ tpuasm 在 Python 中维护 ISA 位模型、源码语法和指令包资源求解
 
 ## 设计原则
 
-- **以机器字节为准。** 反汇编只解码程序映像，不读取 LLO dump 或 final bundles。libtpu formatter 输出的文本只用于内部交叉校验，以及离线生成 v6e 字段表时取助记符和操作数顺序；它不作为清单输出，也不作为汇编输入。
+- **以机器字节为准。** 反汇编只解码程序映像，不读取 LLO dump 或 final bundles。libtpu formatter 输出的文本只用于内部交叉校验，以及离线生成 v6e TC 字段表时取助记符和操作数顺序；v6e TEC 字段表的助记符和操作数顺序取自 libtpu 内的 LLVM TPU printer。这些文本都不作为清单输出，也不作为汇编输入。
 - **硬件目标与 libtpu 后端是两个独立的维度。** 硬件目标由 TPU 代际和执行单元确定，决定程序映像格式、物理槽、ISA 表和求解器。libtpu 后端对应某个 release、Python ABI、平台和 build-id，记录函数地址与对象布局。为已有硬件增加 libtpu 版本时不改硬件定义；也不根据 libtpu 版本推断硬件目标。
 - **没有默认目标。** raw image 不带目标标记，而 TC 与 BCS 都以 512 字节分块，无法凭长度区分。raw image 的目标由调用方指定，listing 的目标由 `.target` 声明，executable 的目标从容器推断，推断不唯一时报错。
 - **不支持就报错。** 未登记的指令形式、无法恢复的编码、不匹配的运行环境都直接报错。不退回到原字节附件、任意 bit patch 或完整 protobuf 输入。
@@ -14,17 +14,18 @@ tpuasm 在 Python 中维护 ISA 位模型、源码语法和指令包资源求解
 | 层 | 模块 | 职责 |
 |---|---|---|
 | 公开入口 | [printer.py](../../src/tpuasm/printer.py) | API 与 CLI、executable 导出为文件；另含原生桥接的加载与调用（`_load_native`、`_program_proto`、`_verify_image`）。 |
-| 目标分派 | [assembler.py](../../src/tpuasm/assembler.py) | `assemble_listing` 按 `.target`、`format_assembly` 按 `target` 参数分派到 v4 TC、v4 BCS 或 v6e TC 实现。 |
+| 目标分派 | [assembler.py](../../src/tpuasm/assembler.py) | `assemble_listing` 按 `.target`、`format_assembly` 按 `target` 参数分派到 v4 TC、v4 BCS、v6e TC 或 v6e TEC 实现。 |
 | 硬件目标 | [targets.py](../../src/tpuasm/targets.py) | `HardwareTarget`：块大小、每块 bundle 数和物理槽顺序。 |
 | 源码与数值 | [assembly_syntax.py](../../src/tpuasm/assembly_syntax.py)、[assembly_printer.py](../../src/tpuasm/assembly_printer.py)、[assembly_values.py](../../src/tpuasm/assembly_values.py) | 带源码位置的 AST、标签、`.empty` / `.align`；清单渲染；整数与 float32 位型。 |
 | 共用位模型 | [assembly_model.py](../../src/tpuasm/assembly_model.py)、[assembly_expressions.py](../../src/tpuasm/assembly_expressions.py)、[assembly_operands.py](../../src/tpuasm/assembly_operands.py) | `Field`、`Bits`、`Form`、`Signature`；操作数表达式；操作数文本与候选位约束的双向转换。 |
 | 可逆导出 | [assembly_export.py](../../src/tpuasm/assembly_export.py) | 各目标共用的 exact 约束删减、分支标签恢复和重汇编核对。 |
-| TC 求解 | [tc_solver.py](../../src/tpuasm/tc_solver.py) | 各代 TC 共用的指令包求解；代际差异由 `TcIsa` 描述。 |
+| TC 求解 | [tc_solver.py](../../src/tpuasm/tc_solver.py) | 各代 TC 与 v6e TEC 共用的指令包求解；目标间的差异由 `TcIsa` 描述。 |
 | v4 TC | `tpu_v4_tc_isa_data.py`、`tpu_v4_tc_model.py`、`tpu_v4_tc_isa.py`、`tpu_v4_tc_constraints.py`、`tpu_v4_tc_codec.py`、`tpu_v4_tc_assembler.py` | 字段与形式表、助记符签名、命名约束、与 libtpu 交换字段、汇编与导出流程。 |
 | v6e TC | `tpu_v6e_tc_isa_data.py`（由 [generate_tpu_v6e_tc_isa.py](../../tools/generate_tpu_v6e_tc_isa.py) 生成）、`tpu_v6e_tc_model.py`、`tpu_v6e_tc_isa.py`、`tpu_v6e_tc_constraints.py`、`tpu_v6e_tc_codec.py`、`tpu_v6e_tc_assembler.py` | 同上。 |
+| v6e TEC | `tpu_v6e_tec_isa_data.py`（由 [generate_tpu_v6e_tec_isa.py](../../tools/generate_tpu_v6e_tec_isa.py) 生成）、`tpu_v6e_tec_model.py`、`tpu_v6e_tec_isa.py`、`tpu_v6e_tec_constraints.py`、`tpu_v6e_tec_codec.py`、`tpu_v6e_tec_assembler.py` | 同上。 |
 | BCS | `tpu_v4_bcs_isa_data.py`、`tpu_v4_bcs_isa.py`、`tpu_v4_bcs_assembler.py`、`tpu_v4_bcs_program.py` | 同上，另含 semantic protobuf 互操作和容器提取。 |
-| 容器 | [program_container.py](../../src/tpuasm/program_container.py)、[_protobuf.py](../../src/tpuasm/_protobuf.py) | 切分 executable 记录、推断目标；最小的 protobuf wire 读写，不依赖 protobuf 运行时。 |
-| 写回与装载 | [executable_replacement.py](../../src/tpuasm/executable_replacement.py) | 等长替换及按插入点变长写回 TC 程序映像并更新程序身份；借用已编译 JAX 对象的调用约定装载 executable。 |
+| 容器 | [program_container.py](../../src/tpuasm/program_container.py)、[_protobuf.py](../../src/tpuasm/_protobuf.py)、[tpu_v6e_tec_program.py](../../src/tpuasm/tpu_v6e_tec_program.py) | 切分 executable 记录、推断目标、定位 TEC 程序映像；最小的 protobuf wire 读写，不依赖 protobuf 运行时。 |
+| 写回与装载 | [executable_replacement.py](../../src/tpuasm/executable_replacement.py) | 等长替换 TC 与 TEC 程序映像、按插入点变长写回 TC 程序映像，并更新程序身份；借用已编译 JAX 对象的调用约定装载 executable。 |
 | 原生后端 | [backends.py](../../src/tpuasm/backends.py)、[native.cc](../../src/tpuasm/native.cc)、[native_backends/](../../src/tpuasm/native_backends/) | 后端登记与选择；C ABI 桥接；各版本常量。 |
 | TC 来源映射 | `tc_compiler.py`、`tc_source_lowering.py`、`tc_source_backend.py`、`tc_source_native.cc`、`source_backends/`、`tc_source_mapping.py` | 编译期捕获来源，离线从 executable 恢复。 |
 
@@ -57,16 +58,17 @@ serialized executable（`compiled.runtime_executable().serialize()` 的结果）
 - program alternative 唯一，并且是该目标已核对的字段。
 - 若有 ABI 信息，则 `version` 为 3（`TPU_VERSION_PUFFERFISH`）时是 v4；为 5（`TPU_VERSION_GHOSTLITE`）、且 TC 的 alternative 是程序映像字段 16 时是 v6e TC。枚举值取自 libtpu 内嵌的 descriptor。外层的 `platform_type=1` 只表示 HARDWARE，不能用来判断代际。
 
-`resolve_executable_target()` 遍历所有记录，只有恰好识别出一个目标时才推断成功。
+`resolve_executable_target()` 遍历所有记录，只有恰好识别出一个目标时才推断成功。Pallas SparseCore kernel 的代码由 TC 记录携带，记录本身识别为 TC，所以 TEC 必须显式指定目标。
 
-TC 与 BCS 从容器取得程序映像的方式不同：
+TC、BCS 与 TEC 从容器取得程序映像的方式不同：
 
 - **TC**（`tc_source_mapping._programs`，v4 与 v6e 共用）：读取 `memory_segments(8)` 中类型为 CODE 的 segment，按其 range 从 `initialized_data` 中切出程序映像，拒绝压缩的代码段。同一条 core 记录可以有多份程序映像，编号从 0 开始。提取逻辑放在来源映射模块里，因为来源映射还需要同时保存 segment 索引、hash、fingerprint 等身份信息。
 - **BCS**（`tpu_v4_bcs_program.executable_bcs_programs`）：容器中保存的是 semantic protobuf 而非机器字节，所以先提取 semantic body，再调用原生 codec 编码为程序映像，每条记录的索引固定为 0。
+- **TEC**（`tpu_v6e_tec_program.executable_tec_programs`）：`has_concurrent_program`（字段 10）为 1 的 TC 记录在一个 DATA segment 中携带 SparseCore 代码，依次是 SCS 段、TEC 段和补到 segment 末尾的 0。TEC 段的起点只由 SCS 代码用链接符号计算，容器没有记录，所以从 segment 开头按 4 KiB 边界依次尝试，取第一个能把其后到非零数据末尾的字节完整通过 TEC 原生编解码校验的位置。TEC 程序以 bundle 为界的后缀仍是合法程序，SCS 段则不能按 TEC 解码，所以第一个成功的位置就是 TEC 段的起点。
 
-导出文件命名为 `program-<target>-<record>-<index>.tpuasm`，record 在整个容器内编号。两种提取都只读取需要的字段，既不是完整的 executable 验证器，也不改写 executable。
+导出文件命名为 `program-<target>-<record>-<index>.tpuasm`，record 在整个容器内编号。这些提取都只读取需要的字段，既不是完整的 executable 验证器，也不改写 executable。
 
-反方向由 `replace_executable_programs` 完成：以同样的 `(record, index)` 为键，把等长的新 TC 程序映像写回 `initialized_data`，并为内容有变化的记录生成新的 segment set hash 和 fingerprint，否则 runtime 可能复用已装载的原程序。`insert_executable_bundles` 则通过 [tc_relocation.py](../../src/tpuasm/tc_relocation.py) 迁移直接分支、装载块数、overlay、符号与注释，并重新编码容器长度。修改后的 executable 由 `load_executable` 按原调用约定装载执行。
+反方向由 `replace_executable_programs` 完成：以同样的 `(record, index)` 为键，把等长的新 TC 或 TEC 程序映像写回 `initialized_data`，并为内容有变化的记录生成新的 segment set hash 和 fingerprint，否则 runtime 可能复用已装载的原程序。`insert_executable_bundles` 只支持 TC，通过 [tc_relocation.py](../../src/tpuasm/tc_relocation.py) 迁移直接分支、装载块数、overlay、符号与注释，并重新编码容器长度。修改后的 executable 由 `load_executable` 按原调用约定装载执行。
 
 ## 扩展点
 

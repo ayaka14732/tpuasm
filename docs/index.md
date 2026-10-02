@@ -16,9 +16,11 @@ changelog
 references/tpu_v4_tc
 references/tpu_v4_bcs
 references/tpu_v6e_tc
+references/tpu_v6e_tec
 references/tpu_v4_tc_isa
 references/tpu_v4_bcs_isa
 references/tpu_v6e_tc_isa
+references/tpu_v6e_tec_isa
 ```
 
 ```{toctree}
@@ -30,6 +32,7 @@ design/native_backend
 design/assembly
 design/tpu_v4_bcs
 design/tpu_v6e_tc
+design/tpu_v6e_tec
 design/tpu_v6e_execution
 design/tc_source_mapping
 design/executable_replacement

@@ -9,7 +9,7 @@ import platform
 import struct
 import sys
 
-from .targets import HardwareTarget, TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC, hardware_target
+from .targets import HardwareTarget, TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC, TPU_V6E_TEC, hardware_target
 
 @dataclass(frozen=True)
 class RuntimeEnvironment:
@@ -82,7 +82,7 @@ LIBTPU_RELEASES = tuple(
     )
     for version, stem, build_id, targets in (
         ('0.0.48', '0_0_48', '3310a7c8c137cd515c7a2ba1ce2ea38c', (TPU_V4_TC, TPU_V4_BCS)),
-        ('0.0.49', '0_0_49', '97e27df7268da25ab03e455e30dd86b0', (TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC)),
+        ('0.0.49', '0_0_49', '97e27df7268da25ab03e455e30dd86b0', (TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC, TPU_V6E_TEC)),
     )
 )
 

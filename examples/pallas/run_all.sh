@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# run_all.sh tpu-v4-tc|tpu-v6e-tc：在该目标的 TPU 上运行全部示例，检查数值并导出清单。
-# run_all.sh --aot [tpu-v4-tc|tpu-v6e-tc]：不需要 TPU，按参考拓扑离线编译并导出清单；省略目标时依次处理两个目标。
+# run_all.sh tpu-v4-tc|tpu-v6e-tc|tpu-v6e-tec：在该目标的 TPU 上运行该目标的全部示例，检查数值并导出清单。
+# run_all.sh --aot [tpu-v4-tc|tpu-v6e-tc|tpu-v6e-tec]：不需要 TPU，按参考拓扑离线编译并导出清单；省略目标时依次处理三个目标。
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
@@ -15,10 +15,10 @@ fi
 targets=("$@")
 if [[ ${#targets[@]} -eq 0 ]]; then
     if ! $aot; then
-        printf 'usage: %s tpu-v4-tc|tpu-v6e-tc\n       %s --aot [tpu-v4-tc|tpu-v6e-tc]\n' "$0" "$0" >&2
+        printf 'usage: %s tpu-v4-tc|tpu-v6e-tc|tpu-v6e-tec\n       %s --aot [tpu-v4-tc|tpu-v6e-tc|tpu-v6e-tec]\n' "$0" "$0" >&2
         exit 2
     fi
-    targets=(tpu-v4-tc tpu-v6e-tc)
+    targets=(tpu-v4-tc tpu-v6e-tc tpu-v6e-tec)
 fi
 
 for target in "${targets[@]}"; do
@@ -31,6 +31,12 @@ for target in "${targets[@]}"; do
     fi
     for example in examples/pallas/*.py; do
         [[ "$example" == */common.py ]] && continue
+        # SparseCore 示例（sc_*.py）只属于 tpu-v6e-tec，其余示例只属于 TC 目标。
+        if [[ "$example" == */sc_*.py ]]; then
+            [[ "$target" == tpu-v6e-tec ]] || continue
+        else
+            [[ "$target" != tpu-v6e-tec ]] || continue
+        fi
         printf 'Running %s for %s\n' "$example" "$target"
         python "$example"
     done

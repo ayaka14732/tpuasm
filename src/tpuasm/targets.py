@@ -45,7 +45,14 @@ TPU_V6E_TC = HardwareTarget(
     branch_delay_bundles=4,
 )
 
-TARGETS = {target.identifier: target for target in (TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC)}
+TPU_V6E_TEC = HardwareTarget(
+    identifier='tpu-v6e-tec',
+    image_block_size=64,
+    bundles_per_block=1,
+    slots=('s0', 's1', 'dma', 'misc', 'va0', 'va1', 'va2', 'vld', 'vst', 'stream', 'vr', 'vx'),
+)
+
+TARGETS = {target.identifier: target for target in (TPU_V4_TC, TPU_V4_BCS, TPU_V6E_TC, TPU_V6E_TEC)}
 
 def hardware_target(identifier: str) -> HardwareTarget:
     """查找明确指定的硬件目标；不从机器字节长度推测执行单元。"""

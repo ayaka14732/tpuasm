@@ -80,6 +80,9 @@ def demangle(names: set[str]) -> dict[str, str]:
     output = subprocess.run(['c++filt'], input='\n'.join(ordered), check=True, capture_output=True, text=True).stdout.splitlines()
     return dict(zip(ordered, output))
 
+# Constants that point at data, not code; their bytes hold relocated pointers and are not compared.
+DATA_CONSTANTS = ('kEmptyAnnotations', 'kImmExprVtable')
+
 def constants(path: Path) -> dict[str, int]:
     return {match[1]: int(match[2], 16) for match in re.finditer(r'constexpr (?:std::)?uintptr_t (k\w+) = (0x[0-9a-f]+);', path.read_text())}
 
@@ -113,7 +116,7 @@ def main() -> None:
 
     for backend in release.backends:
         for name, address in constants(PACKAGE / backend.native_source).items():
-            locate(backend.target.identifier, name, address, 0 if name == 'kEmptyAnnotations' else 16)
+            locate(backend.target.identifier, name, address, 0 if name in DATA_CONSTANTS else 16)
     source = next((SOURCE_BACKENDS[backend.build_identifier] for backend in release.backends if backend.build_identifier in SOURCE_BACKENDS), None)
     if source is not None:
         for name, address in constants(PACKAGE / source.native_source).items():

@@ -33,7 +33,7 @@
 
 一个 `(slot, mnemonic)` 可以对应多个签名，一个形式也可以有多个签名。例如，`ScalarMove` 形式有 `smov`（寄存器源）和 `simm.s32`（立即数源）两个签名；DMA 形式借助固定字段 `trace` 派生出 `.trace` 变体；`vst.8x128` 同时对应 `VmemStore` 和 `VmemStoreNoOffset` 两个形式。反汇编时，按顺序选取第一个固定字段匹配、且所有操作数都能解码的签名。
 
-操作数表达式定义在 [assembly_expressions.py](../../src/tpuasm/assembly_expressions.py)，是带标签的元组：`literal`、`register`、`number`、`choice`、`memory`、`table`，以及 v4 专用的 `dma_address` 和 `trace`。数值表达式还可以限制每个来源字段的有效位宽：v6e 的 20 位立即数字段在双槽拼接时只读取低 16 位，忽略的位由 `.encoding` 保留。`memory` 的地址修饰（`sm=`、`ss=`）由签名逐项给出修饰名、字段和操作数，省略修饰时字段取 0。`table` 把一段固定文本对应到若干字段的取值，用于由单元号决定的目的寄存器组，例如 v6e 的 `(mrf1, gmr1, msra1)`。`choice(field, alternatives)` 用一个 selector 字段在几种来源之间选择，所以同一段文本可以产生多个候选。例如 ScalarY 位置上的 `7` 可以来自内置常量 selector，也可以来自某个立即数 lane 的零扩展。
+操作数表达式定义在 [assembly_expressions.py](../../src/tpuasm/assembly_expressions.py)，是带标签的元组：`literal`、`register`、`number`、`choice`、`memory`、`table`、`pattern`，以及 v4 专用的 `dma_address` 和 `trace`。数值表达式还可以限制每个来源字段的有效位宽：v6e 的 20 位立即数字段在双槽拼接时只读取低 16 位，忽略的位由 `.encoding` 保留；v6e TEC 的配置字由若干字段按位拼成一个数。`memory` 的地址修饰（`sm=`、`ss=`）由签名逐项给出修饰名、字段和操作数，省略修饰时字段取 0。`table` 把一段固定文本对应到若干字段的取值，用于由单元号决定的目的寄存器组，例如 v6e 的 `(mrf1, gmr1, msra1)`。`pattern` 是嵌有若干操作数的固定文本，例如 v6e TEC 的 `[hbm4b:{0}+{1}]`，汇编时忽略空白。`choice(field, alternatives)` 用一个 selector 字段在几种来源之间选择，所以同一段文本可以产生多个候选。例如 ScalarY 位置上的 `7` 可以来自内置常量 selector，也可以来自某个立即数 lane 的零扩展。
 
 [assembly_operands.py](../../src/tpuasm/assembly_operands.py) 中的 `encode_operand` 把文本转换为候选 `Bits` 列表，`decode_operand` 从机器字读回文本。二者必须互逆：`decode_operand` 输出的文本重新编码时，候选中必须有一个与它读取的字段取值相同。新增表达式类型时，两个方向都要实现。
 

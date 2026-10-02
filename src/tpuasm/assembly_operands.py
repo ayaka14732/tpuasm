@@ -85,6 +85,11 @@ def _number_bits(expression: Expression, text: str, form: Form) -> list[Bits]:
             result.append(bits)
     return list(dict.fromkeys(result))
 
+def _pattern_regex(template: str) -> str:
+    """把 ``[tilespmem:{0}+{1}]`` 这样的模板转成正则；比较前去掉全部空白。"""
+    pieces = re.split(r'\{[0-9]+\}', template)
+    return '(.+?)'.join(re.escape(re.sub(r'\s+', '', piece)) for piece in pieces)
+
 def _dma_bits(expression: Expression, text: str, form: Form) -> list[Bits]:
     dest = expression[1]
     space, base, offset, modifiers = address_parts(text)
@@ -161,6 +166,15 @@ def encode_operand(expression: Expression, text: str, form: Form) -> list[Bits]:
             modifier_bits = encode_operand(modifier, extras[key], form) if key in extras else [form.bind(field, 0)]
             bits = combine(bits, modifier_bits)
         return bits
+    if kind == 'pattern':
+        _, template, parts = expression
+        match = re.fullmatch(_pattern_regex(template), re.sub(r'\s+', '', text))
+        if match is None:
+            return []
+        bits = [Bits()]
+        for part, operand in zip(parts, match.groups()):
+            bits = combine(bits, encode_operand(part, operand, form))
+        return bits
     if kind == 'dma_address':
         return _dma_bits(expression, text, form)
     if kind == 'trace':
@@ -233,6 +247,9 @@ def decode_operand(expression: Expression, form: Form, word: int) -> str:
             if form.fields[field].read(word):
                 address += f', {key}=' + decode_operand(modifier, form, word)
         return f'[{space}:{address}]'
+    if kind == 'pattern':
+        _, template, parts = expression
+        return template.format(*(decode_operand(part, form, word) for part in parts))
     if kind == 'dma_address':
         dest = expression[1]
         fields = form.fields

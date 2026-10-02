@@ -13,7 +13,7 @@ from jaxlib.xla_client import LoadedExecutable
 
 from .assembler import assemble_listing, check_source_mapping_supported, format_assembly, supports_source_mapping
 from .backends import NativeBackend, select_backend
-from .targets import TARGETS, TPU_V4_BCS
+from .targets import TARGETS, TPU_V4_BCS, TPU_V6E_TEC
 from .program_container import resolve_executable_target, core_program_target
 
 _native_libraries: dict[tuple[str, str], ctypes.CDLL] = {}
@@ -98,18 +98,18 @@ def _program_proto(data: bytes, *, encode: bool, target: str) -> bytes:
 def executable_programs(serialized: bytes, *, target: str | None = None) -> list[tuple[int, int, bytes]]:
     """按容器顺序提取 serialized executable 中指定目标的程序映像。
 
-    TC 路径只解析容器，不选择原生后端；BCS 路径提取 semantic body 后调用匹配的原生 codec 生成并验证机器映像。不读写文件，数据段不会被当作程序映像。当前容器字段布局的来源和扩展边界见仓库的 ``docs/design/architecture.md``。
+    TC 路径只解析容器，不选择原生后端；BCS 路径提取 semantic body 后调用匹配的原生 codec 生成并验证机器映像；TEC 路径在 TC 记录携带的 SparseCore 代码中用原生 codec 定位 TEC 程序映像。不读写文件，数据段不会被当作 TC 程序映像。当前容器字段布局的来源和扩展边界见仓库的 ``docs/design/architecture.md``。
 
     Args:
         serialized: ``bytes(compiled.runtime_executable().serialize())`` 得到的字节。
-        target: ``'tpu-v4-tc'``、``'tpu-v4-bcs'`` 或 ``'tpu-v6e-tc'``。省略时从容器的 program oneof / ABI 推断；目标不唯一或缺少证据时要求显式指定。executable 不一定包含 BCS 程序。
+        target: ``'tpu-v4-tc'``、``'tpu-v4-bcs'``、``'tpu-v6e-tc'`` 或 ``'tpu-v6e-tec'``。省略时从容器的 program oneof / ABI 推断；目标不唯一或缺少证据时要求显式指定。SparseCore 代码由 TC 记录携带，省略时推断为 TC，提取 TEC 必须显式指定。executable 不一定包含 BCS 或 TEC 程序。
 
     Returns:
         按容器顺序排列的 ``(record, index, image)`` 列表。record 是从零开始的记录号，index 是该记录内从零开始的程序映像索引，image 是程序映像字节。
 
     Raises:
         ValueError: 目标/容器格式无效、没有对应程序、代码范围超出 initialized data，或遇到不支持的压缩代码。
-        RuntimeError: BCS 原生后端不可用或 codec 校验失败。
+        RuntimeError: BCS 或 TEC 原生后端不可用，或 codec 校验失败。
 
     Examples:
         从已保存的 executable 提取程序映像::
@@ -121,11 +121,17 @@ def executable_programs(serialized: bytes, *, target: str | None = None) -> list
             for record, index, image in executable_programs(serialized):
                 print(record, index, len(image))
     """
-    if resolve_executable_target(serialized, target) == TPU_V4_BCS:
+    hardware = resolve_executable_target(serialized, target)
+    if hardware == TPU_V4_BCS:
         from .tpu_v4_bcs_program import executable_bcs_programs
         return executable_bcs_programs(serialized)
-    from .tc_source_mapping import _programs
-    return [(program.record, program.image_index, program.image) for program in _programs(serialized)]
+    if hardware == TPU_V6E_TEC:
+        from .tpu_v6e_tec_program import executable_tec_programs
+        programs = executable_tec_programs(serialized)
+    else:
+        from .tc_source_mapping import _programs
+        programs = _programs(serialized)
+    return [(program.record, program.image_index, program.image) for program in programs]
 
 def _verify_image(image: bytes, *, target: str) -> None:
     backend, libtpu = select_backend(target)
@@ -152,9 +158,9 @@ def dump_executable(serialized: bytes, output_dir: Path, *, encoding: str = 'exa
         serialized: ``bytes(compiled.runtime_executable().serialize())`` 得到的字节。
         output_dir: 输出目录，使用 pathlib.Path。
         encoding: ``'exact'`` （默认）通过命名编码约束及重汇编校验保留原字节；``'canonical'`` 按确定规则重新分配共享资源，不保证字节相同。具体保证见 :func:`format_assembly`。
-        target: 可省略并从容器推断；缺少或存在多个目标时必须指定。可选 ``'tpu-v4-tc'``、``'tpu-v4-bcs'``、``'tpu-v6e-tc'``；BCS 无编译来源注释。
+        target: 可省略并从容器推断；缺少或存在多个目标时必须指定。可选 ``'tpu-v4-tc'``、``'tpu-v4-bcs'``、``'tpu-v6e-tc'``、``'tpu-v6e-tec'``；TEC 必须显式指定。BCS 与 TEC 无编译来源注释。
         sources: 默认 True，将已保存的 TC 来源显示为注释；False 关闭注释。
-        source_map_json: 默认 False；True 另外写入每份程序映像对应的``program-<target>-<record>-<index>.sources.json``，不受 sources 开关影响。BCS 不支持该选项，指定 True 会报错。
+        source_map_json: 默认 False；True 另外写入每份程序映像对应的``program-<target>-<record>-<index>.sources.json``，不受 sources 开关影响。BCS 与 TEC 不支持该选项，指定 True 会报错。
 
     Returns:
         与 :func:`executable_programs` 顺序相同的 pathlib.Path 列表，文件名为``program-<target>-<record>-<index>.tpuasm``；target 包含 TPU 代际与执行单元。返回值只含 .tpuasm 路径，不含 JSON 路径。
@@ -205,9 +211,9 @@ def dump_compiled(compiled: Compiled, output_dir: Path, *, encoding: str = 'exac
         compiled: 已编译的 JAX 对象，例如 ``jax.jit(kernel).lower(*example_inputs).compile()`` 的结果。
         output_dir: 输出目录，使用 pathlib.Path；自动创建目录及父目录并覆盖同名文件。
         encoding: ``'exact'`` （默认）保留原机器字节；``'canonical'`` 重新分配共享资源，不保证字节相同。具体保证见 :func:`format_assembly`。
-        target: 可省略并从容器推断；缺少或存在多个目标时必须指定。可选 ``'tpu-v4-tc'``、``'tpu-v4-bcs'``、``'tpu-v6e-tc'``；BCS 无编译来源注释。
+        target: 可省略并从容器推断；缺少或存在多个目标时必须指定。可选 ``'tpu-v4-tc'``、``'tpu-v4-bcs'``、``'tpu-v6e-tc'``、``'tpu-v6e-tec'``；TEC 必须显式指定。BCS 与 TEC 无编译来源注释。
         sources: 默认 True，将已保存的 TC 来源显示为注释；False 关闭注释。
-        source_map_json: 默认 False；True 另外写入 TC .sources.json，不受 sources 开关影响；BCS 明确拒绝 True。
+        source_map_json: 默认 False；True 另外写入 TC .sources.json，不受 sources 开关影响；BCS 与 TEC 明确拒绝 True。
 
     Returns:
         与 :func:`dump_executable` 相同的 pathlib.Path 列表，按容器顺序仅包含 .tpuasm 路径；文件名对两目标均包含完整 target。
@@ -250,7 +256,7 @@ def main() -> None:
         '--target',
         choices=tuple(TARGETS),
         metavar='TARGET',
-        help='tpu-v4-tc, tpu-v4-bcs or tpu-v6e-tc; required for image and semantic-proto, otherwise inferred when unambiguous',
+        help='tpu-v4-tc, tpu-v4-bcs, tpu-v6e-tc or tpu-v6e-tec; required for image and semantic-proto, otherwise inferred when unambiguous',
     )
     parser.add_argument('--encoding', choices=('exact', 'canonical'), metavar='MODE', help='binary-to-listing export: exact preserves bytes (default); canonical for editing')
     parser.add_argument('--output-dir', type=Path, metavar='DIR', help='required for executable input with listing output; one .tpuasm per program')
@@ -262,7 +268,7 @@ def main() -> None:
         nargs=2,
         action='append',
         metavar=('RECORD:INDEX', 'LISTING'),
-        help='executable output: replace TC program image RECORD:INDEX (as in program-<target>-<record>-<index>.tpuasm) with the assembled LISTING; same size only; repeatable',
+        help='executable output: replace program image RECORD:INDEX (as in program-<target>-<record>-<index>.tpuasm) with the assembled LISTING; same size only; repeatable',
     )
     parser.add_argument('--insert', nargs=2, action='append', metavar=('RECORD:INDEX:PC', 'LISTING'), help='executable output: insert a .target assembly fragment before the original image bundle PC (decimal or 0x hex); repeatable')
     parser.add_argument('--insert-branch-target', choices=('inserted', 'original'), default='inserted', help='direct branches targeting an insertion execute the inserted fragment (default) or skip to the original bundle')

@@ -6,6 +6,7 @@
 
 ### 新增
 
+- 新增 `tpu-v6e-tec` 目标（libtpu 0.0.49）：v6e SparseCore TEC 程序映像的汇编与反汇编，助记符和操作数写法与 libtpu 编译器的 LLVM TPU printer 一致；executable 中的 TEC 程序可以导出和等长写回，需显式指定目标。
 - `SlotSource` 新增 `source_frames` 与 `source_kind`。`source_frames` 合并 tpuasm 捕获的来源与编译器自带的 `loc(...)`，按文件和行列去重，是逐槽源码位置的统一视图；`source_kind` 标明位置来自 tpuasm 捕获（`captured`）、只来自编译器（`compiler_location`），还是没有位置（`unknown`）。函数区间内已占用但没有注释的槽也会列出。来源映射 JSON 的 `schema_version` 随之由 2 升为 3。
 - libtpu 0.0.49 的来源捕获新增 hook，覆盖 `dma.done` 展开、MXU prep 改写、v6e matprep 发射、MLIR CSE 与 `FusedLoc` 解析。v6e matmul 示例的函数区间内只剩 `vtrace` 没有来源。
 - 编译器注释中被 `loc(...)` 覆盖的 region builder 说明（例如取模的实现方式、循环退出判断、vreg 切片范围）得以保留，格式为 `loc(...) :: 原注释`。

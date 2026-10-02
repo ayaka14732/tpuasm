@@ -1,4 +1,4 @@
-"""把修改后的 TensorCore 程序映像写回 serialized executable，并按原调用约定装载执行。"""
+"""把修改后的 TensorCore 或 SparseCore TEC 程序映像写回 serialized executable，并按原调用约定装载执行。"""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -14,7 +14,7 @@ from jaxlib.xla_client import LoadedExecutable
 from ._protobuf import encode_varint, field_spans, replace_fields
 from .printer import _verify_image
 from .program_container import executable_records, resolve_executable_target
-from .targets import TPU_V4_BCS
+from .targets import TPU_V4_BCS, TPU_V6E_TEC
 from .tc_source_mapping import _Program, _one, _programs, _values
 from .tc_relocation import BundleInsertion, insert_program
 
@@ -31,7 +31,7 @@ def _identity(old: bytes, content: bytes) -> bytes:
     return hashlib.sha256(old + content).digest()
 
 def replace_executable_programs(serialized: bytes, images: Mapping[tuple[int, int], bytes], *, target: str | None = None) -> bytes:
-    """用新的程序映像替换 serialized executable 中的 TC 程序映像，返回新的 executable 字节。
+    """用新的程序映像替换 serialized executable 中的 TC 或 TEC 程序映像，返回新的 executable 字节。
 
     本函数处理等长替换：新映像必须与原映像的字节数相同。需要增加 bundle 时，使用 :func:`insert_executable_bundles`，显式给出插入点以迁移分支、装载参数和元数据。
 
@@ -40,13 +40,13 @@ def replace_executable_programs(serialized: bytes, images: Mapping[tuple[int, in
     Args:
         serialized: ``bytes(compiled.runtime_executable().serialize())`` 得到的字节。
         images: 以 :func:`executable_programs` 给出的 ``(record, index)`` 为键的新程序映像，例如 :func:`assemble_listing` 的结果。
-        target: ``'tpu-v4-tc'`` 或 ``'tpu-v6e-tc'``；省略时从容器推断，规则同 :func:`executable_programs`。BCS 程序在容器中保存为 semantic protobuf，不支持替换。
+        target: ``'tpu-v4-tc'``、``'tpu-v6e-tc'`` 或 ``'tpu-v6e-tec'``；省略时从容器推断，规则同 :func:`executable_programs`，TEC 必须显式指定。BCS 程序在容器中保存为 semantic protobuf，不支持替换。
 
     Returns:
         新的 serialized executable 字节，长度与输入相同。可用 :func:`load_executable` 装载执行。
 
     Raises:
-        ValueError: 目标不是 TC、键不存在、映像长度不同，或容器缺少程序身份字段。
+        ValueError: 目标是 BCS、键不存在、映像长度不同，或容器缺少程序身份字段。
         RuntimeError: 原生后端不可用，或新映像未通过原生校验。
 
     Examples:
@@ -62,7 +62,12 @@ def replace_executable_programs(serialized: bytes, images: Mapping[tuple[int, in
     hardware = resolve_executable_target(serialized, target)
     if hardware == TPU_V4_BCS:
         raise ValueError('tpu-v4-bcs programs are stored as semantic protobuf; replacing them is not supported')
-    programs = {(program.record, program.image_index): program for program in _programs(serialized)}
+    if hardware == TPU_V6E_TEC:
+        from .tpu_v6e_tec_program import executable_tec_programs
+        found = executable_tec_programs(serialized)
+    else:
+        found = _programs(serialized)
+    programs = {(program.record, program.image_index): program for program in found}
     for key, image in images.items():
         if key not in programs:
             raise ValueError(f'the executable has no program image {key[0]}:{key[1]}')
@@ -102,7 +107,8 @@ def _write_programs(serialized: bytes, programs: Mapping[tuple[int, int], _Progr
                 for at, program, image, revised in changes:
                     delta = len(image) - len(program.image)
                     if segment_index == program.segment_index:
-                        size = len(image)
+                        # A TEC image is only part of its segment, so the size changes by the difference.
+                        size += delta
                     elif delta and offset < at + len(program.image) and at < offset + size:
                         raise ValueError('resized code segment overlaps another initialized segment')
                     if offset >= at + len(program.image):
@@ -164,7 +170,7 @@ def insert_executable_bundles(serialized: bytes, insertions: Mapping[tuple[int, 
         RuntimeError: 原生编解码或校验失败。
     """
     hardware = resolve_executable_target(serialized, target)
-    if hardware == TPU_V4_BCS:
+    if hardware in (TPU_V4_BCS, TPU_V6E_TEC):
         raise ValueError('bundle insertion supports TensorCore targets only')
     programs = {(p.record, p.image_index): p for p in _programs(serialized)}
     updates = {}

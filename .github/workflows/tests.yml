@@ -40,6 +40,8 @@ jobs:
       - if: matrix.libtpu == '0.0.49'
         run: python tests/reproduce_tpu_v6e_tc.py
       - if: matrix.libtpu == '0.0.49'
+        run: python tests/reproduce_tpu_v6e_tec.py
+      - if: matrix.libtpu == '0.0.49'
         run: python tools/reproduce_tpu_v6e_encoder_rejections.py
       # 仓库中的清单由 0.0.49 生成，由 examples job 比较。旧版本的来源注释和个别示例的机器码与之不同，这里只要求导出成功；导出时会重新汇编清单并逐字节比较。
       - if: matrix.libtpu != '0.0.49'
@@ -51,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [tpu-v4-tc, tpu-v6e-tc]
+        target: [tpu-v4-tc, tpu-v6e-tc, tpu-v6e-tec]
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
@@ -90,7 +92,7 @@ jobs:
       - name: Round trip through the command line
         working-directory: ${{ runner.temp }}
         run: |
-          for listing in "$GITHUB_WORKSPACE"/tests/data/tpu_v4_tc/normal.tpuasm "$GITHUB_WORKSPACE"/tests/data/tpu_v6e_tc/matmul.tpuasm; do
+          for listing in "$GITHUB_WORKSPACE"/tests/data/tpu_v4_tc/normal.tpuasm "$GITHUB_WORKSPACE"/tests/data/tpu_v6e_tc/matmul.tpuasm "$GITHUB_WORKSPACE"/tests/data/tpu_v6e_tec/add_one.tpuasm; do
             target=$(sed -n 's/^\.target //p' "$listing")
             tpuasm "$listing" --input-format listing --output a.bin
             tpuasm a.bin --input-format image --target "$target" --output a.tpuasm
@@ -103,11 +105,11 @@ jobs:
         run: |
           mkdir -p copy/examples
           cp -r "$GITHUB_WORKSPACE/examples/pallas" copy/examples/
-          rm copy/examples/pallas/tpu_*_tc/*.tpuasm
-          for target in tpu-v4-tc tpu-v6e-tc; do
-            for example in clamp replace_program insert_program; do
-              TPUASM_EXAMPLES_TARGET=$target TPUASM_EXAMPLES_AOT=1 python copy/examples/pallas/$example.py
-              listing=examples/pallas/${target//-/_}/$example.tpuasm
-              cmp "copy/$listing" "$GITHUB_WORKSPACE/$listing"
-            done
+          rm copy/examples/pallas/tpu_*/*.tpuasm
+          for case in tpu-v4-tc:clamp tpu-v4-tc:replace_program tpu-v4-tc:insert_program tpu-v6e-tc:clamp tpu-v6e-tc:replace_program tpu-v6e-tc:insert_program tpu-v6e-tec:sc_add_one tpu-v6e-tec:sc_replace_program; do
+            target=${case%%:*}
+            example=${case#*:}
+            TPUASM_EXAMPLES_TARGET=$target TPUASM_EXAMPLES_AOT=1 python copy/examples/pallas/$example.py
+            listing=examples/pallas/${target//-/_}/$example.tpuasm
+            cmp "copy/$listing" "$GITHUB_WORKSPACE/$listing"
           done

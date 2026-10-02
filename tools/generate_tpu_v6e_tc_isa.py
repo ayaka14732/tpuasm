@@ -13,463 +13,40 @@ from importlib.metadata import distribution
 import itertools
 import json
 import math
-import mmap
 from pathlib import Path
-import random
-import re
 import subprocess
 import sys
 
-from tpuasm._protobuf import fields, message, read_varint
+from ghostlite_isa import FieldInfo, FormData, GlSpec, Isa, assign_fixed, descriptors, probe, probe_exclusions, runs, validate
 from tpuasm.backends import select_backend
-from tpuasm.printer import _load_native, _program_proto, _retain_libtpu
+from tpuasm.printer import _load_native, _retain_libtpu
 from tpuasm.targets import TPU_V6E_TC
 
-TARGET = TPU_V6E_TC.identifier
-PACKAGE = 'asic_sw.deepsea.gxc.glc.isa'
-WORD_BITS = 512
 # 物理槽在 TensorCoreBundle 中的字段路径；s0/s1 位于标量子 bundle，与 DMA 同属一个 oneof。
-SLOT_PATHS = {
-    's0': (1, 1),
-    's1': (1, 2),
-    'dma': (4,),
-    'va0': (5,),
-    'va1': (6,),
-    'va2': (7,),
-    'va3': (8,),
-    'vst': (9,),
-    'vld0': (10,),
-    'vld1': (11,),
-    'misc': (12,),
-    'vx0': (13,),
-    'vx1': (14,),
-    'vr0': (15,),
-    'vr1': (16,),
-}
-SHARED_MESSAGES = ((2, 'imm', 6), (3, 'vs', 4))
-EXCLUSIVE = {frozenset(('s0', 'dma')), frozenset(('s1', 'dma'))}
-ALWAYS, NEVER = 14, 15
-
-# ---------------------------------------------------------------- descriptors
-
-@dataclass(frozen=True)
-class FieldInfo:
-    name: str
-    number: int
-    kind: int
-    type_name: str
-    oneof: int | None
-
-@dataclass(frozen=True)
-class MessageInfo:
-    fields: tuple[FieldInfo, ...]
-
-def _parse(data: bytes, pos: int, end: int, valid: range) -> list[tuple[int, int | bytes]]:
-    """读取到第一个不合法字段为止；嵌入的 descriptor 后面紧接着其他数据。"""
-    result: list[tuple[int, int | bytes]] = []
-    while pos < end:
-        try:
-            tag, next_pos = read_varint(data, pos)
-            number, wire = tag >> 3, tag & 7
-            if number not in valid or wire not in (0, 2):
-                break
-            value: int | bytes
-            if wire == 0:
-                value, next_pos = read_varint(data, next_pos)
-            else:
-                size, next_pos = read_varint(data, next_pos)
-                if next_pos + size > end:
-                    break
-                value = bytes(data[next_pos:next_pos + size])
-                next_pos += size
-        except (ValueError, IndexError):
-            break
-        result.append((number, value))
-        pos = next_pos
-    return result
-
-def _message_fields(data: bytes) -> list[tuple[int, int | bytes]]:
-    return _parse(data, 0, len(data), range(1, 64))
-
-def _text(value: int | bytes) -> str:
-    assert isinstance(value, bytes)
-    return value.decode()
-
-def _enum(data: bytes, prefix: str, enums: dict[str, dict[int, str]]) -> None:
-    name = ''
-    values: dict[int, str] = {}
-    for number, value in _message_fields(data):
-        if number == 1:
-            name = _text(value)
-        elif number == 2 and isinstance(value, bytes):
-            item = dict(_message_fields(value))
-            number_value = item.get(2, 0)
-            assert isinstance(number_value, int)
-            # Aliased enum values keep the first declared name.
-            values.setdefault(number_value, _text(item[1]))
-    enums[f'{prefix}.{name}'] = values
-
-def _message(data: bytes, prefix: str, messages: dict[str, MessageInfo], enums: dict[str, dict[int, str]]) -> None:
-    name = ''
-    items = []
-    nested = []
-    for number, value in _message_fields(data):
-        if number == 1:
-            name = _text(value)
-        elif number == 2 and isinstance(value, bytes):
-            item = dict(_message_fields(value))
-            type_name = _text(item[6]) if 6 in item else ''
-            oneof = item.get(9)
-            assert oneof is None or isinstance(oneof, int)
-            items.append(FieldInfo(_text(item[1]), int(item[3]), int(item[5]), type_name, oneof))
-        elif number in (3, 4) and isinstance(value, bytes):
-            nested.append((number, value))
-    full = f'{prefix}.{name}'
-    messages[full] = MessageInfo(tuple(items))
-    for number, value in nested:
-        if number == 3:
-            _message(value, full, messages, enums)
-        else:
-            _enum(value, full, enums)
-
-def descriptors(path: Path) -> tuple[dict[str, MessageInfo], dict[str, dict[int, str]]]:
-    messages: dict[str, MessageInfo] = {}
-    enums: dict[str, dict[int, str]] = {}
-    with path.open('rb') as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as data:
-        names = sorted({match[0] for match in re.finditer(rb'platforms/asic_sw/lib/deepsea/(?:gxc|common/isa)/[a-z_/0-9]+\.proto', data)})
-        for name in names:
-            for match in re.finditer(re.escape(name), data):
-                start = match.start() - 2
-                # A FileDescriptorProto starts with field 1 (name) and a one-byte length.
-                if start < 0 or data[start] != 0x0a or data[start + 1] != len(name):
-                    continue
-                chunk = bytes(data[start:start + (1 << 24)])
-                items = _parse(chunk, 0, len(chunk), range(1, 15))
-                package = next(_text(value) for number, value in items if number == 2)
-                for number, value in items:
-                    if number == 4 and isinstance(value, bytes):
-                        _message(value, '.' + package, messages, enums)
-                    elif number == 5 and isinstance(value, bytes):
-                        _enum(value, '.' + package, enums)
-    return messages, enums
-
-# ---------------------------------------------------------------- encoder
-
-def enum_name(type_name: str) -> str:
-    """去掉包名：`.asic_sw.deepsea.gxc.glc.isa.VectorY` 写作 `VectorY`，嵌套枚举保留外层消息名。"""
-    parts = type_name.lstrip('.').split('.')
-    package = max(index for index, part in enumerate(parts) if part[0].islower())
-    return '.'.join(parts[package + 1:])
-
-def encode(bundles: list[bytes]) -> list[int | None]:
-    """编码若干独立的 bundle，返回机器字；被拒绝的 bundle 由二分定位后记为 None。"""
-    if not bundles:
-        return []
-    padded = bundles + [b''] * (-len(bundles) % TPU_V6E_TC.bundles_per_block)
-    try:
-        image = _program_proto(message([(1, bundle) for bundle in padded]), encode=True, target=TARGET)
-    except RuntimeError:
-        if len(bundles) == 1:
-            return [None]
-        middle = len(bundles) // 2
-        return encode(bundles[:middle]) + encode(bundles[middle:])
-    return [int.from_bytes(image[64 * index:64 * index + 64], 'little') for index in range(len(bundles))]
-
-def bits(value: int) -> list[int]:
-    return [index for index in range(WORD_BITS) if value >> index & 1]
-
-def runs(mask: int) -> list[tuple[int, int]]:
-    result = []
-    index = 0
-    while index < WORD_BITS:
-        if mask >> index & 1:
-            start = index
-            while index < WORD_BITS and mask >> index & 1:
-                index += 1
-            result.append((start, index - start))
-        else:
-            index += 1
-    return result
-
-class Isa:
-    def __init__(self, messages: dict[str, MessageInfo], enums: dict[str, dict[int, str]]) -> None:
-        self.messages = messages
-        self.enums = enums
-        bundle = messages[f'.{PACKAGE}.TensorCoreBundle']
-        scalar = messages[f'.{PACKAGE}.ScalarSubBundle']
-        self.slot_messages = {}
-        for slot, path in SLOT_PATHS.items():
-            field = next(item for item in bundle.fields if item.number == path[0])
-            if len(path) == 2:
-                field = next(item for item in scalar.fields if item.number == path[1])
-            self.slot_messages[slot] = messages[field.type_name]
-
-    def slot_field(self, slot: str, name: str) -> FieldInfo | None:
-        return next((item for item in self.slot_messages[slot].fields if item.name == name), None)
-
-    def forms(self, slot: str) -> list[FieldInfo]:
-        return [item for item in self.slot_messages[slot].fields if item.oneof is not None and item.kind == 11]
-
-    def operands(self, form: FieldInfo) -> list[FieldInfo]:
-        return [item for item in self.messages[form.type_name].fields if item.kind != 11]
-
-    def enum_values(self, field: FieldInfo) -> list[int]:
-        """保留值和无效值会使 formatter 终止进程，不作为可选编码。"""
-        names = self.enums[field.type_name]
-        return sorted(value for value, name in names.items() if value >= 0 and 'RESERVED' not in name and 'INVALID' not in name)
-
-    def slot_bundle(self, slot: str, form: FieldInfo, values: dict[str, int], predicate: int = ALWAYS, inverted: int = 0) -> list[tuple[int, int | bytes]]:
-        head: list[tuple[int, int | bytes]] = []
-        predication = self.slot_field(slot, 'predication')
-        inversion = self.slot_field(slot, 'predication_inversion')
-        if predication is not None:
-            head.append((predication.number, predicate))
-        if inversion is not None:
-            head.append((inversion.number, inverted))
-        payload = message([(item.number, values.get(item.name, 0)) for item in self.operands(form)])
-        body = message(head + [(form.number, payload)])
-        path = SLOT_PATHS[slot]
-        if len(path) == 2:
-            return [(path[0], message([(path[1], body)]))]
-        return [(path[0], body)]
-
-def bundle(parts: list[tuple[int, int | bytes]], immediates: tuple[int, ...] = (), scalars: tuple[int, ...] = ()) -> bytes:
-    """合并各槽的字段；两个标量槽写入同一个标量子 bundle。"""
-    merged: dict[int, list[tuple[int, int | bytes]]] = {}
-    plain = []
-    for number, value in parts:
-        if number == 1:
-            assert isinstance(value, bytes)
-            merged.setdefault(1, []).extend((key, item) for key, _, item in fields(value))
-        else:
-            plain.append((number, value))
-    items = plain + [(number, message(values)) for number, values in merged.items()]
-    if immediates:
-        items.append((2, message([(index + 1, value) for index, value in enumerate(immediates)])))
-    if scalars:
-        items.append((3, message([(index + 1, value) for index, value in enumerate(scalars)])))
-    return message(sorted(items, key=lambda item: item[0]))
-
-@dataclass
-class FormData:
-    slot: str
-    form: FieldInfo
-    base: int
-    layout: dict[str, tuple[int, int, str]]
-    fixed_mask: int = 0
-    fixed_value: int = 0
-    excludes: tuple[str, ...] = ()
-
-    @property
-    def field_mask(self) -> int:
-        mask = 0
-        for start, width, _ in self.layout.values():
-            mask |= ((1 << width) - 1) << start
-        return mask
-
-def probe(isa: Isa) -> tuple[int, dict[str, tuple[int, int]], dict[str, tuple[int, int | None]], list[FormData], dict[str, list[str]]]:
-    empty, = encode([b''])
-    assert empty is not None
-    shared = {}
-    for number, prefix, count in SHARED_MESSAGES:
-        for index in range(count):
-            words = encode([message([(number, message([(index + 1, 1 << bit)]))]) for bit in range(32)])
-            changes = [bits(word ^ empty) for word in words if word is not None]
-            changes = [item for item in changes if item]
-            assert all(len(item) == 1 for item in changes), (prefix, index)
-            start = changes[0][0]
-            assert [item[0] for item in changes] == list(range(start, start + len(changes)))
-            shared[f'{prefix}{index}'] = (start, len(changes))
-    forms: list[FormData] = []
-    rejected: dict[str, list[str]] = {}
-    for slot in SLOT_PATHS:
-        candidates = isa.forms(slot)
-        bases = encode([bundle(isa.slot_bundle(slot, form, {})) for form in candidates])
-        for form, base in zip(candidates, bases):
-            if base is None:
-                rejected.setdefault(slot, []).append(form.name)
-                continue
-            requests: list[tuple[FieldInfo, int]] = []
-            for operand in isa.operands(form):
-                if operand.kind == 14:
-                    requests.extend((operand, value) for value in isa.enum_values(operand))
-                else:
-                    requests.extend((operand, 1 << bit) for bit in range(1 if operand.kind == 8 else 32))
-            words = encode([bundle(isa.slot_bundle(slot, form, {operand.name: value})) for operand, value in requests])
-            layout: dict[str, tuple[int, int, str]] = {}
-            changed: dict[str, int] = {}
-            for (operand, value), word in zip(requests, words):
-                assert word is not None, (slot, form.name, operand.name, value)
-                difference = word ^ base
-                if operand.kind == 14:
-                    changed[operand.name] = changed.get(operand.name, 0) | difference
-                elif difference:
-                    assert len(bits(difference)) == 1, (slot, form.name, operand.name)
-                    changed.setdefault(operand.name, 0)
-                    changed[operand.name] |= difference
-            for operand in isa.operands(form):
-                positions = bits(changed.get(operand.name, 0))
-                assert positions, (slot, form.name, operand.name)
-                start, width = positions[0], positions[-1] - positions[0] + 1
-                enum = enum_name(operand.type_name) if operand.kind == 14 else ''
-                layout[operand.name] = (start, width, enum)
-            # Enum values are copied verbatim: every value is value << start.
-            for (operand, value), word in zip(requests, words):
-                start, width, _ = layout[operand.name]
-                assert word is not None and word ^ base == (value << start if operand.kind == 14 else word ^ base)
-            forms.append(FormData(slot, form, base, layout))
-    predicates = {}
-    for slot in SLOT_PATHS:
-        data = next(item for item in forms if item.slot == slot)
-        words = encode([bundle(isa.slot_bundle(slot, data.form, {}, predicate=value)) for value in range(NEVER)])
-        mask = 0
-        for word in words:
-            assert word is not None
-            mask |= word ^ data.base
-        start = bits(mask)[0]
-        assert bits(mask) == list(range(start, start + 4)), slot
-        # The predicate value is copied verbatim; NEVER removes the whole slot.
-        assert all(word is not None and word ^ data.base == (value ^ ALWAYS) << start for value, word in enumerate(words)), slot
-        inversion = None
-        if isa.slot_field(slot, 'predication_inversion') is not None:
-            plain, inverted = encode([bundle(isa.slot_bundle(slot, data.form, {}, predicate=3, inverted=value)) for value in (0, 1)])
-            assert plain is not None and inverted is not None
-            inversion, = bits(plain ^ inverted)
-        predicates[slot] = (start, inversion)
-    return empty, shared, predicates, forms, rejected
-
-def predicate_mask(predicates: dict[str, tuple[int, int | None]], slot: str) -> int:
-    start, inversion = predicates[slot]
-    return (15 << start) | (1 << inversion if inversion is not None else 0)
-
-def assign_fixed(empty: int, predicates: dict[str, tuple[int, int | None]], forms: list[FormData]) -> None:
-    """形式的固定位：本槽独占的位，加上本槽某些形式在共享位上写入的操作码。"""
-    region = {slot: predicate_mask(predicates, slot) for slot in SLOT_PATHS}
-    for data in forms:
-        region[data.slot] |= (data.base ^ empty) | data.field_mask
-    own = {}
-    for slot in SLOT_PATHS:
-        others = 0
-        for other in SLOT_PATHS:
-            if other != slot and frozenset((slot, other)) not in EXCLUSIVE:
-                others |= region[other]
-        own[slot] = region[slot] & ~others
-    opcode_bits = dict.fromkeys(SLOT_PATHS, 0)
-    for data in forms:
-        opcode_bits[data.slot] |= (data.base ^ empty) & ~data.field_mask & ~predicate_mask(predicates, data.slot) & ~own[data.slot]
-    for data in forms:
-        data.fixed_mask = (own[data.slot] | opcode_bits[data.slot]) & ~data.field_mask & ~predicate_mask(predicates, data.slot)
-        data.fixed_value = data.base & data.fixed_mask
-        assert (data.base ^ empty) & ~data.fixed_mask & ~data.field_mask & ~predicate_mask(predicates, data.slot) == 0, (data.slot, data.form.name)
-
-def base_values(isa: Isa, data: FormData) -> dict[str, int]:
-    return {operand.name: isa.enum_values(operand)[0] if operand.kind == 14 else 0 for operand in isa.operands(data.form)}
-
-def model_bits(isa: Isa, data: FormData, values: dict[str, int], predicates: dict[str, tuple[int, int | None]]) -> tuple[int, int] | None:
-    """按字段表预测一个形式写入的 (mask, value)；字段与固定位冲突时返回 None。"""
-    mask, value = data.fixed_mask, data.fixed_value
-    for name, field_value in values.items():
-        start, width, _ = data.layout[name]
-        field_mask = ((1 << width) - 1) << start
-        if (value ^ (field_value << start)) & mask & field_mask:
-            return None
-        mask |= field_mask
-        value = (value & ~field_mask) | (field_value << start)
-    start, _ = predicates[data.slot]
-    mask |= predicate_mask(predicates, data.slot)
-    value = (value & ~predicate_mask(predicates, data.slot)) | (ALWAYS << start)
-    return mask, value
-
-def probe_exclusions(isa: Isa, predicates: dict[str, tuple[int, int | None]], forms: list[FormData]) -> None:
-    """找出与另一个槽同时出现时 encoder 总是拒绝的形式，例如占用相邻向量 ALU 的 64 位乘法。"""
-    by_slot: dict[str, list[FormData]] = {}
-    for data in forms:
-        by_slot.setdefault(data.slot, []).append(data)
-    requests = []
-    for data in forms:
-        own = model_bits(isa, data, base_values(isa, data), predicates)
-        assert own is not None
-        for other in SLOT_PATHS:
-            if other == data.slot or frozenset((data.slot, other)) in EXCLUSIVE:
-                continue
-            tried = 0
-            for partner in by_slot[other]:
-                bits_other = model_bits(isa, partner, base_values(isa, partner), predicates)
-                assert bits_other is not None
-                if (own[1] ^ bits_other[1]) & own[0] & bits_other[0]:
-                    continue
-                parts = isa.slot_bundle(data.slot, data.form, base_values(isa, data)) + isa.slot_bundle(other, partner.form, base_values(isa, partner))
-                requests.append((data, other, bundle(parts)))
-                tried += 1
-                if tried == 3:
-                    break
-    words = encode([item for _, _, item in requests])
-    accepted: dict[tuple[int, str], bool] = {}
-    for (data, other, _), word in zip(requests, words):
-        key = (id(data), other)
-        accepted[key] = accepted.get(key, False) or word is not None
-    for data in forms:
-        data.excludes = tuple(other for other in SLOT_PATHS if accepted.get((id(data), other)) is False)
-
-def validate(isa: Isa, empty: int, shared: dict[str, tuple[int, int]], predicates: dict[str, tuple[int, int | None]], forms: list[FormData], count: int) -> None:
-    """随机组合各槽形式、字段和共享操作数，核对预测的机器字与 encoder 输出完全相同。"""
-    rng = random.Random(0)
-    by_slot: dict[str, list[FormData]] = {}
-    for data in forms:
-        by_slot.setdefault(data.slot, []).append(data)
-    cases: list[tuple[bytes, int]] = []
-    details = []
-    while len(cases) < count:
-        present = [slot for slot in SLOT_PATHS if rng.random() < 0.4]
-        if 'dma' in present and ('s0' in present or 's1' in present):
-            present.remove('dma')
-        mask = value = 0
-        immediates = tuple(rng.getrandbits(shared[f'imm{index}'][1]) if rng.random() < 0.5 else 0 for index in range(6))
-        scalars = tuple(rng.getrandbits(shared[f'vs{index}'][1]) if rng.random() < 0.5 else 0 for index in range(4))
-        for name, part in [*zip((f'imm{index}' for index in range(6)), immediates), *zip((f'vs{index}' for index in range(4)), scalars)]:
-            start, width = shared[name]
-            mask |= ((1 << width) - 1) << start
-            value |= part << start
-        parts: list[tuple[int, int | bytes]] = []
-        chosen: list[tuple[str, str, dict[str, int], int, int]] = []
-        consistent = True
-        for slot in present:
-            data = rng.choice(by_slot[slot])
-            if any(other in present for other in data.excludes):
-                consistent = False
-            slot_mask, slot_value = data.fixed_mask, data.fixed_value
-            values = {}
-            for operand in isa.operands(data.form):
-                start, width, _ = data.layout[operand.name]
-                field_value = rng.choice(isa.enum_values(operand)) if operand.kind == 14 else rng.getrandbits(width)
-                values[operand.name] = field_value
-                field_mask = ((1 << width) - 1) << start
-                if (slot_value ^ (field_value << start)) & slot_mask & field_mask:
-                    consistent = False
-                slot_mask |= field_mask
-                slot_value = (slot_value & ~field_mask) | (field_value << start)
-            predicate = rng.choice([*range(ALWAYS), *[ALWAYS] * 10])
-            start, inversion = predicates[slot]
-            inverted = rng.randint(0, 1) if inversion is not None and predicate != ALWAYS else 0
-            slot_mask |= predicate_mask(predicates, slot)
-            slot_value = (slot_value & ~predicate_mask(predicates, slot)) | (predicate << start) | (inverted << inversion if inversion is not None else 0)
-            if (value ^ slot_value) & mask & slot_mask:
-                consistent = False
-            mask |= slot_mask
-            value = (value & ~slot_mask) | slot_value
-            parts.extend(isa.slot_bundle(slot, data.form, values, predicate, inverted))
-            chosen.append((slot, data.form.name, values, predicate, inverted))
-        if consistent:
-            cases.append((bundle(parts, immediates, scalars), (empty & ~mask) | value))
-            details.append(chosen)
-    words = encode([item for item, _ in cases])
-    mismatches = sum(word != expected for word, (_, expected) in zip(words, cases))
-    for word, (_, expected), chosen in zip(words, cases, details):
-        if word != expected:
-            print('MISMATCH', bits(word ^ expected) if word is not None else 'rejected', chosen, file=sys.stderr)
-    if mismatches:
-        raise SystemExit(f'{mismatches} of {count} random bundles differ from the predicted machine words')
-    print(f'{count} random bundles match the predicted machine words', file=sys.stderr)
+SPEC = GlSpec(
+    target=TPU_V6E_TC.identifier,
+    bundle='TensorCoreBundle',
+    scalar='ScalarSubBundle',
+    slots={
+        's0': (1, 1),
+        's1': (1, 2),
+        'dma': (4,),
+        'va0': (5,),
+        'va1': (6,),
+        'va2': (7,),
+        'va3': (8,),
+        'vst': (9,),
+        'vld0': (10,),
+        'vld1': (11,),
+        'misc': (12,),
+        'vx0': (13,),
+        'vx1': (14,),
+        'vr0': (15,),
+        'vr1': (16,),
+    },
+    shared=tuple((f'imm{index}', 2, index + 1) for index in range(6)) + tuple((f'vs{index}', 3, index + 1) for index in range(4)),
+    exclusive=frozenset((frozenset(('s0', 'dma')), frozenset(('s1', 'dma')))),
+)
 
 # ---------------------------------------------------------------- formatter
 
@@ -770,14 +347,13 @@ def render(empty: int, shared: dict[str, tuple[int, int]], predicates: dict[str,
         '# 物理槽：bundle 内的字段路径、谓词起始 bit、取反 bit（没有取反字段时为 None）。',
         'SLOTS: dict[str, tuple[tuple[int, ...], int, int | None]] = {',
     ]
-    for slot, path in SLOT_PATHS.items():
+    for slot, path in SPEC.slots.items():
         start, inversion = predicates[slot]
         lines.append(f'    {slot!r}: ({path!r}, {start}, {inversion!r}),')
     lines.extend(('}', '# 共享操作数：名称、所在 bundle 字段号、消息内字段号、起始 bit、位宽。', 'SHARED_FIELDS: tuple[tuple[str, int, int, int, int], ...] = ('))
-    for number, prefix, count in SHARED_MESSAGES:
-        for index in range(count):
-            start, width = shared[f'{prefix}{index}']
-            lines.append(f'    ({prefix + str(index)!r}, {number}, {index + 1}, {start}, {width}),')
+    for name, number, index in SPEC.shared:
+        start, width = shared[name]
+        lines.append(f'    ({name!r}, {number}, {index}, {start}, {width}),')
     lines.extend((')', '# descriptor 中的枚举；同值别名只保留首个名称。', 'ENUMS: dict[str, dict[int, str]] = {'))
     for enum in enum_names:
         values = isa.enums[enum_types[enum]]
@@ -846,13 +422,13 @@ def main() -> None:
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'src' / 'tpuasm' / 'tpu_v6e_tc_isa_data.py')
     parser.add_argument('--validate', type=int, default=20000, metavar='N', help='number of random bundles checked against the encoder')
     args = parser.parse_args()
-    backend, path = select_backend(TARGET)
+    backend, path = select_backend(SPEC.target)
     _retain_libtpu(path)
     native = _load_native(backend)
     messages, enums = descriptors(path)
-    isa = Isa(messages, enums)
+    isa = Isa(SPEC, messages, enums)
     empty, shared, predicates, forms, rejected = probe(isa)
-    assign_fixed(empty, predicates, forms)
+    assign_fixed(SPEC, empty, predicates, forms)
     probe_exclusions(isa, predicates, forms)
     validate(isa, empty, shared, predicates, forms, args.validate)
     formatter = Formatter(native._name, str(path), empty)
