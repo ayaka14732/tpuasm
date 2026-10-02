@@ -395,9 +395,12 @@ def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap
     for table in _values(metadata, 10):
         if _one(table, 6) != 1:
             continue
-        for raw in _values(table, 1):
+        raws = _values(table, 1)
+        # encoded_word_offset 以第一个 overlay 为基准：程序映像从第一个 overlay 开始，其偏移不一定为 0（例如 XLA scatter 程序中为 33）。
+        base = _one(raws[0], 5) if raws else 0
+        for raw in raws:
             offset = _one(raw, 5)
-            image_start = offset * _ENCODED_WORD_BYTES[hardware.identifier] * hardware.bundles_per_block // hardware.image_block_size
+            image_start = (offset - base) * _ENCODED_WORD_BYTES[hardware.identifier] * hardware.bundles_per_block // hardware.image_block_size
             overlay = Overlay(len(overlays), _one(raw, 2), _one(raw, 3), offset, image_start, _one(raw, 1), _one(raw, 4), bool(_one(raw, 6)))
             if overlay.emitted_limit < overlay.emitted_start or overlay.body_limit + overlay.suffix_size > count:
                 raise ValueError('overlay lies outside the program image')

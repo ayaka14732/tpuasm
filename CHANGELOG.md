@@ -22,6 +22,7 @@
 
 ### 修复
 
+- overlay 的 `encoded_word_offset` 改为相对第一个 overlay 换算程序映像位置。此前第一个 overlay 的偏移不为 0 时（例如 XLA 为 `scatter` 生成的程序，偏移为 33），来源映射报错 `overlay lies outside the program image`。
 - 捕获来源期间关闭 Pallas 的逐方程 lowering 缓存（[jax-ml/jax#41147](https://github.com/jax-ml/jax/issues/41147)）。此前相同运算第二次出现时会带上第一次出现的行号，例如同一 kernel 中多次 `pltpu.roll`。关闭前后机器码相同。
 
 ## 0.1.0 - 2026-09-29
