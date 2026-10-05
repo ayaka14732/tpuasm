@@ -2,7 +2,7 @@
 
 本文件记录 tpuasm 各版本面向用户的变化。各版本支持的 Python、libtpu 与 JAX 见[版本兼容性](docs/compatibility.md)。
 
-## 未发布
+## 0.2.0 - 2026-10-05
 
 ### 新增
 

@@ -15,6 +15,17 @@
 
 各构建登记的来源 hook 不同：0.0.48 只登记发射、替换、BF16 合并和 store 注释 hook，load 合并、DMA 展开、MXU prep 改写等 hook 只在 0.0.49 登记，所以同一 kernel 在 0.0.48 上有来源的指令更少。
 
+## 0.2.0
+
+测试所用 JAX：`0.12.0.dev20260926+886d2370c1`（commit `886d2370c1c959d210f522e352e3ddc6bcff7d6c`），jaxlib `0.11.2`。
+
+| Python | libtpu | GNU build-id | TPU v4 TC | TPU v4 BCS | TPU v6e TC | TPU v6e TEC |
+|---|---|---|---|---|---|---|
+| CPython 3.14t | `0.0.48` | `3310a7c8c137cd515c7a2ba1ce2ea38c` | 编解码、来源 | 编解码 | — | — |
+| CPython 3.14t | `0.0.49` | `97e27df7268da25ab03e455e30dd86b0` | 编解码、来源 | 编解码 | 编解码、来源 | 编解码 |
+
+各构建登记的来源 hook 不同：0.0.48 只登记发射、替换、BF16 合并和 store 注释 hook，load 合并、DMA 展开、MXU prep 改写等 hook 只在 0.0.49 登记，所以同一 kernel 在 0.0.48 上有来源的指令更少。
+
 ## 0.1.0
 
 测试所用 JAX：`0.12.0.dev20260926+886d2370c1`（commit `886d2370c1c959d210f522e352e3ddc6bcff7d6c`），jaxlib `0.11.2`。
