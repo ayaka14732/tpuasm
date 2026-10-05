@@ -920,15 +920,12 @@ L_01fa:
   va1: vne.8x128.s32 vm7, v0, 0 }  # copy for cssa
 { va0: vsel.8x128 v4, vm3, v8, v31 ;
   va1: @p3 vimm.8x128.s32 v15, 0 ;  # materialized constant
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 4 ; misc.vmsrc1 = 7 } }
+  misc: vmmov.8x128.u1 vm4, vm7 }  # copy for cssa
 { s0: @!p3 sbr.rel L_01fa ;
   va0: vne.8x128.s32 vm0, v4, 0 ;  # copy for cssa
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 7 ; misc.vmsrc1 = 4 } }
+  misc: vmmov.8x128.u1 vm7, vm4 }  # copy for cssa
 { va0: @p3 vsel.8x128 v3, vm0, 0x1, v15 ;
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 6 } }
+  misc: vmmov.8x128.u1 vm6, vm0 }  # copy for cssa
 { vst: vpush v2sf, v3 }
 { s0: spop s10, v2sf }
 { s0: seq.s32 p4, s10, 0 }

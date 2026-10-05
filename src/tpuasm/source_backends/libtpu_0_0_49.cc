@@ -5,7 +5,6 @@ constexpr uintptr_t kScopedAnnotator = 0x1543dcd0;
 constexpr uintptr_t kEmit = 0x15365880;
 constexpr uintptr_t kAnnotation = 0xed807b0;
 constexpr uintptr_t kSetAnnotation = 0xe5b88d0;
-constexpr uintptr_t kSourceMapSize = 0x197f1b20;
 constexpr uintptr_t kSerialize = 0x1d3ac668;
 constexpr uintptr_t kGetHloModule = 0x1aaa49b0;
 constexpr uintptr_t kOperands = 0xed3d1c0;

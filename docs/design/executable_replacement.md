@@ -77,6 +77,8 @@ libtpu 0.0.49 的独立长短编译对照中，前缀占用固定，主程序的
 
 v4 每块 10 个 bundle，前缀占 14 块；v6e 每块 8 个 bundle，前缀占 40 块。`encoded_word_offset` 的单位仍不同：v4 为 512 B，v6e 为 32 B。插入接口先检查原装载块数与映像一致，再增加 `(插入数 + 新填充数) / 每块 bundle 数`，不猜测隐含额外块。
 
+装载指令是 program-start trampoline 中的一对立即数：`s0` 为主程序 overlay 的起始块，`s1` 为块数。起始块等于该 overlay 的 `encoded_word_offset` 换算成的块数，不是它在程序映像中的位置。两者在第一个 overlay 的偏移为 0 时相同；程序带有去重常量时，常量排在 overlay 之前，第一个 overlay 的偏移不为 0。例如 XLA 的 `psum` 程序有一块 512 B 的 `deduplicated constant`，前缀 overlay 的偏移为 1，主程序 overlay 的偏移为 15，在映像中却从第 14 块（bundle 140）开始，装载指令是 `simm.s32 s0, 15`、`simm.s32 s1, 142`。接口按 `encoded_word_offset` 识别这对立即数；插入不改变起始块。
+
 旧交接记录曾把 v6e clamp 记为 664 个 bundle，并据此认为 `s1=44` 比映像多一块。当前仓库清单经解析与重新汇编实际为 **672 个 bundle、43008 B**，主程序是 `1 + 341 + 10 = 352` 个 bundle，即 44 块。重新编译得到相同机器码；编译期间在 `Overlay::PatchOverlay` 的尺寸路径观测到 352 个 bundle、22528 B、44 块，最终编码也使用 22528 B。旧记录中的计数不能用作 v6e 格式规则。
 
 ### 延迟数与容量单位的证据

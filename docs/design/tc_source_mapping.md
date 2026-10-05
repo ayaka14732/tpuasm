@@ -27,7 +27,7 @@ libtpu 本身就会为每条 LLO 指令携带一段注释字符串，经过调�
 | 4 | string，HLO module 名 |
 | 5 | varint，HLO module ID |
 
-字段 2 只保留 ordinals 中含有本指令 ordinal 的 location，但保留完整的字符串表。因此一条记录可以单独解析，不依赖已经销毁的 LLO module。所用的 SourceMap 字段为：SourceMap 的 locations=1、strings=2；SourceInfo 的 frames=1、primitive=2、scope_stack=3、ordinals=4；Frame 的 path=1、line_start=2、line_end=3、col_start=4、col_end=5、function_name=6。
+字段 2 只保留 ordinals 中含有本指令 ordinal 的 location，并把这些 location 的 ordinals 缩减为本指令的 ordinal 一项，但保留完整的字符串表。因此一条记录可以单独解析，不依赖已经销毁的 LLO module。ordinals 必须缩减：一个 location 列出由它 lower 出的全部指令，完全展开的大运算（例如 512 行的 `jnp.dot`）中这张表有上万项，原样保留时每条记录约 31 KB，注释表随指令数平方增长；一个 17782 个 bundle 的 kernel 的 `annotation_metadata` 达 2.1 GB，再大一些就超过 protobuf 的 2 GiB 上限，executable 无法序列化。缩减后同一程序为 37 MB。所用的 SourceMap 字段为：SourceMap 的 locations=1、strings=2；SourceInfo 的 frames=1、primitive=2、scope_stack=3、ordinals=4；Frame 的 path=1、line_start=2、line_end=3、col_start=4、col_end=5、function_name=6。
 
 同一条注释中已有 v1 记录时不再追加。修改记录的字段需要使用新的版本标签，恢复端继续解析 v1。
 
@@ -39,7 +39,7 @@ Pallas 的 `jaxpr_subcomp` 用 `ctx.name_stack + eqn.source_info.name_stack` 生
 
 第二处改动针对完全静态展开的循环（例如 `pl.loop(..., unroll=True)`）。JAX 的 `_lower_jaxpr_to_for_loop` 会把循环体 lower 成一个游离的 `func.func`，再用 `jax_mlir_ext.inlined_func_call` 逐次克隆到调用处。克隆时 JAX 把每个 op 的 location 改写为以循环方程为调用方的 `CallSiteLoc`，op 类型一律换成循环方程的类型，名称则拼接为调用方名称加原名称。libtpu 据此记录的 primitive 全部变成 `scan`，原来的 `max`、`min` 只剩 scope 的最后一段；原名称中已含 tpuasm 父栈，于是 scope 还会重复一次外层前缀。补丁在上下文内把完全展开的循环改回逐次调用 `jaxpr_subcomp`，每条展开出的 op 直接使用自己方程的 location。两条路径生成的是同一组 op；复现脚本中的 `unrolled` 案例在补丁前后编译出的程序映像逐字节相同，数值也一致。
 
-第三处改动针对 Pallas 的逐方程 lowering 缓存（已报告为 [jax-ml/jax#41147](https://github.com/jax-ml/jax/issues/41147)）。`jaxpr_subcomp` 把第一次遇到的方程 lower 成一个游离的 `func.func` 并缓存，之后键相同的方程都用 `inlined_func_call` 克隆它，克隆出的 op 位置被改写为 `callsite(第一个方程 at 当前方程)`。于是相同运算第二次出现时带上了第一次的行号，scope 也会重复。影响不限于来源映射：编译错误和 traceback 同样会指向第一次出现的位置。这个缓存与 jit 无关，`pltpu.roll`、DMA 和取模运算都会命中。补丁在上下文内关闭该缓存，让每个方程用自己的位置调用 lowering 规则。缓存只影响编译时间，关闭前后编译出的机器码相同。
+第三处改动针对 Pallas 的逐方程 lowering 缓存（已报告为 [jax-ml/jax#41153](https://github.com/jax-ml/jax/issues/41153)）。`jaxpr_subcomp` 把第一次遇到的方程 lower 成一个游离的 `func.func` 并缓存，之后键相同的方程都用 `inlined_func_call` 克隆它，克隆出的 op 位置被改写为 `callsite(第一个方程 at 当前方程)`。于是相同运算第二次出现时带上了第一次的行号，scope 也会重复。影响不限于来源映射：编译错误和 traceback 同样会指向第一次出现的位置。这个缓存与 jit 无关，`pltpu.roll`、DMA 和取模运算都会命中。补丁在上下文内关闭该缓存，让每个方程用自己的位置调用 lowering 规则。缓存只影响编译时间，关闭前后编译出的机器码相同。
 
 兼容性以函数源码为准：先读取已安装 JAX 中 `jaxpr_subcomp` 和 `_lower_jaxpr_to_for_loop` 的源码字节，分别计算 SHA-256 并与 `tc_source_lowering.py` 中的 `_SOURCE_SHA256` 比较，不同就拒绝；然后做必须恰好匹配一次的文本替换（前者两处，后者一处）；最后以原文件名和原行号编译，使 traceback 仍指向真实位置。摘要覆盖 `inspect.getsourcelines()` 确定的函数行范围内的原始文件字节，包括空白、注释和换行，不做格式归一化。之所以不检查 JAX 版本号，是因为 nightly 的版本号不能标识函数内容，真正需要保证的是函数源码没有变化。
 
@@ -59,7 +59,7 @@ Pallas 的 `jaxpr_subcomp` 用 `ctx.name_stack + eqn.source_info.name_stack` 生
 
 [tc_source_native.cc](../../src/tpuasm/tc_source_native.cc) 替换了 libtpu 中若干处调用。每个 hook 都围绕原函数工作，只增加、保留或合并来源元数据（SourceMap ordinal、MLIR 位置、注释文本），不改变指令、调度或机器字节。选择 hook 点的原则是：来源必须沿编译器实际执行的替换、合并、展开或发射关系传递，不从操作数或相邻指令推断。
 
-- **发射 hook**：替换 bundle 发射过程中对单条指令发射函数的调用。它沿指令→region→module 找到 SourceMap，在原生代码中序列化并筛选，读出 HLO 名，把记录追加到指令注释中。追加通过原生 setter 完成，setter 会复制字符串，所以字符串的生命周期由 LLO 指令负责，能覆盖延迟发射和 bundle finalization。
+- **发射 hook**：替换 bundle 发射过程中对单条指令发射函数的调用。它沿指令→region→module 找到 SourceMap，直接遍历原生的 `locations`，只序列化 ordinals 含有本指令的 `SourceInfoProto`，再从原生的 `strings` 读出字符串表和 HLO 名，把记录追加到指令注释中。不对每条指令序列化整个 SourceMap：那样每次发射的开销与程序大小成正比。上述 kernel 不捕获来源时编译需要 3 秒；捕获来源时，逐条序列化整个 SourceMap 的做法需要 53 秒，只序列化匹配的 location 需要 9 秒。追加通过原生 setter 完成，setter 会复制字符串，所以字符串的生命周期由 LLO 指令负责，能覆盖延迟发射和 bundle finalization。
 - **替换 hook**（两处指令替换、一处 region 替换）：LLO 优化把一个值替换为新值时，把新值的 ordinal 加入所有含有被替换子图 ordinal 的 SourceInfo。子图的范围是旧值的操作数图中，不经过新旧表达式共同边界就能到达的节点。如果新值本来就在旧值的图中，说明优化是用已有的值消去了一个运算，这时不传播，否则该值的其他用途也会错误地继承这个来源。
 - **合并 hook**：BF16 load/store 合并会把两个候选合成一个新值。hook 先调用原来的注释 setter，再把两个候选的来源传播给新值。第二个候选的指针位于调用方的寄存器中，由 trampoline 前缀代码放进第三个参数。
 - **store 注释 hook**：store 的外层 annotator 已经分配了 store 槽，内层 `StoreCommon` 的 annotator 于是看不到新增的槽；但它析构时仍会清空 emitter 的当前注释，导致外层 annotator 也失去来源。hook 在这个析构调用前后保存并恢复 emitter 的注释视图，让外层 annotator 为实际新增的槽记录来源。四种 store（普通 / indexed × 有 / 无 offset）的调用点分别登记。
@@ -75,7 +75,7 @@ hook 维护五个计数器：emitted、annotated、failures、rewrites、propaga
 
 ### 版本相关的部分
 
-每个 libtpu 版本的来源后端由两部分组成：`source_backends/` 中的版本文件给出 hook 调用的各函数的 VA，包括发射、注释读写、SourceMap 序列化、HLO module 获取、操作数访问、ordinal 追加、两类替换、合并候选的访问、`ScopedAnnotator` 析构和 flag 读写；`tc_source_backend.py` 中的 `SourceBackend` 记录每个调用点的原始字节、hook 名和可选前缀（`calls`），以及安装前核对的字节（`signatures`，分类见下文）。
+每个 libtpu 版本的来源后端由两部分组成：`source_backends/` 中的版本文件给出 hook 调用的各函数的 VA，包括发射、注释读写、protobuf 消息序列化（`MessageLite::SerializeToArray`）、HLO module 获取、操作数访问、ordinal 追加、两类替换、合并候选的访问、`ScopedAnnotator` 析构和 flag 读写；`tc_source_backend.py` 中的 `SourceBackend` 记录每个调用点的原始字节、hook 名和可选前缀（`calls`），以及安装前核对的字节（`signatures`，分类见下文）。
 
 各版本登记的 hook 不必相同：来源后端只登记在该版本上核对过的调用点，没有登记的路径照常编译，只是相应指令缺少来源。发射、替换、BF16 合并和 store 注释 hook 在所有已支持版本中登记；其余 hook 目前只登记了 0.0.49，它们的实现和用到的对象偏移也写在该版本文件中。
 

@@ -933,15 +933,12 @@ L_0203:
 { va0: vsel.8x128 v8, vm6, v18, v29 ;
   va1: vne.8x128.s32 vm7, v0, 0 }  # copy for cssa
 { va0: vsel.8x128 v31, vm3, v8, v26 ;
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 4 ; misc.vmsrc1 = 7 } }
+  misc: vmmov.8x128.u1 vm4, vm7 }  # copy for cssa
 { s0: @!p3 sbr.rel L_0203 ;
   va0: vne.8x128.s32 vm5, v31, 0 ;  # copy for cssa
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 7 ; misc.vmsrc1 = 4 } }
+  misc: vmmov.8x128.u1 vm7, vm4 }  # copy for cssa
 { va0: @p3 vsel.8x128 v15, vm5, 0x1, v27 ;
-  misc: vnop ;  # copy for cssa
-  .encoding { misc.vmdest = 6 ; misc.vmsrc1 = 5 } }
+  misc: vmmov.8x128.u1 vm6, vm5 }  # copy for cssa
 { vst: vpush v2sf, v15 }
 { s0: spop s13, v2sf }
 { s0: seq.s32 p4, s13, 0 }

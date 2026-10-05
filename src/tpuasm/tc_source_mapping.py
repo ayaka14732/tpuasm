@@ -86,7 +86,7 @@ class SourceLocation:
         frames: 原始来源的位置栈。
         primitive: 保存的 Pallas primitive 名称。
         scope_stack: 保存的 scope 栈。
-        ordinals: 与该位置相关的 ordinals。
+        ordinals: 与该位置相关的 ordinals；捕获的记录中只含所属指令的 ordinal。
     """
     frames: tuple[SourceFrame, ...]
     primitive: str

@@ -22,8 +22,12 @@
 
 ### 修复
 
+- TPU v4 TC 的 mask 寄存器移动（`MoveVmsk`）此前一律反汇编为 `misc: vnop`，目的与源寄存器只出现在精确清单的 `.encoding` 约束中；canonical 清单丢掉这两个字段，重新汇编后移动变成空操作，程序行为改变（真机上表现为挂起）。现在只有 `vm0 ← vm0` 写作 `vnop`，其余写作 `misc: vmmov.8x128.u1 vmD, vmS`，与 v6e TC 一致。
+- 来源记录中每个 location 的 ordinals 只保留本指令一项。此前保留该 location 的全部 ordinals，完全展开的大运算使每条记录达数十 KB，注释表随指令数平方增长：约 1.8 万个 bundle 的 kernel 的元数据超过 2 GiB，`serialize()` 报 `Failed to serialize TpuExecutableProto, is it too large?`，读不到清单也无法改写。同一程序的元数据现在约 40 MB。`SourceLocation.ordinals` 因此只含所属指令的 ordinal。
+- 发射 hook 只序列化与本指令有关的 location，不再对每条指令序列化整个 SourceMap；上述 kernel 在捕获来源时的编译时间由 53 秒降到 9 秒（不捕获时 3 秒）。
+- `insert_executable_bundles` 按主程序 overlay 的 `encoded_word_offset` 识别装载指令。此前按映像位置识别，程序带有去重常量（第一个 overlay 的偏移不为 0，例如 XLA 的 `psum`、`scatter`）时报错 `cannot identify the overlay loader immediates`。
 - overlay 的 `encoded_word_offset` 改为相对第一个 overlay 换算程序映像位置。此前第一个 overlay 的偏移不为 0 时（例如 XLA 为 `scatter` 生成的程序，偏移为 33），来源映射报错 `overlay lies outside the program image`。
-- 捕获来源期间关闭 Pallas 的逐方程 lowering 缓存（[jax-ml/jax#41147](https://github.com/jax-ml/jax/issues/41147)）。此前相同运算第二次出现时会带上第一次出现的行号，例如同一 kernel 中多次 `pltpu.roll`。关闭前后机器码相同。
+- 捕获来源期间关闭 Pallas 的逐方程 lowering 缓存（[jax-ml/jax#41153](https://github.com/jax-ml/jax/issues/41153)）。此前相同运算第二次出现时会带上第一次出现的行号，例如同一 kernel 中多次 `pltpu.roll`。关闭前后机器码相同。
 
 ## 0.1.0 - 2026-09-29
 

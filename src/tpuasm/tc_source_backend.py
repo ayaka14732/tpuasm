@@ -36,6 +36,9 @@ LIBTPU_0_0_48 = SourceBackend(
         0xe853520: bytes.fromhex('554889e54157415641554154534883ec1848bbf6ffffffff'),
         0x199facd0: bytes.fromhex('554889e5415741564155415453500f188fc00100000f188f'),
         0x1d58d238: bytes.fromhex('e903000000cccccc554889e541574156534883ec484189d7'),
+        # SerializePartialToArray calls ByteSizeLong through vtable slot 0x18; SourceMapProto::ByteSizeLong reads strings at +0x28/+0x30.
+        0x1d58d256: bytes.fromhex('488b07ff5018'),
+        0x199fad92: bytes.fromhex('8b4730488d34034885c07429488b4f28f6c101'),
         0x1aca10a0: bytes.fromhex('488b47404885c07405488b4018c331c0c3cccccccccccccc'),
         0xefd50b0: bytes.fromhex('48634ff00fb7571c83e2034889c84829d039f07e0c4863c6'),
         0xdb205b0: bytes.fromhex('554889e54157415653508b078b5f0441b8020000004889f9'),
@@ -105,6 +108,9 @@ LIBTPU_0_0_49 = SourceBackend(
         0xe5b88d0: bytes.fromhex('554889e54157415641554154534883ec1848bbf6ffffffff'),
         0x197f1b20: bytes.fromhex('554889e5415741564155415453500f188fc00100000f188f'),
         0x1d3ac668: bytes.fromhex('e903000000cccccc554889e541574156534883ec484189d7'),
+        # SerializePartialToArray calls ByteSizeLong through vtable slot 0x18; SourceMapProto::ByteSizeLong reads strings at +0x28/+0x30.
+        0x1d3ac686: bytes.fromhex('488b07ff5018'),
+        0x197f1be2: bytes.fromhex('8b4730488d34034885c07429488b4f28f6c101'),
         0x1aaa49b0: bytes.fromhex('488b47404885c07405488b4018c331c0c3cccccccccccccc'),
         0xed3d1c0: bytes.fromhex('48634ff00fb7571c83e2034889c84829d039f07e0c4863c6'),
         0xd8859a0: bytes.fromhex('554889e54157415653508b078b5f0441b8020000004889f9'),

@@ -129,7 +129,7 @@ encoding_value = integer | register | resource
 | 无数据目的的指令 | `s0: sfence`；`s0: shalt`；`misc: vtrace 0xd0010000` | 只写助记符与实际操作数。 |
 | 隐式特殊目的 | `s0: ssettag 0`；`misc: vsettm 1`；`s0: sbr.rel loop` | `tag/tm/pc` 由这些助记符确定。其他特殊目的仍显式列出。 |
 
-原 formatter 的 `vnop` 保留为 `misc: vnop`，不能直接删成空槽或 `{}`；这条可见指令不等同于 descriptor 中被 decoder 去掉的 Noop。ISA 助记符与后缀不随设计改名，软件层面的 `dma.hbm_to_vmem` 等伪指令不混入本格式。
+原 formatter 的 `vnop` 保留为 `misc: vnop`，不能直接删成空槽或 `{}`；这条可见指令不等同于 descriptor 中被 decoder 去掉的 Noop。formatter 把 mask 寄存器的移动（`MoveVmsk`）一律打印成 `vnop`，但只有 `vm0 ← vm0` 才是空操作；其余的写作 `misc: vmmov.8x128.u1 vm4, vm7`（`vm4 ← vm7`），与 v6e TC 的写法相同。ISA 助记符与后缀不随设计改名，软件层面的 `dma.hbm_to_vmem` 等伪指令不混入本格式。
 
 ### 数值与地址
 

@@ -63,6 +63,28 @@ void field(std::string& s, int n, uint64_t v) { varint(s, uint64_t(n) << 3); var
 void field(std::string& s, int n, std::string_view v) {
     varint(s, (uint64_t(n) << 3) | 2); varint(s, v.size()); s.append(v);
 }
+// Element i of a native RepeatedPtrField: a single element is stored in place of the tagged array pointer.
+void* repeated_element(const void* message, ptrdiff_t offset, int i) {
+    uintptr_t tagged = read<uintptr_t>(message, offset);
+    return tagged & 1 ? read<void*>(reinterpret_cast<void*>(tagged - 1), 8 + 8 * i) : reinterpret_cast<void*>(tagged);
+}
+bool has_ordinal(void* loc, int ordinal) {
+    // SourceInfo.ordinals is a native RepeatedField<int>, inline or heap.
+    void* field = static_cast<char*>(loc) + 0x38;
+    void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;
+    for (int j = 0; j < read<int>(field, 4); ++j) {
+        if (read<int>(data, 8 + 4 * j) == ordinal) return true;
+    }
+    return false;
+}
+std::string serialized(void* message) {
+    // MessageLite::SerializeToArray sizes the message through the same vtable slot.
+    auto size = reinterpret_cast<std::size_t(*)(void*)>(read<void*>(read<void*>(message, 0), 0x18))(message);
+    std::string raw(size, '\0');
+    if (!reinterpret_cast<bool(*)(void*, void*, int)>(base + kSerialize)(message, raw.data(), raw.size()))
+        throw std::runtime_error("source location serialization failed");
+    return raw;
+}
 std::string source_record(void* inst) {
     void* region = read<void*>(inst, 0);
     if (!region) return {};
@@ -70,26 +92,27 @@ std::string source_record(void* inst) {
     if (!module) return {};
     void* map = read<void*>(module, 0x340);
     if (!map) return {};
-    auto size = reinterpret_cast<std::size_t(*)(void*)>(base + kSourceMapSize)(map);
-    std::string raw(size, '\0');
-    if (!reinterpret_cast<bool(*)(void*, void*, int)>(base + kSerialize)(map, raw.data(), raw.size()))
-        throw std::runtime_error("source map serialization failed");
     int ordinal = read<int>(inst, -0xc);
     std::string subset;
-    for (const auto& f : fields(raw)) {
-        if (f.number == 2) field(subset, 2, f.bytes);
-        if (f.number != 1) continue;
-        bool match = false;
-        for (const auto& info : fields(f.bytes)) {
-            if (info.number != 4) continue;
-            if (info.wire == 0) match |= int(info.integer) == ordinal;
-            else {
-                std::size_t p = 0;
-                while (p < info.bytes.size()) match |= int(varint(info.bytes, p)) == ordinal;
-            }
+    // Only the matching locations are serialized: serializing the whole map for every instruction
+    // takes time quadratic in the program size.
+    for (int i = 0; i < read<int>(map, 0x20); ++i) {
+        void* loc = repeated_element(map, 0x18, i);
+        if (!has_ordinal(loc, ordinal)) continue;
+        auto raw = serialized(loc);
+        std::string location;
+        for (const auto& info : fields(raw)) {
+            if (info.number == 4) continue;
+            if (info.wire == 0) field(location, info.number, info.integer);
+            else field(location, info.number, info.bytes);
         }
-        if (match) field(subset, 1, f.bytes);
+        // A location lists every instruction lowered from it. Keeping the whole list makes each record
+        // grow with the program and the metadata grow quadratically, past the 2 GiB protobuf limit.
+        field(location, 4, uint64_t(ordinal));
+        field(subset, 1, location);
     }
+    // SourceMapProto.strings is a native RepeatedPtrField<std::string>.
+    for (int i = 0; i < read<int>(map, 0x30); ++i) field(subset, 2, native_string(repeated_element(map, 0x28, i)));
     std::string result;
     field(result, 1, uint64_t(ordinal));
     field(result, 2, subset);
@@ -114,9 +137,8 @@ std::vector<void*> source_locations(void* source_map, const std::unordered_set<i
     if (!source_map || ordinals.empty()) return locations;
     // LloSourceMap.locations is a native RepeatedPtrField<SourceInfo>.
     int count = read<int>(source_map, 0x20);
-    uintptr_t tagged = read<uintptr_t>(source_map, 0x18);
     for (int i = 0; i < count; ++i) {
-        void* loc = tagged & 1 ? read<void*>(reinterpret_cast<void*>(tagged - 1), 8 + 8 * i) : read<void*>(source_map, 0x18);
+        void* loc = repeated_element(source_map, 0x18, i);
         // SourceInfo.ordinals is a native RepeatedField<int>, inline or heap.
         void* field = static_cast<char*>(loc) + 0x38;
         void* data = read<uint8_t>(field, 0) & 1 ? read<void*>(field, 8) : field;

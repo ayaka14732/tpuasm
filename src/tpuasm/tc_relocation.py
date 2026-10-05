@@ -11,7 +11,7 @@ from .assembly_syntax import branch_target, integer, parse_assembly
 from .printer import _verify_image
 from .targets import HardwareTarget, TPU_V4_TC
 from .tc_solver import BundleSolver
-from .tc_source_mapping import Overlay, _Program, _one, _source_map, _values
+from .tc_source_mapping import _ENCODED_WORD_BYTES, Overlay, _Program, _one, _source_map, _values
 
 @dataclass(frozen=True)
 class BundleInsertion:
@@ -201,10 +201,12 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
     if len(trampolines) != 1:
         raise ValueError('insertion requires the program-start trampoline annotation')
     loaders = []
+    # The loader addresses the overlay by its encoded_word_offset in blocks, which exceeds the image position when the first overlay does not start at offset 0.
+    start_block = overlay.encoded_word_offset * _ENCODED_WORD_BYTES[hardware.identifier] // hardware.image_block_size
     for pc in range(trampolines[0], overlay.image_start):
         loader_instructions = original.bundles[pc].instructions
         registers = {i.operands[0]: i for i in loader_instructions if i.mnemonic == 'simm.s32' and i.predicate == 15}
-        if set(registers) == {'s0', 's1'} and integer(registers['s0'].operands[1]) == overlay.image_start // hardware.bundles_per_block:
+        if set(registers) == {'s0', 's1'} and integer(registers['s0'].operands[1]) == start_block:
             loaders.append((pc, integer(registers['s1'].operands[1])))
     if len(loaders) != 1:
         raise ValueError('cannot identify the overlay loader immediates')

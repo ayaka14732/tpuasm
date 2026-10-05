@@ -211,7 +211,8 @@ def _misc(form: Form) -> list[Signature]:
     if name == 'Trace':
         return [Signature(form, mnemonic, (('trace',),))]
     if name == 'MoveVmsk':
-        return [Signature(form, 'vnop', ())]
+        # The formatter prints every mask move as vnop; only vm0 <- vm0 is one, the rest change a mask register.
+        return [Signature(form, 'vnop', (), (('vmdest', 0), ('vmsrc1', 0))), Signature(form, 'vmmov.8x128.u1', (register('vmdest', 'vm'), register('vmsrc1', 'vm')))]
     if name == 'DelayFixed':
         return [Signature(form, 'vdelay', (direct('delay_count', 4, bias=1),))]
     if name == 'CmemFence':

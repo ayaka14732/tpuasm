@@ -82,7 +82,7 @@ def lowering_sources() -> Iterator[None]:
             # function and inlines it for later equations with the same key, so their
             # ops carry callsite(first equation at later equation). Lower each
             # equation with its own rule and location instead.
-            # https://github.com/jax-ml/jax/issues/41147
+            # https://github.com/jax-ml/jax/issues/41153
             (
                 'can_cache = (eqn.primitive not in _uncacheable_primitives and',
                 'can_cache = (False and eqn.primitive not in _uncacheable_primitives and',
