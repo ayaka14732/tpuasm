@@ -151,9 +151,11 @@ def _write_programs(serialized: bytes, programs: Mapping[tuple[int, int], _Progr
     return b''.join(encode_varint(len(record)) + record for record in records)
 
 def insert_executable_bundles(serialized: bytes, insertions: Mapping[tuple[int, int], Sequence[BundleInsertion]], *, target: str | None = None) -> bytes:
-    """在 TensorCore executable 中插入独立 bundle，返回已迁移的 executable。
+    """在 TensorCore executable 中插入独立 bundle（并可同时删除原 bundle），返回已迁移的 executable。
 
     插入位置是输入映像的 bundle 编号。自动处理直接分支、装载块数、块对齐、代码 segment、protobuf 长度、overlay、符号范围、注释和程序身份。新增 bundle 不继承原源码归属。原 bundle 除需要迁移的分支与装载指令外保持原编码。
+
+    :class:`BundleInsertion` 的 ``delete`` 大于零时，从插入位置起的那些原 bundle 被删除，片段取代它们；片段为空就是纯删除。被删除的 bundle 不能含分支、call 或 shalt，也不能是除插入位置之外的分支目标。
 
     当前支持一个前缀 overlay 和一个主程序 overlay，在主程序内部插入；拒绝多个代码映像与尾部 continuation 内部插入，也拒绝在原 sbr/scall（包括间接形式）的延迟窗口内插入：v4 为分支后的 1 个 bundle，v6e 为 4 个。片段中每条 sbr/scall 的延迟窗口必须完整落在片段内。调用者负责寄存器与内存资源、片段自身的流水线及延迟槽内容，以及通过寄存器或内存保存的间接跳转地址；本函数不分配资源或重新调度。
 

@@ -1,4 +1,4 @@
-"""TC 单程序 overlay 内插入 bundle，迁移机器分支与编译器元数据。"""
+"""TC 单程序 overlay 内插入、删除 bundle，迁移机器分支与编译器元数据。"""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -15,13 +15,16 @@ from .tc_source_mapping import _ENCODED_WORD_BYTES, Overlay, _Program, _one, _so
 
 @dataclass(frozen=True)
 class BundleInsertion:
-    """在原映像的 image_pc 之前插入汇编片段。
+    """在原映像的 image_pc 之前插入汇编片段，并可以同时删除从 image_pc 起的若干个原 bundle。
 
     source 含 .target 声明和一个或多个 bundle，无需块对齐。片段中的直接分支只能引用片段内标签或片段局部编号（允许指向末尾以继续执行原程序）。branch_target='inserted' 使原程序中指向 image_pc 的直接分支先执行片段；'original' 则跳过片段。fallthrough 总会执行片段。多个插入点的编号均相对于输入映像。
+
+    delete 是从 image_pc 起删除的原 bundle 个数，默认不删；delete 大于零时 source 可以只有 .target 声明（纯删除）。删除的 bundle 中不能有分支、call、shalt，不能落在原分支的延迟窗口里，也不能是除 image_pc 之外的分支目标；指向 image_pc 的分支按 branch_target 落到片段开头或删除区间之后的第一个 bundle。
     """
     image_pc: int
     source: str
     branch_target: Literal['inserted', 'original'] = 'inserted'
+    delete: int = 0
 
 def _set(data: bytes, number: int, value: int | bytes) -> bytes:
     return replace_fields(data, {number: [value]})
@@ -32,13 +35,18 @@ def _main_limit(metadata: bytes) -> int:
         raise ValueError('bundle insertion requires TensorCore symbol ranges')
     return max(_one(r, 2) for r in ranges)
 
-def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, int], padding: int, old_size: int, new_size: int, trap_halts: set[int]) -> bytes:
+def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, int], deletes: Mapping[int, int], padding: int, old_size: int, new_size: int, trap_halts: set[int]) -> bytes:
     offset = overlay.body_start - overlay.emitted_start
     edits = {pc - offset: count for pc, count in counts.items()}
+    removed = {pc - offset: count for pc, count in deletes.items()}
     main_limit = _main_limit(metadata)
 
+    def gone(pc: int) -> bool:
+        return any(at <= pc < at + count for at, count in removed.items())
+
     def shifted(pc: int) -> int:
-        return pc + sum(count for at, count in edits.items() if at <= pc)
+        # 调用者保证 pc 本身没有被删除。
+        return pc + sum(count for at, count in edits.items() if at <= pc) - sum(min(max(pc - at, 0), count) for at, count in removed.items())
 
     def trap_location(location: bytes) -> bytes:
         # v4 TagAndPc identifies the bundle following shalt, relative to the overlay image start.
@@ -47,7 +55,7 @@ def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, i
         halt = overlay.image_start + pc - 1
         if _one(location, 1) != overlay.index or _one(location, 3) != 1 or halt not in trap_halts:
             raise ValueError('unsupported trap tag, sequencer or halt PC coordinate')
-        return _set(location, 2, pc + sum(count for at, count in counts.items() if at <= halt))
+        return _set(location, 2, pc + sum(count for at, count in counts.items() if at <= halt) - sum(min(max(halt - at, 0), count) for at, count in deletes.items()))
 
     def traps(table: bytes) -> bytes:
         if _values(table, 3):
@@ -66,8 +74,20 @@ def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, i
         start, limit = _one(data, 1), _one(data, 2)
         if not 0 <= start < limit <= main_limit:
             raise ValueError('unsupported TensorCore symbol range')
-        cuts = [start] + sorted(at for at in edits if start < at < limit) + [limit]
-        return [replace_fields(data, {1: [shifted(a)], 2: [shifted(b - 1) + 1]}) for a, b in zip(cuts, cuts[1:])]
+        # 区间在每个编辑点断开：插入的 bundle 不属于任何符号，删除的 bundle 从区间里去掉。
+        pieces = []
+        current = start
+        for at in sorted(edits):
+            if at >= limit:
+                break
+            if current < at:
+                pieces.append((current, at))
+            end = at + removed.get(at, 0)
+            if end > start:
+                current = max(current, end)
+        if current < limit:
+            pieces.append((current, limit))
+        return [replace_fields(data, {1: [shifted(a)], 2: [shifted(b - 1) + 1]}) for a, b in pieces]
 
     def symbol_table(table: bytes) -> bytes:
         symbols = []
@@ -82,6 +102,8 @@ def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, i
         for entry in _values(table, 1):
             key, annotation = _one(entry, 1), _one(entry, 2, b'')
             pc = _one(annotation, 1)
+            if gone(key):
+                continue
             if key < main_limit and pc == key:
                 annotation = _set(annotation, 1, shifted(pc))
             elif not (main_limit <= key < overlay.emitted_limit and pc == key - main_limit):
@@ -89,14 +111,14 @@ def _relocate_metadata(metadata: bytes, overlay: Overlay, counts: Mapping[int, i
             entries.append(replace_fields(entry, {1: [shifted(key)], 2: [annotation]}))
         # New instructions have no original source or symbol owner.
         for at, count in sorted(edits.items()):
-            first = shifted(at) - count
+            first = at + sum(other for position, other in edits.items() if position < at) - sum(min(max(at - position, 0), other) for position, other in removed.items())
             for pc in range(first, first + count):
                 entries.append(message([(1, pc), (2, message([(1, pc), (3, b'tpuasm: inserted bundle')]))]))
         return replace_fields(table, {1: entries})
 
     tables = _values(metadata, 10)
     raw_overlays = _values(tables[0], 1)
-    raw_overlays[overlay.index] = replace_fields(raw_overlays[overlay.index], {3: [overlay.emitted_limit + sum(counts.values())], 4: [overlay.suffix_size + padding]})
+    raw_overlays[overlay.index] = replace_fields(raw_overlays[overlay.index], {3: [overlay.emitted_limit + sum(counts.values()) - sum(deletes.values())], 4: [overlay.suffix_size + padding]})
     tables[0] = replace_fields(tables[0], {1: raw_overlays})
     memory_tables = _values(metadata, 12)
     matched = 0
@@ -160,6 +182,7 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
     }
     fragments = {}
     policies = {}
+    deletes: dict[int, int] = {}
     for insertion in insertions:
         pc = insertion.image_pc
         if pc in fragments:
@@ -172,16 +195,24 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
             branch_pc, mnemonic = delayed[pc]
             raise ValueError(f'insertion {pc} is in the {delay}-bundle delay window of {mnemonic} at {branch_pc}; insert before that branch or after bundle {branch_pc + delay}')
         fragment = parse_assembly(insertion.source, filename=f'<insertion:{pc}>', fragment=True)
-        if fragment.hardware != hardware or not fragment.bundles:
-            raise ValueError('insertion needs nonempty assembly for the executable target')
+        if insertion.delete < 0 or fragment.hardware != hardware or not (fragment.bundles or insertion.delete):
+            raise ValueError('insertion needs nonempty assembly for the executable target, or a positive delete count')
+        for gone in range(pc, pc + insertion.delete):
+            if not gone < overlay.body_start + main_limit:
+                raise ValueError(f'deletion at {pc} runs past the main program')
+            if gone in delayed or any(i.mnemonic.startswith(('sbr.', 'scall.')) or i.mnemonic == 'shalt' for i in original.bundles[gone].instructions):
+                raise ValueError(f'cannot delete bundle {gone}: it holds a branch, call or shalt, or lies in a branch delay window')
         # A delay window reaching past the fragment would turn the following original bundles into delay slots.
         for local, extra in enumerate(fragment.bundles):
             for instruction in extra.instructions:
                 if instruction.mnemonic.startswith(('sbr.', 'scall.')) and local + delay >= len(fragment.bundles):
                     raise ValueError(f'insertion {pc}: {instruction.mnemonic} at fragment bundle {local} needs its {delay}-bundle delay window inside the fragment; append empty bundles')
-        fragments[pc], policies[pc] = fragment, insertion.branch_target
+        fragments[pc], policies[pc], deletes[pc] = fragment, insertion.branch_target, insertion.delete
+    deleted = {gone for pc, count in deletes.items() for gone in range(pc, pc + count)}
+    if sum(deletes.values()) != len(deleted) or any(pc in deleted and deletes[pc] == 0 for pc in fragments) or any(pc != at and at < pc < at + count for pc in fragments for at, count in deletes.items()):
+        raise ValueError('deleted ranges must not overlap each other or contain another insertion position')
     counts = {pc: len(f.bundles) for pc, f in fragments.items()}
-    added = sum(counts.values())
+    added = sum(counts.values()) - len(deleted)
     padding = -added % hardware.bundles_per_block
     new_count = source.bundle_count + added + padding
     # XDB GetEmittedBundleNumber takes PC modulo overlay_slot_size, then subtracts prefix_size;
@@ -191,7 +222,10 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
         raise ValueError('inserted program exceeds the overlay slot capacity in bundles')
 
     def shifted(pc: int, *, target: bool = False) -> int:
-        return pc + sum(count for at, count in counts.items() if at < pc or (at == pc and (not target or policies[at] == 'original')))
+        # 被删除的 bundle 只有作为分支目标、且是删除区间的第一个时才有新位置：片段开头，或片段之后（即区间后的第一个原 bundle）。
+        if pc in deleted and not (target and deletes.get(pc)):
+            raise ValueError(f'a direct branch targets deleted bundle {pc}')
+        return pc + sum(count for at, count in counts.items() if at < pc or (at == pc and (not target or policies[at] == 'original'))) - sum(1 for gone in deleted if gone < pc)
 
     # Keep the original suffix, including a final continuation branch and its delay slot.
     # Alignment padding is fresh halt bundles, never copies of a possibly live final instruction.
@@ -236,6 +270,8 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
                         instruction = replace(instruction, operands=instruction.operands[:index] + (str(value),) + instruction.operands[index + 1:])
                     instructions.append(instruction)
                 output.append(BundleSolver(ISA, replace(extra, instructions=tuple(instructions)), relocated, first + local).solve())
+        if pc in deleted:
+            continue
         instructions = []
         for instruction in bundle.instructions:
             branch = branch_target(instruction.mnemonic, instruction.operands, pc)
@@ -259,5 +295,5 @@ def insert_program(program: _Program, insertions: list[BundleInsertion], hardwar
     image = encode_program(output)
     _verify_image(image, target=hardware.identifier)
     trap_halts = {pc for pc, block in enumerate(original.bundles) if any(i.mnemonic == 'shalt' for i in block.instructions)} if hardware == TPU_V4_TC else set()
-    metadata = _relocate_metadata(program.metadata, overlay, counts, padding, len(program.image), len(image), trap_halts)
+    metadata = _relocate_metadata(program.metadata, overlay, counts, deletes, padding, len(program.image), len(image), trap_halts)
     return image, metadata

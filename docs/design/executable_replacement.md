@@ -39,6 +39,8 @@ result = load_executable(patched, compiled)(x)
 
 `BundleInsertion.branch_target` 默认是 `'inserted'`：原来的直接分支若指向该插入点，先执行新增片段。设为 `'original'` 时，这些分支跳过片段。顺序流入总会执行片段。不同插入点可以选择不同策略；同一位置的多个 bundle 写在同一个片段中。片段内的直接分支可以使用局部标签或局部编号，也可以跳到片段末尾，随后继续执行原 bundle。
 
+`BundleInsertion.delete` 是从插入点起删除的原 bundle 个数，默认为 0。它大于零时片段取代这些 bundle；片段可以更长、更短，也可以只有 `.target` 声明，即纯删除。把一段直线型的代码整体重排并缩短，用一个 `BundleInsertion(start_pc, source, delete=count)` 即可。被删除的 bundle 不能含 `sbr`、`scall` 或 `shalt`，不能落在原分支的延迟窗口内，也不能是分支目标，只有区间的第一个 bundle 例外：指向它的分支按 `branch_target` 落到片段开头，或删除区间之后的第一个原 bundle。删除区间之间不能重叠，区间内部不能有别的插入点。元数据随之迁移：被删 bundle 的注释去掉，符号区间在删除处断开，overlay 的 `end_bundle_number`、装载块数和代码大小都可以减小。
+
 插入点不能落在原分支的延迟窗口内。对原映像中的每条 `sbr` 或 `scall`（`.rel`、`.abs`、`.ind`），若其位置为 `b`，接口拒绝 `b < image_pc <= b + delay`：v4 的 `delay=1`，v6e 的 `delay=4`。分支自身之前，以及最后一个延迟 bundle 之后，都可以插入。该检查与分支目标策略无关，也不因分支带谓词或使用间接地址而省略。它保留原来的延迟指令序列。片段自己带分支时，每条 `sbr` 或 `scall` 的完整延迟窗口必须落在片段内，否则接口拒绝，需要在片段末尾补足空 bundle；不这样限制的话，紧随片段的原 bundle 会成为该分支的延迟槽，分支跳回片段内部时会被重复执行。窗口内放什么指令仍由调用者负责。
 
 命令行的等价入口是：

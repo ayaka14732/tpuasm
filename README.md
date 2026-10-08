@@ -118,6 +118,23 @@ patched = replace_executable_programs(serialized, {(record, index): edited})
 
 等长替换不改变 bundle 编号，替换结果可以继续交给 `insert_executable_bundles`，仍按原编号插入。两者都会为修改后的程序生成新的程序身份，否则 runtime 可能继续执行已装载的原程序。
 
+### 在真机上做实验
+
+`tpuasm.tools` 把上面的接口包成做实验时常用的几步，目前只支持 TPU v4 TensorCore。它依赖 JAX，不随 `import tpuasm` 导入；导入时装入源码映射的钩子，所以要在 TPU backend 初始化之前导入。
+
+```python
+from tpuasm import tools as asm
+
+compiled = asm.compile(function, x)                # 编译并保留源码映射
+serialized = asm.serialize(compiled)
+print(asm.kernel_listing(compiled))                # 只看 Pallas kernel 与 XLA fusion 的清单
+pc, = asm.find_bundles(serialized, 'vmax.xlane')   # 按指令文本找 bundle
+patched = asm.insert_bundles(serialized, {pc: asm.bundle('misc: vnop')})
+result = asm.load(patched, compiled)(x)            # 装载改写后的 executable 并运行
+```
+
+计时有两种工具，都读设备上的周期计数器 LCC。`LccProbe` 把一段手写的清单插进载体 kernel，返回片段两端读数之差，适合测一条指令的延迟，也可以把片段写进 TC VMEM 的结果取回主机，用来核对指令的语义。`KernelClock` 在任意已编译程序的指定 bundle 之前插入读数，读数留在 SMEM 中，程序运行之后再取回，被测的程序不需要增加输出。
+
 ## 文档
 
 [文档站点](https://ayaka14732.github.io/tpuasm/)包括以下内容。格式参考说明清单怎么写，设计文档说明实现方式、依据和验证。

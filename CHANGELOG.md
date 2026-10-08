@@ -2,6 +2,13 @@
 
 本文件记录 tpuasm 各版本面向用户的变化。各版本支持的 Python、libtpu 与 JAX 见[版本兼容性](docs/compatibility.md)。
 
+## 0.2.1 - 2026-10-08
+
+### 新增
+
+- `BundleInsertion` 新增 `delete`：`insert_executable_bundles` 在插入片段的同时删除从插入点起的若干个原 bundle，片段可以为空。此前只能插入，把一段代码换成更短的写法时，多出来的 bundle 只能留作空 bundle 或用分支跳过。
+- 新增模块 `tpuasm.tools`（TPU v4 TensorCore，依赖 JAX，需显式导入）：编译并保留源码映射、按 bundle 查找与改写清单、把改写后的 executable 装载运行，以及两种用设备上的 LCC 计时的工具。`LccProbe` 把手写片段插进载体 kernel，用来测指令的延迟和核对指令的语义；`KernelClock` 在任意已编译程序的指定 bundle 之前插入读数，读数留在 SMEM 中，程序运行之后再取回，被测程序不需要增加输出。
+
 ## 0.2.0 - 2026-10-05
 
 ### 新增

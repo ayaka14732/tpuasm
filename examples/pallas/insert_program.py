@@ -73,6 +73,10 @@ def main() -> None:
             loop_pc = pc
     padding = BundleInsertion(loop_pc, f'.target {common.TARGET}\n.empty 16')
     patched = insert_executable_bundles(carrier, {(record, index): [*reads, padding]})
+    # 删除是插入的逆操作：在 patched 中把那 16 个空 bundle 删掉，程序映像应与只插入读数的 measured 逐字节相同。
+    shifted = loop_pc + sum(read.image_pc <= loop_pc for read in reads)
+    restored = insert_executable_bundles(patched, {(record, index): [BundleInsertion(shifted, f'.target {common.TARGET}\n', delete=16)]})
+    assert [image for _, _, image in executable_programs(restored)] == [image for _, _, image in executable_programs(measured)]
 
     def check() -> None:
         functions = [load_executable(raw, compiled) for raw in (measured, patched)]

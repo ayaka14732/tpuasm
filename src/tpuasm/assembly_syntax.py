@@ -194,7 +194,7 @@ def parse_assembly(text: str, *, filename: str = '<assembly>', fragment: bool = 
     Args:
         text: .tpuasm 源码，首行必须声明 ``.target``，例如 :func:`format_assembly` 的输出。
         filename: 错误诊断中的文件名，默认 ``'<assembly>'``；不会打开对应路径。
-        fragment: 默认 False，要求 bundle 总数为目标块容量的正整数倍；True 用于解析插入片段，不要求凑齐整块。
+        fragment: 默认 False，要求 bundle 总数为目标块容量的正整数倍；True 用于解析插入片段，不要求凑齐整块，也可以一个 bundle 都没有。
 
     Returns:
         :class:`AssemblyProgram`，``bundles[pc]`` 是编号为 ``pc`` 的 bundle。
@@ -301,6 +301,7 @@ def parse_assembly(text: str, *, filename: str = '<assembly>', fragment: bool = 
             labels[name] = pc
     if instructions is not None or pending_encoding or encoding:
         raise bundle_location.error('unclosed bundle', len(bundles))
-    if not bundles or (not fragment and len(bundles) % hardware.bundles_per_block):
+    # 片段可以没有 bundle：只删除原 bundle 的 BundleInsertion 只有 .target 声明。
+    if not fragment and (not bundles or len(bundles) % hardware.bundles_per_block):
         raise statements[-1][1].error(f'bundle count must be a positive multiple of {hardware.bundles_per_block}', len(bundles))
     return AssemblyProgram(tuple(bundles), labels, hardware)
