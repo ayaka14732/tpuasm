@@ -11,7 +11,7 @@ TPU v4 TC 的程序映像按块编排：每个 512 字节块内含 10 个 51 字
 3. 当前运行环境的 Python 实现、版本、`abiflags`、操作系统和 CPU 架构与后端的登记一致；
 4. `libtpu.so` 的 ELF note 中的 GNU build-id 与后端的登记一致。
 
-libtpu 为不同的 Python ABI 分别发布 wheel，其中的函数地址各不相同，所以运行环境是后端身份的一部分。版本号字符串只用来缩小候选范围，最终以 build-id 判定是否为同一个二进制。每个 `NativeBackend` 由 release、运行环境、build-id、版本源文件和硬件目标组成。每个 release 为 v4 TC 和 BCS 各登记一个后端，libtpu 0.0.49 另外登记 v6e TC 和 v6e TEC 后端；release 没有某个目标的后端时，选择后端直接报错。
+libtpu 为不同的 Python ABI 分别发布 wheel，其中的函数地址各不相同，所以运行环境是后端身份的一部分。版本号字符串只用来缩小候选范围，最终以 build-id 判定是否为同一个二进制。每个 `NativeBackend` 由 release、运行环境、build-id、版本源文件和硬件目标组成。每个 release 为 v4 TC 和 BCS 各登记一个后端，libtpu 0.0.49 和 0.0.50 另外登记 v6e TC 和 v6e TEC 后端；release 没有某个目标的后端时，选择后端直接报错。
 
 ## 编译与加载
 

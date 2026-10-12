@@ -65,14 +65,15 @@ class Library:
 
     def call_target(self, site: int) -> int | None:
         raw = self.read(site, 5)
-        return site + 5 + struct.unpack('<i', raw[1:])[0] if raw[0] == 0xe8 else None
+        # call rel32 或尾调用的 jmp rel32；间接调用没有静态目标。
+        return site + 5 + struct.unpack('<i', raw[1:])[0] if raw[0] in (0xe8, 0xe9) else None
 
     def calls_in(self, function: Symbol, target: int) -> list[int]:
         body = self.read(function.address, function.size)
         return [
             function.address + index
             for index in range(len(body) - 4)
-            if body[index] == 0xe8 and function.address + index + 5 + struct.unpack_from('<i', body, index + 1)[0] == target
+            if body[index] in (0xe8, 0xe9) and function.address + index + 5 + struct.unpack_from('<i', body, index + 1)[0] == target
         ]
 
 def demangle(names: set[str]) -> dict[str, str]:
@@ -122,8 +123,12 @@ def main() -> None:
         for name, address in constants(PACKAGE / source.native_source).items():
             locate('source', name, address, 16)
         for site, (raw, hook, _) in source.calls.items():
+            assert old.read(site, len(raw)) == raw
             callee = old.call_target(site)
-            assert callee is not None and old.read(site, 5) == raw
+            if callee is None:
+                # 间接调用：只能按函数内偏移给出候选并比较字节。
+                locate('call', hook, site, len(raw))
+                continue
             callee_names = {symbol.name for symbol in old.containing(callee)}
             owners = old.containing(site)
             candidates = list({symbol.address + site - owner.address: symbol for owner in owners for symbol in new.by_name.get(owner.name, [])}.items())

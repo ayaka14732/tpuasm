@@ -11,9 +11,9 @@ from jax.experimental import serialize_executable
 from jax.stages import Compiled
 from jaxlib.xla_client import LoadedExecutable
 
-from ._protobuf import encode_varint, field_spans, replace_fields
+from ._protobuf import field_spans, replace_fields
 from .printer import _verify_image
-from .program_container import executable_records, resolve_executable_target
+from .program_container import executable_records, join_executable_records, resolve_executable_target
 from .targets import TPU_V4_BCS, TPU_V6E_TEC
 from .tc_source_mapping import _Program, _one, _programs, _values
 from .tc_relocation import BundleInsertion, insert_program
@@ -148,7 +148,7 @@ def _write_programs(serialized: bytes, programs: Mapping[tuple[int, int], _Progr
         records[record] = replace_fields(core, {3: [replacement], 5: [replace_fields(tensor_core, {1: [sequencer]})], 8: sets})
         if metadata_record is not None:
             records[metadata_record] = replace_fields(metadata if metadata is not None else records[metadata_record], {26: [replacement]})
-    return b''.join(encode_varint(len(record)) + record for record in records)
+    return join_executable_records(serialized, records)
 
 def insert_executable_bundles(serialized: bytes, insertions: Mapping[tuple[int, int], Sequence[BundleInsertion]], *, target: str | None = None) -> bytes:
     """在 TensorCore executable 中插入独立 bundle（并可同时删除原 bundle），返回已迁移的 executable。
@@ -157,7 +157,7 @@ def insert_executable_bundles(serialized: bytes, insertions: Mapping[tuple[int, 
 
     :class:`BundleInsertion` 的 ``delete`` 大于零时，从插入位置起的那些原 bundle 被删除，片段取代它们；片段为空就是纯删除。被删除的 bundle 不能含分支、call 或 shalt，也不能是除插入位置之外的分支目标。
 
-    当前支持一个前缀 overlay 和一个主程序 overlay，在主程序内部插入；拒绝多个代码映像与尾部 continuation 内部插入，也拒绝在原 sbr/scall（包括间接形式）的延迟窗口内插入：v4 为分支后的 1 个 bundle，v6e 为 4 个。片段中每条 sbr/scall 的延迟窗口必须完整落在片段内。调用者负责寄存器与内存资源、片段自身的流水线及延迟槽内容，以及通过寄存器或内存保存的间接跳转地址；本函数不分配资源或重新调度。
+    程序由一个前缀 overlay 和一个或多个程序 overlay 组成，插入点可以落在任何一个程序 overlay 的正文内，也可以紧接在正文末尾（出口 trampoline 之前）。每个 overlay 各自补齐到整块，其后的 overlay 整体后移，所有 trampoline 中的装载参数随之更新；插入后单个 overlay 不能超过装载例程可用的指令存储。拒绝多个代码映像、HLO function overlay，以及在前缀、overlay 的前缀与 trampoline、尾部 continuation 内部插入，也拒绝在原 sbr/scall（包括间接形式）的延迟窗口内插入：v4 为分支后的 1 个 bundle，v6e 为 4 个。片段中的直接分支只能用相对形式，每条 sbr/scall 的延迟窗口必须完整落在片段内。调用者负责寄存器与内存资源、片段自身的流水线及延迟槽内容，以及通过寄存器或内存保存的间接跳转地址；本函数不分配资源或重新调度。
 
     Args:
         serialized: 原 serialized executable 字节。

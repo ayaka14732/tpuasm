@@ -2,7 +2,9 @@
 
 `tpu-v6e-tec` 是 TPU v6e SparseCore 向量子核（TEC）的程序。它复用 v6e TC 的源码语法、共用位模型、指令包求解器和可逆导出，硬件表示与 v6e TC 相近。不同的是，libtpu 没有 TEC 的 formatter，助记符和操作数写法改从编译 SparseCore kernel 所用的 LLVM TPU printer 取得。本文说明与 v6e TC 的差异、字段表与指令语法如何从 libtpu 生成，以及哪些结论已经核对。
 
-目前只支持 libtpu 0.0.49（CPython 3.14t）。字段表的生成与离线核对在没有 v6e 设备的机器上完成；示例和 selector 探针另在 v6e-1 上执行，见[验证](#验证)。
+目前支持 libtpu 0.0.49 和 0.0.50（CPython 3.14t）。字段表的生成与离线核对在没有 v6e 设备的机器上完成；0.0.49 的示例和 selector 探针另在 v6e-1 上执行，见[验证](#验证)，0.0.50 没有在 v6e 设备上运行。
+
+字段表由 0.0.50 生成，两个版本共用。字段位置、固定位、互斥槽和 `REJECTED` 在 0.0.49 上生成的结果与它相同；取自 LLVM printer 的指令语法则是 0.0.50 多出 123 条：它的 LLVM 后端新增了一批 opcode（可让出的 `swait.*.yieldable`、`vcvt.*.bf16`、`vunpack.ic.*`、u16 比较等），使 76 个在 0.0.49 上没有 printer 写法的形式有了写法，另有 11 个形式多出一种写法；0.0.49 的 2227 条一条未少，其中 4 条只是 LLVM opcode 改了名。两个版本的全部 TEC 示例用这份表导出的清单，都与各自编译器 dump 中 LLVM printer 的文本逐条一致，也与用 0.0.49 的表导出的清单相同。在 0.0.49 上，这 87 个形式因此显示为它自己的 printer 没有的助记符；该版本的编译器不生成对应的 opcode，只有手写或改写的程序会遇到。
 
 ## 硬件表示
 
@@ -35,7 +37,7 @@ Pallas SparseCore kernel 的 SCS 与 TEC 代码由 TC 程序记录携带，放�
 4. **对齐打印文本。** 给每个操作数一个互不相同的取值再打印一次，在文本中找到各操作数的位置，得到助记符、目的在前的操作数顺序，以及地址等复合写法的模板（如 `[hbm4b:{0}+{1}]`）。
 5. **整理。** 操作数不控制、但由 opcode 决定的字段作为固定字段；枚举字段（地址空间、selector 等）在不由操作数控制时一律固定，避免一种写法匹配另一种地址空间的编码。编码相同的多种写法中，与编译器 MCInst 最接近、数值按整数显示的写法排在前面，解码取第一个；不同 LLVM opcode 给出的同编码写法（如 `simm.s32` 与 `simm.f32`、`vimm.s32` 与 `vimm.bf16`）都保留供汇编使用，32 位整数类型的写法排在前面；形状展开得到的写法只在带来新编码时保留，所以不影响编码的地址空间名等不会成为别名。
 
-当前 2227 条指令覆盖 856 个“槽×形式”组合。其余 109 个组合没有 printer 写法，它们对应的 LLVM opcode 都没有找到 emitter 接受的 MCInst：工具没有找到的 LLVM opcode 中，1641 个在每个槽都被 emitter 报告不支持（例如 u16 比较、bf16 与 8 位或 4 位整数之间的转换、`call`），99 个是 LLVM 伪指令，DMA 的 strided、general 与 host 形式则对工具能构造的操作数都报告 HBM 编号非零。另有 `yieldable_sync_*` 等形式按名称在 LLVM 中找不到对应的指令。这些组合使用具名字段写法，见[签名规则](#签名规则)。工具运行约七十五分钟。libtpu 换版本后需要重新运行并比较生成结果，步骤见 skill [add-libtpu-backend](../../.agents/skills/add-libtpu-backend/SKILL.md)。
+当前 2350 条指令覆盖 932 个“槽×形式”组合。其余 33 个组合没有 printer 写法：DMA 的 strided、general 与 descriptor 形式，`indirect_vreg_stream`，`pop_rcmf`、`push_scmf`、`call_sreg`、`eup_push`，`read_sync_state_*` 与 `atomic_tile_add_set_done*`，`vector_clamp_asymmetric_*`、`vector_remap_*`、`vector_lane_left_shift_insert_b16`，带返回值的 circular buffer 累加 store，以及 `pop_xrf_write_partial_*`。在 0.0.49 上这个数字是 109：当时工具没有找到的 LLVM opcode 中，1641 个在每个槽都被 emitter 报告不支持（例如 u16 比较、bf16 与 8 位或 4 位整数之间的转换、`call`），99 个是 LLVM 伪指令，DMA 的 strided、general 与 host 形式对工具能构造的操作数都报告 HBM 编号非零，`yieldable_sync_*` 等形式按名称在 LLVM 中找不到对应的指令；0.0.50 的 LLVM 后端补上了其中 76 个组合，余下 33 个没有重新归类原因。这些组合使用具名字段写法，见[签名规则](#签名规则)。工具运行约七十五分钟。libtpu 换版本后需要重新运行并比较生成结果，步骤见 skill [add-libtpu-backend](../../.agents/skills/add-libtpu-backend/SKILL.md)。
 
 ## 共享字段与命名约束
 
@@ -58,7 +60,7 @@ selector 的数值含义沿用 v6e TC：`zero_immN` 为零扩展的 20 位立即
 ## 限制
 
 - 设备上核对了 VALU 与标量 ALU 的全部立即数和常量 selector、四个标量操作数槽和一条具名字段写法（见[验证](#验证)）；stream 配置字各 bit、其余形式的具名字段写法和 stream/DMA 的其他地址空间组合没有在设备上执行。
-- 不支持插入 bundle 和编译来源映射；executable 中 TEC 段的定位依赖“SCS 段不能按 TEC 解码”，已在本文提到的全部编译样例上成立。
+- 不支持插入 bundle 和编译来源映射；executable 中 TEC 段的定位依赖“SCS 段不能按 TEC 解码”和“TEC 段以全零 bundle 结束”，已在本文提到的全部编译样例上成立。TEC 段恰好占满它的 4 KiB 槽、后面紧接其他数据时无法识别。
 - stream 对端的存储器类型由 emitter 从模式字和存储器编号操作数共同算出。编译样例中出现过 `hbm4b` 与 `spmem`，二者有编译器写法；其他存储器类型（例如带编号的 TileSPMEM）没有编译样例，按具名字段写法表示。
 - DMA 的 strided、general 与 host 形式，emitter 对工具能构造的操作数都报告 HBM 编号非零，没有 printer 写法。
 - 生成工具依赖 libtpu 内部 LLVM 对象的布局与 emitter 的报错文本，换版本后可能需要调整搜索规则。

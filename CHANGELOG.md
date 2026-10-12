@@ -2,6 +2,25 @@
 
 本文件记录 tpuasm 各版本面向用户的变化。各版本支持的 Python、libtpu 与 JAX 见[版本兼容性](docs/compatibility.md)。
 
+## 未发布
+
+### 新增
+
+- 支持 libtpu 0.0.50（CPython 3.14t）：登记 TPU v4 TC、TPU v4 BCS、TPU v6e TC 与 TPU v6e TEC 的编解码后端，以及 TensorCore 的来源后端。这个版本把 serialized executable 中 IFRT 头之后的内容改成 XLA 的 split proto，即一个 Riegeli/records 流（[#1](https://github.com/ayaka14732/tpuasm/issues/1)）；此前 `executable_programs` 等接口把它当作旧容器解析，报错 `executable record exceeds file size`。两种容器给出的记录编号相同，`replace_executable_programs` 和 `insert_executable_bundles` 按输入的容器形式写回。这个版本还把 SparseCore 的 TEC 段挪到了第一块 SCS 代码之后，TEC 段的定位改为以第一个全零 bundle 为界。v6e 的两个目标只做了离线验证。
+- TPU v6e TEC 的指令语法改由 libtpu 0.0.50 的 LLVM TPU printer 生成，多出 123 条：`swait.*.yieldable`、`vcvt.*.bf16`、`vunpack.ic.*`、u16 比较等 76 个形式此前只能用字段名写法，现在有了助记符，另有 11 个形式多出一种写法。原有的写法不变，字段表的其余部分在两个版本上相同。
+- `insert_executable_bundles` 支持有多个程序 overlay 的程序（[#2](https://github.com/ayaka14732/tpuasm/issues/2)）。编译器会把较大的直线代码拆成多个 overlay（例如一个 4.7 万个 bundle 的程序被拆成 4 个），此前这样的程序一律报错 `insertion requires one code image with a prelude and one program overlay`。现在插入点可以落在任何一个程序 overlay 的正文内，也可以紧接在正文末尾；每个 overlay 各自补齐到整块，其后的 overlay 后移，所有 trampoline 中的装载参数、overlay 表和 trap 元数据随之更新。
+
+### 变更
+
+- `BundleInsertion` 的片段不再接受 `sbr.abs` 和 `scall.abs`。程序 overlay 装入指令存储的位置在运行时确定，与它在程序映像中的位置不同；此前按映像位置填写的目标实际指向别处（TPU v4 上相差 30 个 bundle）。片段内的分支改用 `sbr.rel`、`scall.rel`。
+
+### 修复
+
+- `insert_executable_bundles` 不再把元数据中的 `overlay_slot_size`（32760 个 bundle）当作单个 overlay 的容量上限（[#2](https://github.com/ayaka14732/tpuasm/issues/2)）。编译器不拆分循环，会生成比它更大的 overlay；此前对这样的程序即使只插入一个 bundle 也报错 `inserted program exceeds the overlay slot capacity in bundles`。容量上限改为从程序前缀的装载例程中读出：TPU v4 为 65360 个 bundle，TPU v6e 为 65168 个。
+- TPU v4 上迁移相对分支时按 16 位回绕解释位移。超过 32767 个 bundle 的 overlay 中，编译器把跨度更大的前向分支写成负位移，此前这样的分支会被判为指向映像之外。
+- `insert_executable_bundles` 只读取 overlay 表和前缀例程的名称，不再解码整份来源映射。在一个 2.4 万个 bundle 的程序中插入两处，由 28 秒降到 9 秒。
+- `tpuasm.tools.hlo_bounds` 直接解码 bundle 来查找 `vtrace` 标记，不再生成整份清单；`KernelClock.time_ops` 靠它确定读数的位置。同一个程序上由 42 秒降到 5 秒。
+
 ## 0.2.1 - 2026-10-08
 
 ### 新增

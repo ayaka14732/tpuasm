@@ -384,13 +384,8 @@ def _decode(image: bytes, hardware: HardwareTarget) -> list[set[str]]:
     from .tpu_v4_tc_codec import decode_program
     return [{form.slot for form, _ in forms} for _, forms in decode_program(image)]
 
-def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap:
-    occupied = _decode(program.image, hardware)
-    native_slots = _SLOTS[hardware.identifier]
-    physical_slots = {slot: native for native, slot in native_slots.items()}
-    count = len(occupied)
-    metadata = b'' if program.diagnostic else program.metadata
-    diagnostics = [program.diagnostic] if program.diagnostic else []
+def _overlays(metadata: bytes, hardware: HardwareTarget, count: int) -> list[Overlay]:
+    """元数据中 TensorCore 的 overlay 表；count 是程序映像的 bundle 数。"""
     overlays: list[Overlay] = []
     for table in _values(metadata, 10):
         if _one(table, 6) != 1:
@@ -405,6 +400,16 @@ def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap
             if overlay.emitted_limit < overlay.emitted_start or overlay.body_limit + overlay.suffix_size > count:
                 raise ValueError('overlay lies outside the program image')
             overlays.append(overlay)
+    return overlays
+
+def _source_map(program: _Program, hardware: HardwareTarget) -> ProgramSourceMap:
+    occupied = _decode(program.image, hardware)
+    native_slots = _SLOTS[hardware.identifier]
+    physical_slots = {slot: native for native, slot in native_slots.items()}
+    count = len(occupied)
+    metadata = b'' if program.diagnostic else program.metadata
+    diagnostics = [program.diagnostic] if program.diagnostic else []
+    overlays = _overlays(metadata, hardware, count)
     symbols = {}
     tables = _values(metadata, 8)
     for table in tables:

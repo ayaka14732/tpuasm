@@ -43,7 +43,8 @@ from jaxlib.xla_client import LoadedExecutable
 from tpuasm import assemble_listing, compiler_source_mapping, dump_compiled, executable_programs, executable_source_maps, format_assembly
 from tpuasm.tc_compiler import CompilerSourceMapping, _FLAGS, _maps
 from tpuasm.tpu_v4_tc_assembler import _decoded_source
-from tpuasm._protobuf import encode_varint, fields, read_varint
+from tpuasm._protobuf import encode_varint, fields
+from tpuasm.program_container import executable_records
 from tpuasm.targets import TPU_V4_TC
 from tpuasm.tc_source_mapping import ProgramSourceMap, _programs, _source_map
 
@@ -246,15 +247,6 @@ def fifo_probe(mode: str, output: Path) -> None:
     np.save(output / f'fifo-{mode}.npy', values)
     (output / f'fifo-{mode}.bin').write_bytes(bytes(cast(LoadedExecutable, compiled.runtime_executable()).serialize()))
 
-def records(data: bytes) -> list[bytes]:
-    result = []
-    pos = 0
-    while pos < len(data):
-        size, pos = read_varint(data, pos)
-        result.append(data[pos:pos + size])
-        pos += size
-    return result
-
 def message(number: int, value: int | bytes) -> bytes:
     return encode_varint(number << 3 | (2 if isinstance(value, bytes) else 0)) + (encode_varint(len(value)) + value if isinstance(value, bytes) else encode_varint(value))
 
@@ -264,10 +256,11 @@ def container(items: list[bytes]) -> bytes:
 def check_offline(output: Path) -> None:
     left = (output / 'rolled/executable.bin').read_bytes()
     right = (output / 'multiple/executable.bin').read_bytes()
-    a, b = records(left), records(right)
+    a, b = executable_records(left), executable_records(right)
     original = executable_source_maps(left) + executable_source_maps(right)
-    # Parser fixture made of independently compiled core/metadata pairs. It is
-    # never executed and does not pretend to be a newly compiled multi-core image.
+    # Parser fixture made of independently compiled core/metadata pairs, in the length-prefixed container
+    # whatever container the executables came in. It is never executed and does not pretend to be a newly
+    # compiled multi-core image.
     core = _programs(left)[0].record
     a[core] += message(8, message(2, message(1, 2)) + message(3, b'non-code data') + message(4, b'data hash'))
     joined = executable_source_maps(container(a + b))

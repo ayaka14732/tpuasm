@@ -49,7 +49,16 @@ tpuasm 在 Python 中维护 ISA 位模型、源码语法和指令包资源求解
 
 ## 硬件目标与程序容器
 
-serialized executable（`compiled.runtime_executable().serialize()` 的结果）是若干条用 varint 长度前缀分隔的记录。已支持的 libtpu 版本在每条 core program（`TpuCoreProgramProto`）记录之后紧接着序列化它的 `CompilerMetadata` 记录，v4 与 v6e 的 executable 都是如此。
+serialized executable（`compiled.runtime_executable().serialize()` 的结果）由七条记录组成：IFRT 头（其中的字符串是 `pjrt_ifrt`）、TensorCore 的 core program（`TpuCoreProgramProto`）、它的 `CompilerMetadata`、SparseCore 的 core program 及其 `CompilerMetadata`（没有 SparseCore 代码时为空）、HLO module，以及 `xla.TpuExecutableProto` 的其余字段。v4 与 v6e 的 executable 都是如此。`program_container.executable_records()` 返回这七条记录，`(record, index)` 中的 record 是它们的编号，所以 TensorCore 程序在记录 1。
+
+这些记录有两种存放方式，由生成 executable 的 libtpu 版本决定：
+
+- **libtpu 0.0.48 与 0.0.49**：每条记录加一个 varint 长度前缀，依次排列。
+- **libtpu 0.0.50**：IFRT 头仍带 varint 长度前缀，其后是 XLA 的 split proto，即一个 [Riegeli/records](https://github.com/google/riegeli/blob/master/doc/riegeli_records_file_format.md) 流。流中第一条记录是 `SplitProtoManifest`，写明结果类型 `xla.TpuExecutableProto` 和后面六条记录的合并方式（都是 `proto_merge_record`）；其后每条记录是一个只含部分字段的 `TpuExecutableProto`，读取方把它们依次合并。前四条分别只含 `ds_executable(1)` 中的 `core_program(1)`、`compiler_metadata(2)`、`sparse_core_program(3)`、`sparse_core_compiler_metadata(4)`，第五条只含 `hlo_module_with_config(2)`，第六条是其余字段。字段名取自 libtpu 0.0.50 内嵌的 `split_proto.proto`、`tpu_executable.proto` 和 `deepsea_executable.proto` 的 descriptor。
+
+`executable_records()` 从两种容器取出的记录内容和编号相同：对 split 容器，它沿上述字段路径取出内层的字节，要求路径上的每一层只有这一个字段。manifest 不是这六条 `proto_merge_record`，或某条记录在路径之外还带有别的字段时报错，不猜测其他布局。写回时 `join_executable_records()` 沿用输入的容器形式；split 容器的记录重新包装后，每条写成一个不压缩的 Riegeli simple chunk。[`_riegeli.py`](../../src/tpuasm/_riegeli.py) 只实现这里用到的部分：读取不压缩的 simple chunk，写出时计算 chunk 头和块头中的 HighwayHash-64。libtpu 写出的流不压缩；遇到压缩的 chunk 或 transposed chunk 时报错。读取不计算 hash。写出时，几十字节的 chunk 头和块头在 Python 中计算；chunk 的内容超过 64 KiB 时改用随包分发的 `riegeli_hash.cc`，首次使用时由 g++ 编译，100 MiB 约需 0.1 秒（纯 Python 约需 40 秒）。两份实现在 0 到 130 字节的每个长度和若干更大的长度上结果相同。
+
+在 libtpu 0.0.50、TPU v4 上，`replace_program` 与 `insert_program` 两个示例以及多 overlay 程序的插桩都经过这条路径：等长替换和变长插入之后的 executable 写回 split 容器，由 runtime 装载并得到预期的结果。另取一个 1.2 MB 的 Pallas executable，它的 Riegeli 流跨 19 个块：按 libtpu 原来的分组逐个 chunk 重新写出，结果与原流逐字节相同，包括每一个块头。
 
 `program_container.core_program_target()` 按以下规则识别单条记录的目标，缺少任何一项证据都返回 `None`：
 
@@ -64,11 +73,11 @@ TC、BCS 与 TEC 从容器取得程序映像的方式不同：
 
 - **TC**（`tc_source_mapping._programs`，v4 与 v6e 共用）：读取 `memory_segments(8)` 中类型为 CODE 的 segment，按其 range 从 `initialized_data` 中切出程序映像，拒绝压缩的代码段。同一条 core 记录可以有多份程序映像，编号从 0 开始。提取逻辑放在来源映射模块里，因为来源映射还需要同时保存 segment 索引、hash、fingerprint 等身份信息。
 - **BCS**（`tpu_v4_bcs_program.executable_bcs_programs`）：容器中保存的是 semantic protobuf 而非机器字节，所以先提取 semantic body，再调用原生 codec 编码为程序映像，每条记录的索引固定为 0。
-- **TEC**（`tpu_v6e_tec_program.executable_tec_programs`）：`has_concurrent_program`（字段 10）为 1 的 TC 记录在一个 DATA segment 中携带 SparseCore 代码，依次是 SCS 段、TEC 段和补到 segment 末尾的 0。TEC 段的起点只由 SCS 代码用链接符号计算，容器没有记录，所以从 segment 开头按 4 KiB 边界依次尝试，取第一个能把其后到非零数据末尾的字节完整通过 TEC 原生编解码校验的位置。TEC 程序以 bundle 为界的后缀仍是合法程序，SCS 段则不能按 TEC 解码，所以第一个成功的位置就是 TEC 段的起点。
+- **TEC**（`tpu_v6e_tec_program.executable_tec_programs`）：`has_concurrent_program`（字段 10）为 1 的 TC 记录在一个 DATA segment 中携带 SparseCore 代码。libtpu 0.0.49 的 segment 依次是三块各 258048 字节的 SCS 代码、TEC 段和补到末尾的 0；0.0.50 把 TEC 段放在第一块 SCS 代码之后的一个 4 KiB 槽里，后面是另外两块 SCS 代码。TEC 段的起点只由 SCS 代码用链接符号计算，容器没有记录。它总是从一个 4 KiB 边界开始，到第一个全零的 bundle 为止，全零不是合法的 TEC bundle；所以从 segment 开头按 4 KiB 边界依次尝试，把从该处到第一个全零 bundle 之前的字节交给 TEC 原生编解码校验，完整通过的就是 TEC 段。SCS 代码不能按 TEC 解码，两个版本的样例中都只有一个位置通过。
 
 导出文件命名为 `program-<target>-<record>-<index>.tpuasm`，record 在整个容器内编号。这些提取都只读取需要的字段，既不是完整的 executable 验证器，也不改写 executable。
 
-反方向由 `replace_executable_programs` 完成：以同样的 `(record, index)` 为键，把等长的新 TC 或 TEC 程序映像写回 `initialized_data`，并为内容有变化的记录生成新的 segment set hash 和 fingerprint，否则 runtime 可能复用已装载的原程序。`insert_executable_bundles` 只支持 TC，通过 [tc_relocation.py](../../src/tpuasm/tc_relocation.py) 迁移直接分支、装载块数、overlay、符号与注释，并重新编码容器长度。修改后的 executable 由 `load_executable` 按原调用约定装载执行。
+反方向由 `replace_executable_programs` 完成：以同样的 `(record, index)` 为键，把等长的新 TC 或 TEC 程序映像写回 `initialized_data`，并为内容有变化的记录生成新的 segment set hash 和 fingerprint，否则 runtime 可能复用已装载的原程序。`insert_executable_bundles` 只支持 TC，通过 [tc_relocation.py](../../src/tpuasm/tc_relocation.py) 迁移直接分支、各 overlay 的装载参数、overlay 表、符号与注释，并按输入的容器形式重新写出。修改后的 executable 由 `load_executable` 按原调用约定装载执行。
 
 ## 扩展点
 

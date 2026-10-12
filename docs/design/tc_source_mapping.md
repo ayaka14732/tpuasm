@@ -77,11 +77,11 @@ hook 维护五个计数器：emitted、annotated、failures、rewrites、propaga
 
 每个 libtpu 版本的来源后端由两部分组成：`source_backends/` 中的版本文件给出 hook 调用的各函数的 VA，包括发射、注释读写、protobuf 消息序列化（`MessageLite::SerializeToArray`）、HLO module 获取、操作数访问、ordinal 追加、两类替换、合并候选的访问、`ScopedAnnotator` 析构和 flag 读写；`tc_source_backend.py` 中的 `SourceBackend` 记录每个调用点的原始字节、hook 名和可选前缀（`calls`），以及安装前核对的字节（`signatures`，分类见下文）。
 
-各版本登记的 hook 不必相同：来源后端只登记在该版本上核对过的调用点，没有登记的路径照常编译，只是相应指令缺少来源。发射、替换、BF16 合并和 store 注释 hook 在所有已支持版本中登记；其余 hook 目前只登记了 0.0.49，它们的实现和用到的对象偏移也写在该版本文件中。
+各版本登记的 hook 不必相同：来源后端只登记在该版本上核对过的调用点，没有登记的路径照常编译，只是相应指令缺少来源。发射、替换、BF16 合并和 store 注释 hook 在所有已支持版本中登记；其余 hook 登记在 0.0.49 和 0.0.50，它们的实现和用到的对象偏移也写在各自的版本文件中。同一个 hook 在不同版本中的调用点个数可以不同：0.0.50 的 `CSEDriver::simplifyBlock` 有两处调用 `replaceUsesAndDelete`，两处都登记。
 
-所有版本共用的 hook 读取的对象偏移不在版本文件中，而是直接写在公共的 `tc_source_native.cc` 中，因为已支持的各版本布局相同。它们涉及：指令的 region、ordinal 和操作数个数；region 的 module；module 的 SourceMap、root region 和 HLO 名；HLO module 的名称和 ID；SourceMap 与 SourceInfo 中的 repeated 字段；emitter 的当前注释；libc++ 字符串的表示。这些偏移由 `signatures` 中的第三类字节守护。若某个版本的布局不同，应把这些偏移改为按版本定义的常量，而不是修改公共文件，以免破坏已有版本。
+所有版本共用的 hook 读取的对象偏移，在各版本中相同的直接写在公共的 `tc_source_native.cc` 中，不同的由版本文件定义为常量。目前有三个这样的常量。libtpu 0.0.50 换了 protobuf runtime：消息对象不再以 vtable 指针开头，`+0` 是内部元数据，`+8` 是指向 ClassData 的指针，`ByteSizeLong` 由 ClassData 中 `+0x30` 的函数指针给出；此前它是 vtable 中 `+0x18` 的虚函数。`kMessageDispatchOffset` 和 `kByteSizeSlot` 记录这两个位置，证据是 `MessageLite::SerializePartialToArray` 开头取消息大小的那次间接调用。第三个常量 `kHloModuleIdOffset` 是 HloModule 的 ID 在对象中的偏移，0.0.50 中由 `0xaa4` 变为 `0xab4`，证据是 `LloSerializer::LloModuleToProto` 读取它的指令。其余偏移在三个版本中相同。它们涉及：指令的 region、ordinal 和操作数个数；region 的 module；module 的 SourceMap、root region 和 HLO 名；HLO module 的名称和 ID；SourceMap 与 SourceInfo 中的 repeated 字段；emitter 的当前注释；libc++ 字符串的表示。这些偏移由 `signatures` 中的第三类字节守护。若某个版本的布局不同，应把这些偏移改为按版本定义的常量，而不是修改公共文件，以免破坏已有版本。
 
-记录的内容也随版本变化，因为 SourceInfo 由 libtpu 从 MLIR location 转换而来。使用同一 JAX 和同一补丁离线编译 v4 示例时，0.0.48 与 0.0.48 nightly 的 22 份清单相同，但与 0.0.49 的清单有 21 份不同。其中 20 份只有来源注释不同：0.0.48 系列的大部分记录在 scope 栈末尾多出一段方程自身的 primitive 名称，例如 0.0.49 的 `[get; …]`、`[top_k/argmax/top_k; …]` 在 0.0.48 中为 `[get/get; …]`、`[top_k/argmax/argmax/top_k; …]`。另外，`rms_norm` 的机器码也不同；两个版本各自打补丁与不打补丁编译出的机器码相同，所以这是编译器调度的差异，与来源捕获无关。仓库中的清单用 0.0.49 生成。
+记录的内容也随版本变化，因为 SourceInfo 由 libtpu 从 MLIR location 转换而来。使用同一 JAX 和同一补丁离线编译 v4 示例时，0.0.48 与 0.0.48 nightly 的 22 份清单相同，但与 0.0.49 的清单有 21 份不同。其中 20 份只有来源注释不同：0.0.48 系列的大部分记录在 scope 栈末尾多出一段方程自身的 primitive 名称，例如 0.0.49 的 `[get; …]`、`[top_k/argmax/top_k; …]` 在 0.0.48 中为 `[get/get; …]`、`[top_k/argmax/argmax/top_k; …]`。另外，`rms_norm` 的机器码也不同；两个版本各自打补丁与不打补丁编译出的机器码相同，所以这是编译器调度的差异，与来源捕获无关。0.0.50 与 0.0.49 相比，v4 的 24 份和 v6e TC 的 23 份清单机器码全都不同：v4 是 runtime 前导代码的调度变了，其中 16 份的程序映像短了一个块；v6e 多数只差前导代码中的两条指令。带来源的指令条数基本不变。仓库中的清单用 0.0.49 生成。
 
 ### 补丁的安装与恢复
 

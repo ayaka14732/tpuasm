@@ -22,6 +22,7 @@ from jaxlib.xla_client import LoadedExecutable
 import numpy as np
 
 from . import BundleInsertion, assemble_listing, compiler_source_mapping, executable_programs, executable_source_maps, format_assembly, insert_executable_bundles, load_executable, replace_executable_programs
+from .tpu_v4_tc_assembler import _decoded_source
 
 TARGET = 'tpu-v4-tc'
 # 源码映射需要在 TPU 初始化之前装入编译器钩子；导入本模块时进入一次，整个进程保持，退出时恢复。
@@ -311,11 +312,12 @@ def clock_read(index: int, counter: str = 'lcc') -> str:
 def hlo_bounds(serialized: bytes) -> dict[int, tuple[int, int]]:
     """程序中每条 HLO 指令的 vtrace 起止标记所在的 bundle 编号：{指令序号: (vtrace 0x8… 的 bundle, vtrace 0x9… 的 bundle)}。"""
     (_, _, image), = executable_programs(serialized)
-    lines = format_assembly(image, target=TARGET, encoding='canonical').splitlines()
     marks: dict[int, dict[int, int]] = {}
-    for pc, (start, end) in enumerate(_bundle_spans(lines)):
-        for kind, number in re.findall(r'vtrace 0x([89])([0-9a-f]{7})\b', '\n'.join(lines[start:end + 1])):
-            marks.setdefault(int(number, 16), {})[int(kind)] = pc
+    # 只解码，不生成清单：生成清单还要为每个 bundle 求解编码，在大程序上慢一个数量级。
+    for pc, decoded in enumerate(_decoded_source(image)[0].bundles):
+        for instruction in decoded.instructions:
+            if instruction.mnemonic == 'vtrace' and (match := re.fullmatch(r'0x([89])([0-9a-f]{7})', instruction.operands[0])):
+                marks.setdefault(int(match[2], 16), {})[int(match[1])] = pc
     return {number: (found[8], found[9]) for number, found in sorted(marks.items()) if len(found) == 2}
 
 MODULE = 0xFFFFFFF  # 整个程序（XProf 中的 module）的 vtrace 标记所用的序号

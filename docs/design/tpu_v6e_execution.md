@@ -174,4 +174,4 @@ encoder 复核不需要设备：
 PYTHONPATH=src python tools/reproduce_tpu_v6e_encoder_rejections.py --output /tmp/tpuasm-v6e-rejections.json
 ```
 
-该检查只在 libtpu 0.0.49 的 CPU CI job 中运行。常规离线回归另验证 1214 个槽内形式、11 对编码歧义、完整程序映像和拒绝路径；其中一对 `vtrace` 编码核对按 formatter 登记的重叠位模型，不把它当成已经验证的设备 trace 语义。23 份 v6e 示例清单在离线导出时逐字节重汇编比较。
+该检查在 libtpu 0.0.49 和 0.0.50 的 CPU CI job 中运行。常规离线回归另验证 1214 个槽内形式、11 对编码歧义、完整程序映像和拒绝路径；其中一对 `vtrace` 编码核对按 formatter 登记的重叠位模型，不把它当成已经验证的设备 trace 语义。23 份 v6e 示例清单在离线导出时逐字节重汇编比较。

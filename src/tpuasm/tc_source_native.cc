@@ -78,8 +78,9 @@ bool has_ordinal(void* loc, int ordinal) {
     return false;
 }
 std::string serialized(void* message) {
-    // MessageLite::SerializeToArray sizes the message through the same vtable slot.
-    auto size = reinterpret_cast<std::size_t(*)(void*)>(read<void*>(read<void*>(message, 0), 0x18))(message);
+    // MessageLite::SerializeToArray sizes the message through the same dispatch slot: the vtable at +0
+    // before libtpu 0.0.50, the ClassData at +8 since.
+    auto size = reinterpret_cast<std::size_t(*)(void*)>(read<void*>(read<void*>(message, kMessageDispatchOffset), kByteSizeSlot))(message);
     std::string raw(size, '\0');
     if (!reinterpret_cast<bool(*)(void*, void*, int)>(base + kSerialize)(message, raw.data(), raw.size()))
         throw std::runtime_error("source location serialization failed");
@@ -126,7 +127,7 @@ std::string source_record(void* inst) {
         void* hlo_module = reinterpret_cast<void*(*)(void*)>(base + kGetHloModule)(hlo);
         if (hlo_module) {
             field(result, 4, native_string(static_cast<char*>(hlo_module) + 8));
-            field(result, 5, uint64_t(read<int>(hlo_module, 0xaa4)));
+            field(result, 5, uint64_t(read<int>(hlo_module, kHloModuleIdOffset)));
         }
     }
     return result;

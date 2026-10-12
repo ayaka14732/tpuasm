@@ -21,7 +21,7 @@
 namespace {
 using namespace tpuasm_backend;
 
-// LLVM object layouts in the libtpu 0.0.49 LLVM snapshot.
+// LLVM object layouts in the libtpu 0.0.49 and 0.0.50 LLVM snapshots.
 // MCInstrInfo: last MCInstrDesc, name index table, name data, opcode count.
 constexpr std::size_t kInstrInfoLastDesc = 0x0;
 constexpr std::size_t kInstrInfoNameIndices = 0x8;

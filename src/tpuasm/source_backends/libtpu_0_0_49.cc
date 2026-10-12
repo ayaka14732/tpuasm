@@ -1,4 +1,5 @@
 // CPython 3.14t Linux x86-64; build-id 97e27df7268da25ab03e455e30dd86b0.
+#include <cstddef>
 #include <cstdint>
 namespace tpuasm_source_backend {
 constexpr uintptr_t kScopedAnnotator = 0x1543dcd0;
@@ -28,6 +29,10 @@ constexpr uintptr_t kGhostliteAnnotatorConstruct = 0x155ca1d0;
 constexpr uintptr_t kGhostliteAnnotatorDestroy = 0x1555a740;
 constexpr uintptr_t kGetFlag = 0x1d552270;
 constexpr uintptr_t kSetFlag = 0x1d5227b8;
+// Where a protobuf message keeps its dispatch table and the ByteSizeLong slot in it; HloModule::unique_id.
+constexpr std::ptrdiff_t kMessageDispatchOffset = 0x0;
+constexpr std::ptrdiff_t kByteSizeSlot = 0x18;
+constexpr std::ptrdiff_t kHloModuleIdOffset = 0xaa4;
 }
 #include "../tc_source_native.cc"
 

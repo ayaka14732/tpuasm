@@ -215,7 +215,7 @@ def render_tpu_v6e_tec() -> str:
     lines = [
         '# TPU v6e TEC 指令索引',
         '',
-        f'由 libtpu 0.0.49 的 descriptor、encoder、LLVM TPU printer 与 TEC emitter 生成：登记 **{len(names)} 种形式、{len(tec_forms)} 个槽与形式组合、{len(tec_signatures)} 条展开签名、{len(pairs)} 个槽与助记符组合**。encoder 拒绝的 {rejected} 个槽与形式组合不登记。这里的覆盖是编码、解码与重汇编覆盖，没有在设备上执行。',
+        f'由 libtpu 0.0.50 的 descriptor、encoder、LLVM TPU printer 与 TEC emitter 生成：登记 **{len(names)} 种形式、{len(tec_forms)} 个槽与形式组合、{len(tec_signatures)} 条展开签名、{len(pairs)} 个槽与助记符组合**。encoder 拒绝的 {rejected} 个槽与形式组合不登记。这里的覆盖是编码、解码与重汇编覆盖，没有在设备上执行。',
         '',
         '## 如何阅读',
         '',

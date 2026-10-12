@@ -184,8 +184,133 @@ LIBTPU_0_0_49 = SourceBackend(
     },
 )
 
+LIBTPU_0_0_50 = SourceBackend(
+    native_source='source_backends/libtpu_0_0_50.cc',
+    calls={
+        0x141eda39: (bytes.fromhex('e8829bfdff'), 'source_store_annotation_hook', b''),
+        0x141edc19: (bytes.fromhex('e8a299fdff'), 'source_store_annotation_hook', b''),
+        0x141ee07f: (bytes.fromhex('e83c95fdff'), 'source_store_annotation_hook', b''),
+        0x141ee4df: (bytes.fromhex('e8dc90fdff'), 'source_store_annotation_hook', b''),
+        0x140fab0d: (bytes.fromhex('e8ce93ffff'), 'source_emit_hook', b''),
+        0x1450f26f: (bytes.fromhex('e83c0b0000'), 'source_replace_hook', b''),
+        0x1450f27d: (bytes.fromhex('e86e390000'), 'source_region_hook', b''),
+        0x1450d31c: (bytes.fromhex('e88f2a0000'), 'source_replace_hook', b''),
+        0xdbbec3e: (bytes.fromhex('e8cd6da3ff'), 'source_coalesce_hook', bytes.fromhex('4c89f2')),
+        0xdbbed71: (bytes.fromhex('e89a6ca3ff'), 'source_coalesce_hook', bytes.fromhex('4c89f2')),
+        # mov -0xc0(%rbp),%rdx; mov -0xd8(%rbp),%rcx: the two loads being combined.
+        0xe4709d7: (bytes.fromhex('e8345018ff'), 'source_combine_hook', bytes.fromhex('488b9540ffffff488b8d28ffffff')),
+        0xe470aee: (bytes.fromhex('e81d4f18ff'), 'source_combine_hook', bytes.fromhex('488b9540ffffff488b8d28ffffff')),
+        # DecomposeDmaDone: rcx = *(LloDecomposer*)rbx, the original dma.done.
+        0xe544df5: (bytes.fromhex('e8a66fcd09'), 'source_dma_append_hook', bytes.fromhex('488b0b')),
+        0xe5450c3: (bytes.fromhex('e8d86ccd09'), 'source_dma_append_hook', bytes.fromhex('488b0b')),
+        # ToProto's walk callback tail-calls OperationVisitor(serializer, op); the hook keeps the jmp.
+        0x158baf0b: (bytes.fromhex('e970e9ffff'), 'source_fused_location_hook', b''),
+        # CSEDriver::simplifyBlock -> replaceUsesAndDelete(this, knownValues, op, existing, hasSSADominance); this build has two call sites.
+        0x18479691: (bytes.fromhex('e82a0e0000'), 'source_cse_hook', b''),
+        0x18479cd0: (bytes.fromhex('e8eb070000'), 'source_cse_hook', b''),
+        # AnnotateNewInstructions: rdi = new instruction, rsi = its root-location string.
+        0x13f75eee: (bytes.fromhex('e87d222804'), 'source_location_annotation_hook', b''),
+        # EmitVectorMatprep virtual dispatch; rel32 plus two NOPs preserves its seven-byte span.
+        0x140f6dcc: (bytes.fromhex('41ff9208040000'), 'source_matprep_hook', b''),
+        # LoadSubr constructs a prep directly from its original latch (r14).
+        0xdcccd95: (bytes.fromhex('e8e6c05b0a'), 'source_subr_prep_hook', bytes.fromhex('4d89f0')),
+        # PackSingleSequence: original latch in r15, original matmul in r14.
+        0xdccc3b3: (bytes.fromhex('e8c8ca5b0a'), 'source_subr_prep_hook', bytes.fromhex('4d89f8')),
+        0xdccc530: (bytes.fromhex('e85bcc5b0a'), 'source_mubr_prep_hook', bytes.fromhex('4d89f1')),
+    },
+    signatures={
+        0x141c75c0: bytes.fromhex('554889e54157415641554154534881ec280100004889fb48'),
+        0x141c78d2: bytes.fromhex('498b4500c5f8108088010000'),
+        0x141c7a03: bytes.fromhex('488b03c5f857c0c5f8118088010000'),
+        0x141eda32: bytes.fromhex('c11807488d7d80e8829bfdff'),
+        0x141edc12: bytes.fromhex('bf1807488d7d80e8a299fdff'),
+        0x141ee078: bytes.fromhex('488dbd50ffffffe83c95fdff'),
+        0x141ee4d8: bytes.fromhex('488dbd50ffffffe8dc90fdff'),
+        0x140f3ee0: bytes.fromhex('554889e54157415641554154534881ec780b00004989f449'),
+        0xdbf4f60: bytes.fromhex('554889e55350488d059bc39d0e8038007425488b47384885'),
+        0xd4070e0: bytes.fromhex('554889e54157415641554154534883ec1848bbf6ffffffff'),
+        0x182bd590: bytes.fromhex('554889e5415741564155415453500f188fc00100000f188f'),
+        0x1b195b08: bytes.fromhex('e903000000cccccc554889e541574156534883ec484189d7'),
+        # SerializePartialToArray calls ByteSizeLong through the ClassData at +8, slot 0x30; SourceMapProto::ByteSizeLong reads strings at +0x28/+0x30.
+        0x1b195b26: bytes.fromhex('488b4708ff5030'),
+        0x182bd655: bytes.fromhex('8b4f304885c97455488d4728488b5728'),
+        0x19042880: bytes.fromhex('488b47404885c07405488b4018c331c0c3cccccccccccccc'),
+        0xdbc8e00: bytes.fromhex('48634ff00fb7571c83e2034889c84829d039f07e0c4863c6'),
+        0xc7875d0: bytes.fromhex('554889e54157415653508b078b5f0441b8020000004889f9'),
+        0x1450fdb0: bytes.fromhex('554889e54157415641554154534881eca80000004889f349'),
+        0x14512bf0: bytes.fromhex('554889e54157415641554154534881ec580200000fb7471a'),
+        0xd5f5a10: bytes.fromhex('554889e54157415641554154534883ec184889fb4885f674'),
+        0xdbbf900: bytes.fromhex('554889e5534883ec18488b074885c07418488b0089c783e7'),
+        0x1b338fc0: bytes.fromhex('4885f6742c554889e54156534883ec204889d3e898230200'),
+        0x1b309088: bytes.fromhex('4531c9e960feffffe9db630000cccccccccccccccccccccc'),
+        0xdbbec34: bytes.fromhex('4c89e7488d3511c491fae8cd6da3ff'),
+        0xdbbed67: bytes.fromhex('4889c7488d358b598efae89a6ca3ff'),
+        0xdbbeb30: bytes.fromhex('4889c34d89fe4983c6304c89f7e8be0d0000488945c848'),
+        0x1450d312: bytes.fromhex('488b7dd04889c64889c3e88f2a000048895dd0488d45d048'),
+        0x1450f268: bytes.fromhex('488b7dd04c89f6e83c0b0000e9f6e4ffff488b7dd0e86e39'),
+        0x1450f279: bytes.fromhex('488b7dd0e86e3900004989c44989d74885d20f84c4000000'),
+        0xdf85220: bytes.fromhex('554889e55350488b9f400300004889b7400300004885db74'),
+        0x182bd32c: bytes.fromhex('f6473801744c4c8b7f40'),
+        0x144b1f8d: bytes.fromhex('488b83500200004c8b70284d85f60f84cd03'),
+        0x144b2013: bytes.fromhex('498b0748638bb40a00004889486880481101488b5dd0488bb340030000'),
+        0x140fab0a: bytes.fromhex('4c89e6e8ce93ffff'),
+        # LoadStoreOptimizerImpl::SimplifyVectorCombineWithSublanesPerStrideInternal: entry, the two frame
+        # slots holding the original loads, and both annotation call sites.
+        0xe470290: bytes.fromhex('554889e54157415641554154534881ec580100004889fb'),
+        0xe470323: bytes.fromhex('4c89b528ffffff'),
+        0xe470355: bytes.fromhex('48899540ffffff'),
+        0xe4709ca: bytes.fromhex('4989c6488d35342ad6f94889c7e8345018ff4c8bbd40ffffff'),
+        0xe470ae1: bytes.fromhex('4989c6488d356e29d6f94889c7e81d4f18ff4c8bbd40ffffff'),
+        # OperationVisitor entry, its location read and ParseSourceInfoFromLocation call; the walk callback;
+        # FusedLoc::getLocations and the FusedLoc TypeID GOT slot compared by readOptionalAttribute<FusedLoc>.
+        0x158b9880: bytes.fromhex('554889e5415741564154534881ecf00000004989f64889fb'),
+        0x158b99c9: bytes.fromhex('498b7618488d7d80e8caf8ffff'),
+        0x158baf08: bytes.fromhex('488b3fe970e9ffff'),
+        0x18c3bae0: bytes.fromhex('488b0f488b4108488b5110c3cccccccc'),
+        0x151ce470: bytes.fromhex('488b929000000031f6483b1518ae0a07'),
+        # replaceUsesAndDelete entry and its Operation::location (+0x18) access; both simplifyBlock calls;
+        # FusedLoc::get(ArrayRef<Location>, Attribute, MLIRContext*) and Attribute::getContext.
+        0x1847a4c0: bytes.fromhex('554889e54157415641554154534881eca8000000488955d0'),
+        0x1847a4e2: bytes.fromhex('488b4118488b00488b8090000000483b0531efdf037523488b45'),
+        0x1847967b: bytes.fromhex('85c90f84ca050000440fb645b44889df4c89e64c89eae82a0e0000'),
+        0x18479cbf: bytes.fromhex('440fb645b44889df4c89e64c89ea4c89f9e8eb070000'),
+        0x18c3c580: bytes.fromhex('554889e54157415641554154534881ece800000048898d60'),
+        0x18bdc600: bytes.fromhex('488b07488b00488b00488b4020c3cccc'),
+        # AnnotateNewInstructions entry, its root-location walk and overwrite of each new instruction; set_annotation_internal entry.
+        0x13f75b00: bytes.fromhex('554889e54157415641554154534881ecf80000004189cc49'),
+        0x13f75b50: bytes.fromhex('488d35797b0000488dbdf0feffff488d9518ffffffe8d662cc04'),
+        0x13f75ee7: bytes.fromhex('4c89e7488d75a0e87d222804'),
+        0x181f8170: bytes.fromhex('554889e54157415641554154534881ec880100004989f649'),
+        # Original instruction ownership and both generated AppendInstruction calls.
+        0xe544c34: bytes.fromhex('488b07488b004885c00f84b30400004889fb'),
+        0xe544ded: bytes.fromhex('4c89ef4889c631d2e8a66fcd09'),
+        0xe5450bb: bytes.fromhex('4c89e74889c631d2e8d86ccd094889df4c89ee4c89e2e8ca4b0000'),
+        0x1821bda0: bytes.fromhex('554889e54157415641554154534883ec684889f34989fe488b36'),
+        # Exact prep arguments and the Ghostlite guard's constructor, destructor, size and emitter metadata offset.
+        0x140f40e6: bytes.fromhex('4d89a5880100004d89b590010000'),
+        0x140f6db5: bytes.fromhex('4d8b5500410fb7f7440fb645c84c89ef31d289c14189d941ff9208040000'),
+        0x1431bdb0: bytes.fromhex('554889e54157415641554154534881ec180100004589cc44894584'),
+        0x14325700: bytes.fromhex('554889e5415741564154534883ec2048893748895708c6471000c6472800'),
+        0x142c8a30: bytes.fromhex('554889e54157415641554154534881ec280100004889fb48837f0800'),
+        0x1431ab11: bytes.fromhex('488b97b8010000488dbd60feffff4c89f6e8d9ab0000'),
+        0x142c8da2: bytes.fromhex('498b4500c5f8108088010000'),
+        0x142c8ed3: bytes.fromhex('488b03c5f857c0c5f8118088010000'),
+        0x18288e80: bytes.fromhex('554889e54157415641554154534883ec1889cb4989fee885deffff'),
+        0x18289190: bytes.fromhex('554889e54157415641554154534883ec184489c34189cf4989d64989f44989fd'),
+        0xdcccd1f: bytes.fromhex('4989f64889fb4889559048894d980fb7461a'),
+        0xdcccd8b: bytes.fromhex('0fb6d0488d7d904c89fee8e6c05b0aeb73'),
+        0xdccc320: bytes.fromhex('498b4424184e8b3ce8498b07488b58284c8b6038'),
+        0xdccc3aa: bytes.fromhex('0fb6d04c89e74889dee8c8ca5b0a'),
+        0xdccc3db: bytes.fromhex('488b75b84c89ff4c89f2e8568f540a'),
+        0xdccc47e: bytes.fromhex('498b44244848898d68ffffff4c8b34c8498b06'),
+        0xdccc524: bytes.fromhex('0fb6c84c89ef4889de4c89e2e85bcc5b0a'),
+        0xdccc57b: bytes.fromhex('4c89f74889de488b55a8e8b68d540a'),
+    },
+)
+
 # 以 libtpu 构建（版本与运行环境）为键；同一构建编译各代 TensorCore 时共用这些 hook。
 SOURCE_BACKENDS = {
     'libtpu-0.0.48-cpython-314t-linux-x86_64': LIBTPU_0_0_48,
     'libtpu-0.0.49-cpython-314t-linux-x86_64': LIBTPU_0_0_49,
+    'libtpu-0.0.50-cpython-314t-linux-x86_64': LIBTPU_0_0_50,
 }

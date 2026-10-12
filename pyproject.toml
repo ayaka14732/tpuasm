@@ -41,4 +41,4 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-tpuasm = ["native.cc", "native_backends/*.cc", "tc_source_native.cc", "source_backends/*.cc"]
+tpuasm = ["native.cc", "native_backends/*.cc", "tc_source_native.cc", "source_backends/*.cc", "riegeli_hash.cc"]

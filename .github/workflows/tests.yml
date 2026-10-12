@@ -28,6 +28,8 @@ jobs:
             requirement: libtpu==0.0.48
           - libtpu: 0.0.49
             requirement: libtpu==0.0.49
+          - libtpu: 0.0.50
+            requirement: libtpu==0.0.50
     env:
       PYTHONPATH: src
     steps:
@@ -37,13 +39,13 @@ jobs:
           libtpu: ${{ matrix.requirement }}
       - run: python tests/reproduce_tpu_v4_tc.py
       - run: python tests/reproduce_tpu_v4_bcs.py
-      - if: matrix.libtpu == '0.0.49'
+      - if: matrix.libtpu != '0.0.48'
         run: python tests/reproduce_tpu_v6e_tc.py
-      - if: matrix.libtpu == '0.0.49'
+      - if: matrix.libtpu != '0.0.48'
         run: python tests/reproduce_tpu_v6e_tec.py
-      - if: matrix.libtpu == '0.0.49'
+      - if: matrix.libtpu != '0.0.48'
         run: python tools/reproduce_tpu_v6e_encoder_rejections.py
-      # 仓库中的清单由 0.0.49 生成，由 examples job 比较。旧版本的来源注释和个别示例的机器码与之不同，这里只要求导出成功；导出时会重新汇编清单并逐字节比较。
+      # 仓库中的清单由 0.0.49 生成，由 examples job 比较。其他版本的来源注释和个别示例的机器码与之不同，这里只要求导出成功；导出时会重新汇编清单并逐字节比较。
       - if: matrix.libtpu != '0.0.49'
         run: examples/pallas/run_all.sh --aot tpu-v4-tc
 
