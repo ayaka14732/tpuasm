@@ -43,7 +43,7 @@ Pallas 的 `jaxpr_subcomp` 用 `ctx.name_stack + eqn.source_info.name_stack` 生
 
 兼容性以函数源码为准：先读取已安装 JAX 中 `jaxpr_subcomp` 和 `_lower_jaxpr_to_for_loop` 的源码字节，分别计算 SHA-256 并与 `tc_source_lowering.py` 中的 `_SOURCE_SHA256` 比较，不同就拒绝；然后做必须恰好匹配一次的文本替换（前者两处，后者一处）；最后以原文件名和原行号编译，使 traceback 仍指向真实位置。摘要覆盖 `inspect.getsourcelines()` 确定的函数行范围内的原始文件字节，包括空白、注释和换行，不做格式归一化。之所以不检查 JAX 版本号，是因为 nightly 的版本号不能标识函数内容，真正需要保证的是函数源码没有变化。
 
-当前摘要来自 JAX commit `886d2370c1c959d210f522e352e3ddc6bcff7d6c` 的 [jaxpr_subcomp](https://github.com/jax-ml/jax/blob/886d2370c1c959d210f522e352e3ddc6bcff7d6c/jax/_src/pallas/mosaic/lowering.py#L1746) 和 [_lower_jaxpr_to_for_loop](https://github.com/jax-ml/jax/blob/886d2370c1c959d210f522e352e3ddc6bcff7d6c/jax/_src/pallas/mosaic/lowering.py#L4413)。仓库和安装包只保存摘要与固定版本链接；运行时直接读取已安装的 JAX，不下载或分发完整函数副本。JAX 修改其中任一函数后，需要先核对上游 diff、重新验证适配逻辑，再更新摘要和链接。只核对这两个函数并不能覆盖它们调用的其他 JAX 代码：`inlined_func_call` 的问题正是在 `jaxpr_subcomp` 源码不变时出现的，因此升级 JAX 后仍须运行复现脚本。
+当前摘要来自 JAX commit `cd454bd4d92de993c183c842f149cc1230a1c171` 的 [jaxpr_subcomp](https://github.com/jax-ml/jax/blob/cd454bd4d92de993c183c842f149cc1230a1c171/jax/_src/pallas/mosaic/lowering.py#L1775) 和 [_lower_jaxpr_to_for_loop](https://github.com/jax-ml/jax/blob/cd454bd4d92de993c183c842f149cc1230a1c171/jax/_src/pallas/mosaic/lowering.py#L4536)。仓库和安装包只保存摘要与固定版本链接；运行时直接读取已安装的 JAX，不下载或分发完整函数副本。JAX 修改其中任一函数后，需要先核对上游 diff、重新验证适配逻辑，再更新摘要和链接。只核对这两个函数并不能覆盖它们调用的其他 JAX 代码：`inlined_func_call` 的问题正是在 `jaxpr_subcomp` 源码不变时出现的，因此升级 JAX 后仍须运行复现脚本。
 
 ### JAX jit 追踪缓存
 

@@ -12,6 +12,7 @@
 
 ### 变更
 
+- 来源捕获改为核对 JAX commit `cd454bd4d92de993c183c842f149cc1230a1c171` 的 Pallas lowering 源码，上游在此之前改动了 `_lower_jaxpr_to_for_loop`。更早的 JAX（例如 `0.12.0.dev20261002`）进入 `compiler_source_mapping` 时会报 `JAX _lower_jaxpr_to_for_loop source differs from the validated implementation`，需要升级 JAX。示例清单随之重新生成：远程 DMA 的三个示例和全部 SparseCore 示例的机器码因 JAX 的 lowering 变化而不同。
 - `BundleInsertion` 的片段不再接受 `sbr.abs` 和 `scall.abs`。程序 overlay 装入指令存储的位置在运行时确定，与它在程序映像中的位置不同；此前按映像位置填写的目标实际指向别处（TPU v4 上相差 30 个 bundle）。片段内的分支改用 `sbr.rel`、`scall.rel`。
 
 ### 修复

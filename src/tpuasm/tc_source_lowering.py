@@ -12,10 +12,10 @@ from jax._src.pallas.mosaic import lowering
 from jax._src.source_info_util import NameStack
 
 _SOURCE_SHA256 = {
-    # https://github.com/jax-ml/jax/blob/886d2370c1c959d210f522e352e3ddc6bcff7d6c/jax/_src/pallas/mosaic/lowering.py#L1746
+    # https://github.com/jax-ml/jax/blob/cd454bd4d92de993c183c842f149cc1230a1c171/jax/_src/pallas/mosaic/lowering.py#L1775
     'jaxpr_subcomp': 'f9919ea845980f1917e973b5abb6974258074e3b1ec588151beb63697b6815b1',
-    # https://github.com/jax-ml/jax/blob/886d2370c1c959d210f522e352e3ddc6bcff7d6c/jax/_src/pallas/mosaic/lowering.py#L4413
-    '_lower_jaxpr_to_for_loop': '4415e0369cc23b917a7d84b35eaf7e8ae3713a64b9d58f22486fe89a16a460f1',
+    # https://github.com/jax-ml/jax/blob/cd454bd4d92de993c183c842f149cc1230a1c171/jax/_src/pallas/mosaic/lowering.py#L4536
+    '_lower_jaxpr_to_for_loop': '20b55b9a5e6c5cb01d05a7e8cf71ad81d9d5f87e98c183a51023b4478f6f639f',
 }
 
 _parent: ContextVar[NameStack | None] = ContextVar('tpuasm_source_parent', default=None)

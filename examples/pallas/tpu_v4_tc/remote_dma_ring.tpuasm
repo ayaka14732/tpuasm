@@ -1,5 +1,5 @@
 .target tpu-v4-tc
-# source mapping: captured; image 1:0; metadata program 1520142717845952511
+# source mapping: captured; image 1:0; metadata program 6556567698819450839
 # prelude-prefix-start
 entry:
 { s0: ssettag 0x0 ;
@@ -1218,7 +1218,7 @@ L_029a:
 { s0: sfence }
 { s1: sld s30, [smem:0x3ffea] }
 { s0: sne.s32 p7, s30, 1 }
-{ s0: @p7 sbr.rel L_0385 }
+{ s0: @p7 sbr.rel L_0381 }
 {}
 { s1: sld s1, [smem:0x3ffe4] }
 { s1: sst [smem:0x3e], s1 }
@@ -1246,7 +1246,7 @@ L_029a:
   s1: sld s13, [smem:s17 + s1] }
 { s0: sadd.s32 s15, 1, s13 }
 { s1: sst [smem:s14], s15 }
-# function remote_dma_ring/mpmd_map [symbol 4, remote_dma_ring.2]; image bundles [739, 821)
+# function remote_dma_ring/mpmd_map [symbol 4, remote_dma_ring.2]; image bundles [739, 817)
 { misc: vtrace 0x80000000 }
 { s0: simm.s32 s1, 0 }  # materialized constant
 # entry bundle: %remote_dma_ring.2 = custom-call(%x_hbm.2)
@@ -1267,95 +1267,90 @@ L_029a:
   .encoding { misc.value = imm2 } }
 { misc: vsyncadd.s32 [sflag:45], -1 ;
   .encoding { misc.value = imm2 } }
-{ s0: sshll.u32 s19, s6, 0x3 ;  # examples/pallas/remote_dma_ring.py:33:4-33:55 [dma_start; LLO 192] | examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 192] | examples/pallas/remote_dma_ring.py:48:4-48:58 [dma_start; LLO 192] | examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 192]
+{ s0: sshll.u32 s19, s6, 0x3 ;  # examples/pallas/remote_dma_ring.py:33:4-33:55 [dma_start; LLO 187] | examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 187] | examples/pallas/remote_dma_ring.py:48:4-48:58 [dma_start; LLO 187] | examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 187]
   s1: sld s18, [smem:0x3ffe2] ;
   .encoding { s0.y = const(3) } }
-{ s0: sadd.s32 s23, s19, s0 ;  # examples/pallas/remote_dma_ring.py:33:4-33:55 [dma_start; LLO 77] | examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 77]
+{ s0: sadd.s32 s23, s19, s0 ;  # examples/pallas/remote_dma_ring.py:33:4-33:55 [dma_start; LLO 72] | examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 72]
   s1: sld s20, [smem:0x3ffe3] }
 { s0: simm.s32 s24, 0 ;  # materialized constant
   .encoding { s0.y = lo(imm0) } }
 { s0: dma.simple [vmem:s24], [hbm:s23], length=8, dst_flag=[sflag:52] }
-{ s0: sshll.u32 s25, s20, 0x1 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 182]
+{ s0: sshll.u32 s25, s20, 0x1 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 177]
 { s0: sadd.s32 s26, s25, s18 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 26]
-{ s0: slt.s32 p0, s26, 0 ;  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 27]
-  s1: ssub.s32 s27, 0, s26 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 28]
-{ s0: @!p0 smov s27, s26 }  # examples/pallas/remote_dma_ring.py:24:13-24:41
-{ s0: sand.u32 s28, 0x1, s27 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 30] | smod.u32 w/div 2
-{ s0: ssub.s32 s29, 0, s28 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 31]
-{ s0: @!p0 smov s29, s28 }  # examples/pallas/remote_dma_ring.py:24:13-24:41
-{ s0: sshll.u32 s30, s29, 0x1 }  # examples/pallas/remote_dma_ring.py:25:17-25:38 [mul; LLO 183]
-{ s0: sadd.s32 s2, s30, s6 }  # examples/pallas/remote_dma_ring.py:25:17-25:45 [add; LLO 34]
-{ s0: sadd.s32 s3, 1, s2 }  # examples/pallas/remote_dma_ring.py:25:17-25:49 [add; LLO 35]
-{ s0: slt.s32 p1, s3, 0 ;  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 36]
-  s1: ssub.s32 s4, 0, s3 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 37]
-{ s0: @!p1 smov s4, s3 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
-{ s0: sand.u32 s5, 0x3, s4 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 39] | smod.u32 w/div 4
-{ s0: ssub.s32 s0, 0, s5 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 40]
-{ s0: @!p1 smov s0, s5 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
-{ s0: slt.s32 p2, s0, 0 ;  # examples/pallas/remote_dma_ring.py:25:16-25:54 [ne, lt, and; LLO 185]
-  s1: sadd.s32 s7, 4, s0 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [add; LLO 46]
-{ s0: @!p2 smov s7, s0 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
-{ s0: slt.s32 p3, s7, 0 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 48]
-  s1: ssub.s32 s8, 0, s7 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 49]
-{ s0: @!p3 smov s8, s7 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
-  s1: sgt.s32 p4, s7, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [gt; LLO 54]
-{ s0: sshrl.u32 s9, s8, 0x1 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 51]
-  s1: sge.s32 p5, s7, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [lt; LLO 197]
-{ s0: ssub.s32 s10, 0, s9 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 52]
-  s1: sand.u32 s11, 0x1, s8 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [rem; LLO 63] | examples/pallas/remote_dma_ring.py:26:62-26:86 [rem; LLO 63] | smod.u32 w/div 2
-{ s0: @!p3 smov s10, s9 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
-  s1: por p6, !p5, !p4 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [convert_element_type, sub, ne; LLO 187]
-{ s0: ssub.s32 s12, 0, s11 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [rem; LLO 64] | examples/pallas/remote_dma_ring.py:26:62-26:86 [rem; LLO 64]
-  s1: sadd.s32 s13, -1, s10 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [sub; LLO 188]
-{ s0: @!p3 smov s12, s11 }  # examples/pallas/remote_dma_ring.py:26:29-26:54
-{ s0: sne.s32 p7, s12, 0 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [ne; LLO 66] | examples/pallas/remote_dma_ring.py:26:62-26:86 [ne; LLO 66]
-  s1: slt.s32 p8, s12, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [ne; LLO 191] | examples/pallas/remote_dma_ring.py:26:62-26:86 [ne, lt, and; LLO 191]
-{ s0: por p9, !p6, !p7 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [and; LLO 67]
-  s1: sadd.s32 s14, 2, s12 }  # examples/pallas/remote_dma_ring.py:26:62-26:86 [add; LLO 74]
-{ s0: @!p9 smov s10, s13 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
-  s1: @!p8 smov s14, s12 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 | examples/pallas/remote_dma_ring.py:26:62-26:86
-{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 203]
+{ s0: sand.u32 s27, 0x1, s26 }  # examples/pallas/remote_dma_ring.py:24:13-24:41 [axis_index; LLO 27] | smod.u32 w/div 2
+{ s0: sshll.u32 s28, s27, 0x1 }  # examples/pallas/remote_dma_ring.py:25:17-25:38 [mul; LLO 178]
+{ s0: sadd.s32 s29, s28, s6 }  # examples/pallas/remote_dma_ring.py:25:17-25:45 [add; LLO 29]
+{ s0: sadd.s32 s30, 1, s29 }  # examples/pallas/remote_dma_ring.py:25:17-25:49 [add; LLO 30]
+{ s0: slt.s32 p0, s30, 0 ;  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 31]
+  s1: ssub.s32 s2, 0, s30 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 32]
+{ s0: @!p0 smov s2, s30 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
+{ s0: sand.u32 s3, 0x3, s2 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 34] | smod.u32 w/div 4
+{ s0: ssub.s32 s4, 0, s3 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [rem; LLO 35]
+{ s0: @!p0 smov s4, s3 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
+{ s0: slt.s32 p1, s4, 0 ;  # examples/pallas/remote_dma_ring.py:25:16-25:54 [ne, lt, and; LLO 180]
+  s1: sadd.s32 s5, 4, s4 }  # examples/pallas/remote_dma_ring.py:25:16-25:54 [add; LLO 41]
+{ s0: @!p1 smov s5, s4 }  # examples/pallas/remote_dma_ring.py:25:16-25:54
+{ s0: slt.s32 p2, s5, 0 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 43]
+  s1: ssub.s32 s0, 0, s5 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 44]
+{ s0: @!p2 smov s0, s5 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
+  s1: sgt.s32 p3, s5, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [gt; LLO 49]
+{ s0: sshrl.u32 s7, s0, 0x1 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 46]
+  s1: sge.s32 p4, s5, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [lt; LLO 192]
+{ s0: ssub.s32 s8, 0, s7 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [div; LLO 47]
+  s1: sand.u32 s9, 0x1, s0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [rem; LLO 58] | examples/pallas/remote_dma_ring.py:26:62-26:86 [rem; LLO 58] | smod.u32 w/div 2
+{ s0: @!p2 smov s8, s7 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
+  s1: por p5, !p4, !p3 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [convert_element_type, sub, ne; LLO 182]
+{ s0: ssub.s32 s10, 0, s9 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [rem; LLO 59] | examples/pallas/remote_dma_ring.py:26:62-26:86 [rem; LLO 59]
+  s1: sadd.s32 s11, -1, s8 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [sub; LLO 183]
+{ s0: @!p2 smov s10, s9 }  # examples/pallas/remote_dma_ring.py:26:29-26:54
+{ s0: sne.s32 p6, s10, 0 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [ne; LLO 61] | examples/pallas/remote_dma_ring.py:26:62-26:86 [ne; LLO 61]
+  s1: slt.s32 p7, s10, 0 }  # examples/pallas/remote_dma_ring.py:26:29-26:54 [ne; LLO 186] | examples/pallas/remote_dma_ring.py:26:62-26:86 [ne, lt, and; LLO 186]
+{ s0: por p8, !p5, !p6 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54 [and; LLO 62]
+  s1: sadd.s32 s12, 2, s10 }  # examples/pallas/remote_dma_ring.py:26:62-26:86 [add; LLO 69]
+{ s0: @!p8 smov s8, s11 ;  # examples/pallas/remote_dma_ring.py:26:29-26:54
+  s1: @!p7 smov s12, s10 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 | examples/pallas/remote_dma_ring.py:26:62-26:86
+{ misc: vwait.ge [sflag:52], 8 ;  # examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 198]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 204]
+{ misc: vsyncadd.s32 [sflag:52], -8 ;  # examples/pallas/remote_dma_ring.py:33:4-33:62 [dma_wait; LLO 199]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.remote.s32 [sflag:32776], 1 ;  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 98]
+{ misc: vsyncadd.remote.s32 [sflag:32776], 1 ;  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 93]
   .encoding { misc.value = imm2 } }
-{ s0: simm.s32 s15, 294920 ;  # materialized constant
-  misc: vsyncadd.remote.s32 [sflag:49160], 1 ;  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 107]
+{ s0: simm.s32 s13, 294920 ;  # materialized constant
+  misc: vsyncadd.remote.s32 [sflag:49160], 1 ;  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 102]
   .encoding { misc.value = imm2 } }
-{ s0: simm.s32 s16, 311304 ;  # materialized constant
-  misc: vsyncadd.remote.s32 [sflag:s15], 1 }  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 115]
-{ misc: vsyncadd.remote.s32 [sflag:s16], 1 }  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 123]
-{ misc: vsyncadd.s32 [sflag:8], -4 ;  # examples/pallas/remote_dma_ring.py:42:4-42:31 [semaphore_wait; LLO 125]
+{ s0: simm.s32 s14, 311304 ;  # materialized constant
+  misc: vsyncadd.remote.s32 [sflag:s13], 1 }  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 110]
+{ misc: vsyncadd.remote.s32 [sflag:s14], 1 }  # examples/pallas/remote_dma_ring.py:40:8-40:108 <- 38:5-38:31 [semaphore_signal; LLO 118]
+{ misc: vsyncadd.s32 [sflag:8], -4 ;  # examples/pallas/remote_dma_ring.py:42:4-42:31 [semaphore_wait; LLO 120]
   .encoding { misc.value = imm2 } }
-{ s0: sshll.u32 s17, s14, 0x1a ;  # examples/pallas/remote_dma_ring.py:45:4-45:20
-  s1: sshll.u32 s18, s14, 0xd ;  # examples/pallas/remote_dma_ring.py:45:4-45:20
+{ s0: sshll.u32 s15, s12, 0x1a ;  # examples/pallas/remote_dma_ring.py:45:4-45:20
+  s1: sshll.u32 s16, s12, 0xd ;  # examples/pallas/remote_dma_ring.py:45:4-45:20
   misc: vwait.ge [sflag:8], 0 }
-{ s0: sadd.s32 s20, 134217728, s17 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 194]
-  s1: sadd.s32 s21, 16384, s18 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 196]
+{ s0: sadd.s32 s17, 134217728, s15 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 189]
+  s1: sadd.s32 s18, 16384, s16 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 191]
   .encoding { s1.y = lo(imm1) } }
-{ s0: sor.u32 s22, 0x80008000, s20 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 152]
-  s1: sor.u32 s23, 0x36, s21 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 161]
-{ s0: sand.u32 s25, 0xfffff000, s22 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 156]
-  s1: simm.s32 s27, 8 ;  # materialized constant
+{ s0: sor.u32 s20, 0x80008000, s17 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 147]
+  s1: sor.u32 s21, 0x36, s18 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 156]
+{ s0: sand.u32 s22, 0xfffff000, s20 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 151]
+  s1: simm.s32 s25, 8 ;  # materialized constant
   .encoding { s1.y = lo(imm1) } }
-{ s0: sor.u32 s26, s10, s25 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 158]
-  s1: simm.s32 s28, 53 }  # materialized constant
-{ s0: dma.general [vmem:s27], [vmem:s24], length=8, stride_descriptor=[smem:0x0], stride_count=0, src_flag=[sflag:s28], dst_flag=[sflag:s23], ici_dest=s26 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 163] | vmem-to-vmem
-{ misc: vwait.ge [sflag:53], 8 ;  # examples/pallas/remote_dma_ring.py:46:4-46:24 [dma_wait; LLO 205]
+{ s0: sor.u32 s23, s8, s22 ;  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 153]
+  s1: simm.s32 s26, 53 }  # materialized constant
+{ s0: dma.general [vmem:s25], [vmem:s24], length=8, stride_descriptor=[smem:0x0], stride_count=0, src_flag=[sflag:s26], dst_flag=[sflag:s21], ici_dest=s23 }  # examples/pallas/remote_dma_ring.py:45:4-45:20 [dma_start; LLO 158] | vmem-to-vmem
+{ misc: vwait.ge [sflag:53], 8 ;  # examples/pallas/remote_dma_ring.py:46:4-46:24 [dma_wait; LLO 200]
   .encoding { misc.value = imm2 } }
-{ misc: vsyncadd.s32 [sflag:53], -8 ;  # examples/pallas/remote_dma_ring.py:46:4-46:24 [dma_wait; LLO 206]
+{ misc: vsyncadd.s32 [sflag:53], -8 ;  # examples/pallas/remote_dma_ring.py:46:4-46:24 [dma_wait; LLO 201]
   .encoding { misc.value = imm2 } }
-{ misc: vwait.ge [sflag:54], 8 ;  # examples/pallas/remote_dma_ring.py:47:4-47:24 [dma_wait; LLO 207]
+{ misc: vwait.ge [sflag:54], 8 ;  # examples/pallas/remote_dma_ring.py:47:4-47:24 [dma_wait; LLO 202]
   .encoding { misc.value = imm2 } }
-{ s0: sadd.s32 s2, s19, s1 ;  # examples/pallas/remote_dma_ring.py:48:4-48:58 [dma_start; LLO 166] | examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 166]
-  misc: vsyncadd.s32 [sflag:54], -8 ;  # examples/pallas/remote_dma_ring.py:47:4-47:24 [dma_wait; LLO 208]
+{ s0: sadd.s32 s29, s19, s1 ;  # examples/pallas/remote_dma_ring.py:48:4-48:58 [dma_start; LLO 161] | examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 161]
+  misc: vsyncadd.s32 [sflag:54], -8 ;  # examples/pallas/remote_dma_ring.py:47:4-47:24 [dma_wait; LLO 203]
   .encoding { misc.value = imm2 } }
-{ s0: dma.simple [hbm:s2], [vmem:s27], length=8, dst_flag=[sflag:55] }
-{ misc: vwait.ge [sflag:55], 8 ;  # examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 209]
+{ s0: dma.simple [hbm:s29], [vmem:s25], length=8, dst_flag=[sflag:55] }
+{ misc: vwait.ge [sflag:55], 8 ;  # examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 204]
   .encoding { misc.value = imm2 } }
 # exit bundle: %remote_dma_ring.2 = custom-call(%x_hbm.2)
-{ misc: vsyncadd.s32 [sflag:55], -8 ;  # examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 210]
+{ misc: vsyncadd.s32 [sflag:55], -8 ;  # examples/pallas/remote_dma_ring.py:48:4-48:65 [dma_wait; LLO 205]
   .encoding { misc.value = imm2 } }
 { s1: sld s16, [smem:0x0] }
 { s1: sld s18, [smem:0x1] }
@@ -1503,7 +1498,7 @@ L_029a:
   .encoding { misc.value = imm2 } }
 { misc: vsyncadd.s32 [sflag:45], -1 ;
   .encoding { misc.value = imm2 } }
-L_0385:
+L_0381:
 { misc: vtrace 0x9fffffff ;
   .encoding { misc.operand1 = imm3 } }
 { s0: simm.s32 s28, 2147483647 }  # materialized constant
@@ -1534,11 +1529,11 @@ L_0385:
   s1: sne.s32 p1, s10, 0 }
 { s0: seq.s32 p2, s10, s11 }
 { s0: por p3, !p1, !p2 }
-{ s0: @p3 sbr.rel L_039e ;
+{ s0: @p3 sbr.rel L_039a ;
   s1: por p4, !p3, !p3 }
 {}
 { misc: vsyncset.notdone.s32 [sflag:505], 0 }
-L_039e:
+L_039a:
 { s1: sld s12, [smem:0x3ffea] }
 { s0: @p4 simm.s32 s12, 2 }
 { s0: seq.s32 p5, s12, 2 }
@@ -1548,11 +1543,11 @@ L_039e:
 { misc: vsyncset.s32 [sflag:507], s14 }
 { misc: vint 1 }
 { s0: por p6, !p5, !p5 }
-{ s0: @p6 sbr.rel L_03aa }
+{ s0: @p6 sbr.rel L_03a6 }
 {}
 { misc: vwait.done [sflag:506] }
 { misc: vsyncset.notdone.s32 [sflag:506], 0 }
-L_03aa:
+L_03a6:
 { s0: simm.s32 s15, 508 }  # materialized constant
 { s0: seq.s32 p7, s4, 0 ;
   misc: vsyncmov v2sf, [sflag:s15] }
@@ -1580,7 +1575,7 @@ L_03aa:
 { s0: ssub.s32 s25, s23, s1 }
 { s0: sne.s32 p8, s24, 0 }
 { s0: por p9, !p8, !p8 }
-{ s0: @p9 sbr.rel L_03de ;
+{ s0: @p9 sbr.rel L_03da ;
   s1: @!p9 sld s26, [smem:0x3ffe9] }
 { s0: @!p9 sgt.s32 p10, s23, 1 ;
   s1: @!p9 sld s27, [smem:0x3ffe8] }
@@ -1588,7 +1583,7 @@ L_03aa:
   s1: por p11, !p10, !p10 }
 { s0: @!p11 simm.s32 s29, 128 ;  # materialized constant
   s1: @!p11 simm.s32 s30, 1 }  # materialized constant
-{ s0: @p11 sbr.rel L_03d1 ;
+{ s0: @p11 sbr.rel L_03cd ;
   s1: @!p11 sadd.s32 s1, s17, s30 }
 { s0: dma.simple [imem:s28], [hbm:s26], length=s27, dst_flag=[sflag:511] }
 { s0: smul.u32 s0, s23, s29 ;
@@ -1607,29 +1602,29 @@ L_03aa:
   s1: sadd.s32 s9, s5, s16 }
 { s0: dma.simple [smem:s3], [hbm:s9], length=s6, dst_flag=[sflag:511] }
 { s0: por p13, !p12, !p12 }
-{ s0: @p13 sbr.rel L_03d1 ;
+{ s0: @p13 sbr.rel L_03cd ;
   s1: @!p13 ssub.s32 s10, s25, s6 }
 { s0: @!p13 sshll.u32 s11, s6, 0x7 }
 { s0: sadd.s32 s12, s11, s3 }
 { s0: dma.simple [smem:s12], [hbm:s16], length=s10, dst_flag=[sflag:511] }
-L_03d1:
+L_03cd:
 { s0: sadd.s32 s2, s27, s25 }
 { s0: ssub.s32 s8, 0, s2 ;
   misc: vwait.ge [sflag:511], s2 }  # continuation-tail-wait
 { misc: vsyncadd.s32 [sflag:511], s8 }  # continuation-tail-wait
 { s0: sfence }
 { s0: por p14, !p10, !p10 }
-{ s0: @p14 sbr.rel L_03da ;
+{ s0: @p14 sbr.rel L_03d6 ;
   s1: @!p14 sadd.s32 s13, s17, s23 }
 { s0: @!p14 simm.s32 s14, 2047 }  # materialized constant
 { s0: sand.u32 s15, s13, s14 }
 { misc: vsyncset.s32 [sflag:508], s15 }
-L_03da:
+L_03d6:
 { s0: sfence }
 { s0: simm.s32 s16, 0 }  # materialized constant
 { s0: sbr.ind s16 }
 {}
-L_03de:
+L_03da:
 { s0: shalt }
 { s0: shalt }
 { s0: shalt }
@@ -1640,3 +1635,7 @@ L_03de:
 {}
 { s0: sbr.abs L_0010 }
 {}
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }
+{ s0: shalt }

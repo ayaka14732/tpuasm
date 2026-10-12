@@ -6,7 +6,7 @@
 
 ## 未发布
 
-测试所用 JAX：`0.12.0.dev20260926+886d2370c1`（commit `886d2370c1c959d210f522e352e3ddc6bcff7d6c`），jaxlib `0.11.2`。libtpu `0.0.50` 的后端另在 JAX `0.12.0.dev20261002+7fc69a22c2`、jaxlib `0.12.0.dev20261002` 下登记和验证。
+测试所用 JAX：commit `cd454bd4d92de993c183c842f149cc1230a1c171`（`0.12.0.dev20261012`），jaxlib `0.11.2`。
 
 | Python | libtpu | GNU build-id | TPU v4 TC | TPU v4 BCS | TPU v6e TC | TPU v6e TEC |
 |---|---|---|---|---|---|---|

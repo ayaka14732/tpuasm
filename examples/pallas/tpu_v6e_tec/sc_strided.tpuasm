@@ -233,15 +233,15 @@ L_0027:
   va0: vadd.s32 v63, v1, v55 ;
   vst: vst [tilespmem:0x868], v62 ;
   .encoding { vst.offset = imm4 } }
-{ s0: simm.s32 s6, 0x800 ;
-  s1: simm.s32 s31, 0x0 ;
+{ s0: simm.s32 s31, 0x800 ;
+  s1: simm.s32 s30, 0x0 ;
   misc: ssyncadd.s32 [sflag:s4], 0xffffff80 ;
   vst: vst [tilespmem:0x870], v63 ;
   .encoding { vst.offset = imm4 } }
 { vst: vst [tilespmem:0x880], v63 ;
-  stream: stream.linear.scatter [hbm4b:s3+s31], [tilespmem:s6], [sflag:0x1], 0x80, 0x38 ;
+  stream: stream.linear.scatter [hbm4b:s3+s30], [tilespmem:s31], [sflag:0x1], 0x80, 0x38 ;
   .encoding { vst.offset = imm4 } }
-{ misc: swait.eq [sflag:s4], 0x0 }
+{ s0: sfence.stream.hbm }
 L_005e:
 { s0: sadd.s32 s2, 0x4e, s2 }
 { s0: sand.u32 s2, 0xfffffff, s2 ;

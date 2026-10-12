@@ -36,8 +36,8 @@ entry:
 { vst: vst [tilespmem:0x480], v63 ;
   stream: @!p0 stream.linear.scatter [hbm4b:s3+s0], [tilespmem:s8], [sflag:0x1], 0x400, 0x38 ;
   .encoding { vst.offset = imm4 } }
-{ s0: sadd.s32 s31, 0x4e, s4 ;
-  misc: @!p0 swait.eq [sflag:s1], 0x0 }
+{ s0: @!p0 sfence.stream.hbm ;
+  s1: sadd.s32 s31, 0x4e, s4 }
 { s0: sfence.sel 0x180000 ;
   s1: sand.u32 s0, 0xfffffff, s31 ;
   .encoding { s1.y = imm3_imm2 } }

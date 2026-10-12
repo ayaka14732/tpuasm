@@ -116,7 +116,6 @@ entry:
 { vst: vst [tilespmem:0x100], v63 ;
   stream: stream.linear.scatter [spmem:s6], [tilespmem:s3], [sflag:0x1], 0x80, 0x38 ;
   .encoding { vs0_used = 1 ; vst.offset = imm4 } }
-{ misc: swait.eq [sflag:s28], 0x0 }
 { s0: sfence.stream.spmem ;
   s1: sne.s32 p0, s29, 0x0 }
 { s0: @p0 sadd.s32 s3, 0x4e, s1 ;
