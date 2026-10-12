@@ -18,6 +18,20 @@
 
 libtpu 0.0.50 把 serialized executable 改成了 split 容器，tpuasm 按输入的容器形式读取和写回，见[架构](design/architecture.md#硬件目标与程序容器)。同一个 kernel 在 0.0.50 与 0.0.49 上编译出的机器码不同，仓库中的示例清单仍由 0.0.49 生成。0.0.50 在 TPU v4 上完成了设备验证；v6e 的两个目标只做了离线编解码和离线编译，没有在 v6e 设备上运行。
 
+## 0.3.0
+
+测试所用 JAX：commit `cd454bd4d92de993c183c842f149cc1230a1c171`（`0.12.0.dev20261012`），jaxlib `0.11.2`。
+
+| Python | libtpu | GNU build-id | TPU v4 TC | TPU v4 BCS | TPU v6e TC | TPU v6e TEC |
+|---|---|---|---|---|---|---|
+| CPython 3.14t | `0.0.48` | `3310a7c8c137cd515c7a2ba1ce2ea38c` | 编解码、来源 | 编解码 | — | — |
+| CPython 3.14t | `0.0.49` | `97e27df7268da25ab03e455e30dd86b0` | 编解码、来源 | 编解码 | 编解码、来源 | 编解码 |
+| CPython 3.14t | `0.0.50` | `4035cb37c50260442f2b5d54701a25fa` | 编解码、来源 | 编解码 | 编解码、来源 | 编解码 |
+
+各构建登记的来源 hook 不同：0.0.48 只登记发射、替换、BF16 合并和 store 注释 hook，load 合并、DMA 展开、MXU prep 改写等 hook 只在 0.0.49 和 0.0.50 登记，所以同一 kernel 在 0.0.48 上有来源的指令更少。
+
+libtpu 0.0.50 把 serialized executable 改成了 split 容器，tpuasm 按输入的容器形式读取和写回，见[架构](design/architecture.md#硬件目标与程序容器)。同一个 kernel 在 0.0.50 与 0.0.49 上编译出的机器码不同，仓库中的示例清单仍由 0.0.49 生成。0.0.50 在 TPU v4 上完成了设备验证；v6e 的两个目标只做了离线编解码和离线编译，没有在 v6e 设备上运行。
+
 ## 0.2.1
 
 测试所用 JAX：`0.12.0.dev20260926+886d2370c1`（commit `886d2370c1c959d210f522e352e3ddc6bcff7d6c`），jaxlib `0.11.2`。
